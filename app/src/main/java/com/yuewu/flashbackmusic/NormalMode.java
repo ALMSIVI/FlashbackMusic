@@ -1,15 +1,49 @@
 package com.yuewu.flashbackmusic;
 
+import android.content.res.AssetFileDescriptor;
+import android.graphics.drawable.Drawable;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Button;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
 
 public class NormalMode extends AppCompatActivity {
+    private MediaPlayer mediaPlayer;
+    ArrayList<Integer> audioResourceId = new ArrayList<Integer>();
+    int audioIndex = 0;
+
+    public void loadSongs() {
+        final Field[] fields = R.raw.class.getFields();
+
+        for (int count = 0; count < fields.length; count++) {
+            String name = fields[count].getName();
+            int resourceID = getResources().getIdentifier(name, "raw", getPackageName());
+            audioResourceId.add(resourceID);
+        }
+    }
+
+    public void loadMedia(int resourceId) {
+        mediaPlayer.reset();
+        AssetFileDescriptor assetFileDescriptor = this.getResources().openRawResourceFd(resourceId);
+        try {
+            mediaPlayer.setDataSource(assetFileDescriptor);
+            mediaPlayer.prepareAsync();
+        } catch (Exception e) {
+            System.out.println(e.toString());
+        }
+
+        audioIndex++;
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,6 +60,65 @@ public class NormalMode extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });
+
+        if (mediaPlayer == null) {
+            mediaPlayer = new MediaPlayer();
+        }
+        loadSongs();
+
+        mediaPlayer.setOnCompletionListener(
+                new MediaPlayer.OnCompletionListener() {
+                    @Override
+                    public void onCompletion(MediaPlayer mediaPlayer) {
+                        if (audioResourceId.size() > audioIndex) {
+                            loadMedia(audioResourceId.get(audioIndex));
+                            //mediaPlayer.start();
+                            //mediaPlayer.
+                        }
+                    }
+                }
+        );
+
+        mediaPlayer.setOnPreparedListener(
+                new MediaPlayer.OnPreparedListener() {
+                    @Override
+                    public void onPrepared(MediaPlayer mediaPlayer) {
+                        mediaPlayer.start();
+                    }
+                }
+        );
+
+        //loadMedia(MEDIA_RES_ID);
+        Button playButton = (Button) findViewById(R.id.playButton);
+        playButton.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        loadMedia(audioResourceId.get(audioIndex));
+                    }
+                }
+        );
+
+        Button pauseButton = (Button) findViewById(R.id.pauseButton);
+        pauseButton.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if (mediaPlayer.isPlaying())
+                        {
+                            mediaPlayer.pause();
+                        }
+                    }
+                }
+        );
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (isChangingConfigurations() && mediaPlayer.isPlaying()) {
+            ; //"do nothing"
+        }
     }
 
     @Override
