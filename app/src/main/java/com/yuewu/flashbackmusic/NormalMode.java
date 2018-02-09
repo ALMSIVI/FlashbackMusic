@@ -20,6 +20,7 @@ public class NormalMode extends AppCompatActivity {
     private MediaPlayer mediaPlayer;
     ArrayList<Integer> audioResourceId = new ArrayList<Integer>();
     int audioIndex = 0;
+    boolean songHasLoaded = false;
 
     public void loadSongs() {
         final Field[] fields = R.raw.class.getFields();
@@ -94,7 +95,21 @@ public class NormalMode extends AppCompatActivity {
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        loadMedia(audioResourceId.get(audioIndex));
+
+                        //Check if something is already playing
+                        if(mediaPlayer.isPlaying())
+                        {
+                            //Do nothing
+                            return;
+                        }
+
+                        if(songHasLoaded == false) {
+                            loadMedia(audioResourceId.get(audioIndex));
+                            songHasLoaded = true;
+                        }
+
+                        //Since there is already a song loaded, just resume the song
+                        mediaPlayer.start();
                     }
                 }
         );
