@@ -1,4 +1,4 @@
-package com.yuewu.flashbackmusic;
+package cse110.team19.flashbackmusic;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
 
-        assertEquals("com.yuewu.flashbackmusic", appContext.getPackageName());
+        assertEquals("cse110.team19.flashbackmusic", appContext.getPackageName());
     }
 }

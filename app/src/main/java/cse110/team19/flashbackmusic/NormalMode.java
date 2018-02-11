@@ -1,4 +1,4 @@
-package com.yuewu.flashbackmusic;
+package cse110.team19.flashbackmusic;
 
 import android.content.res.AssetFileDescriptor;
 import android.graphics.drawable.Drawable;

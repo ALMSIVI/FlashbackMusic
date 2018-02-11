@@ -1,9 +1,9 @@
-package com.yuewu.flashbackmusic;
+package cse110.team19.flashbackmusic;
 
 import java.util.Calendar;
 
 
-public class track {
+public class Track {
 
     Calendar cal;
     String trackName;
@@ -11,7 +11,7 @@ public class track {
     int status;
 
     //Constructor
-    track(String name)
+    Track(String name)
     {
         Calendar cal;
         trackName = name;
