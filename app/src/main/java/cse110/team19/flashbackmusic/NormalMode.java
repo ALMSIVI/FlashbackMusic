@@ -4,8 +4,6 @@ import android.content.res.AssetFileDescriptor;
 import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -16,9 +14,12 @@ import android.widget.Button;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 
+/**
+ * This is the normal mode window.
+ */
 public class NormalMode extends AppCompatActivity {
     private MediaPlayer mediaPlayer;
-    ArrayList<Integer> audioResourceId = new ArrayList<Integer>();
+    ArrayList<Integer> audioResourceId = new ArrayList();
     int audioIndex = 0;
     boolean songHasLoaded = false;
 
@@ -50,17 +51,10 @@ public class NormalMode extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_normal_mode);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+
 
         if (mediaPlayer == null) {
             mediaPlayer = new MediaPlayer();
@@ -90,38 +84,25 @@ public class NormalMode extends AppCompatActivity {
         );
 
         //loadMedia(MEDIA_RES_ID);
-        Button playButton = (Button) findViewById(R.id.playButton);
+        final Button playButton = findViewById(R.id.playButton);
         playButton.setOnClickListener(
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-
                         //Check if something is already playing
-                        if(mediaPlayer.isPlaying())
-                        {
-                            //Do nothing
-                            return;
-                        }
-
-                        if(songHasLoaded == false) {
-                            loadMedia(audioResourceId.get(audioIndex));
-                            songHasLoaded = true;
-                        }
-
-                        //Since there is already a song loaded, just resume the song
-                        mediaPlayer.start();
-                    }
-                }
-        );
-
-        Button pauseButton = (Button) findViewById(R.id.pauseButton);
-        pauseButton.setOnClickListener(
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        if (mediaPlayer.isPlaying())
-                        {
+                        if(mediaPlayer.isPlaying()) {
                             mediaPlayer.pause();
+                            playButton.setBackgroundResource(android.R.drawable.ic_media_play);
+                        } else {
+
+                            if (songHasLoaded == false) {
+                                loadMedia(audioResourceId.get(audioIndex));
+                                songHasLoaded = true;
+                            }
+
+                            //Since there is already a song loaded, just resume the song
+                            mediaPlayer.start();
+                            playButton.setBackgroundResource(android.R.drawable.ic_media_pause);
                         }
                     }
                 }

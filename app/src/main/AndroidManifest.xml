@@ -11,7 +11,7 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".NormalMode"
-            android:label="@string/app_name"
+            android:label="@string/normal_mode"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
