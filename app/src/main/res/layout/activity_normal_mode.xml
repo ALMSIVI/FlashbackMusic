@@ -32,5 +32,4 @@
 
     <include layout="@layout/content_normal_mode" />
 
-
 </android.support.design.widget.CoordinatorLayout>

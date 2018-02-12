@@ -7,6 +7,8 @@ public class Track {
 
     Calendar cal;
     String trackName;
+    String artist;
+    String trackNumber;
     int score;
     int status;
 

@@ -20,7 +20,7 @@
         app:layout_constraintHorizontal_bias="0"
         app:layout_constraintRight_toRightOf="parent"/>
 
-    <android.support.v7.widget.RecyclerView
+    <!--<android.support.v7.widget.RecyclerView
         android:id="@+id/playList"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -28,7 +28,16 @@
         app:layout_constraintBottom_toTopOf="@+id/info"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/libraryText"/>
+        app:layout_constraintTop_toBottomOf="@+id/libraryText"/>-->
+    <ListView
+        android:id="@+id/playList"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_margin="5dp"
+        app:layout_constraintBottom_toTopOf="@+id/info"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/libraryText"></ListView>
 
     <TextView
         android:id="@+id/info"
