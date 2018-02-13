@@ -45,7 +45,8 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.ViewHolder> 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         Album albumName = albums.get(position);
-        holder.album.setText(albumName.title);
+        holder.album.setText(albumName.getTitle());
+        holder.artist.setText(albumName.getArtist());
     }
 
     @Override

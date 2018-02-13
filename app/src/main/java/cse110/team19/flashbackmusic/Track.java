@@ -16,10 +16,9 @@ public class Track {
      * @param trackNumber track number of the song
      * @param artist artist of the song
      */
-    public Track(String trackName, String trackNumber, String artist) {
-        Calendar cal;
+    public Track(String trackName, int trackNumber, String artist) {
         this.trackName = trackName;
-        this.trackNumber = Integer.parseInt(trackNumber);
+        this.trackNumber = trackNumber;
         this.artist = artist;
         score = 0;
         status = 0;
@@ -41,13 +40,17 @@ public class Track {
         }
     }
 
-    //Update the last played up the song
+    /**
+     * Update the last played up the song.
+     */
     public void justPlayed()
     {
         cal = Calendar.getInstance();
     }
 
-    //Get the date and time this song was last played
+    /**
+     * Get the date and time this song was last played.
+     */
     public String getDateTime() {
         int year = cal.get(Calendar.YEAR);
         int month = cal.get(Calendar.MONTH);      // 0 to 11

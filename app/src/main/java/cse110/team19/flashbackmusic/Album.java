@@ -7,14 +7,30 @@ import java.util.ArrayList;
  */
 
 public class Album {
-    String title;
-    String artist;
-    ArrayList<Track> tracks = new ArrayList();
+    private String title;
+    private String artist;
+    private int numSongs;
+    private ArrayList<Track> tracks = new ArrayList();
 
-    public Album (String t, String a)
-    {
+    public Album (String t, String a, int num) {
         title = t;
         artist = a;
+        numSongs = num;
     }
 
+    public String getTitle() {
+        return title;
+    }
+
+    public String getArtist() {
+        return artist;
+    }
+
+    public int getNumSongs() {
+        return numSongs;
+    }
+
+    public ArrayList<Track> getTracks() {
+        return tracks;
+    }
 }

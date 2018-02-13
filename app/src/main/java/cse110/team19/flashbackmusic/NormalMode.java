@@ -124,17 +124,34 @@ public class NormalMode extends AppCompatActivity {
             String artist = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
             String trackNumber = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_CD_TRACK_NUMBER);
             String trackName = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
-            Track t = new Track(trackName, trackNumber, artist);
-            Log.d("album name", albumName);
+            // Parse the metadata
+            if (albumName == null || albumName.equals("")) {
+                albumName = "Unknown album";
+            }
+            if (artist == null || artist.equals("")) {
+                artist = "Unknown artist";
+            }
+            int trackNo = 0;
+            int numTracks = 0;
+            if (trackNumber != null) {
+                String[] numbers = trackNumber.split("/");
+                trackNo = Integer.parseInt(numbers[0]);
+                numTracks = Integer.parseInt(numbers[1]);
+            }
+            if (trackName == null || trackName.equals("")) {
+                trackName = "Unknown track";
+            }
 
+            Track t = new Track(trackName, trackNo, artist);
+            Log.d("album name", albumName);
             if (!albums.containsKey(albumName)) {
-                Album newAlbum = new Album(albumName);
+                Album newAlbum = new Album(albumName, artist, numTracks);
                 albums.put(albumName, newAlbum);
                 albumtracker.add(newAlbum);
-                newAlbum.tracks.add(t);
+                newAlbum.getTracks().add(t);
             }
             else
-                albums.get(albumName).tracks.add(t);
+                albums.get(albumName).getTracks().add(t);
 
             audioResourceId.add(resourceID);
         }
