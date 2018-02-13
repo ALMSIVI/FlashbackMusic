@@ -44,36 +44,43 @@ public class NormalMode extends AppCompatActivity {
     ArrayList<Album> albumtracker = new ArrayList<Album>();
 
     public void loadSongs() {
-        final Field[] fields = R.raw.class.getFields();
-        for (int count = 0; count < fields.length; count++) {
-            String name = fields[count].getName();
-            int resourceID = getResources().getIdentifier(name, "raw", getPackageName());
-            String path = "android.resource://" + getPackageName() + "/raw/" + name;
+        final Field[] fields = R.raw.class.getFields(); //Gets the all the files (tracks) in raw folder
 
+        for (int count = 0; count < fields.length; count++) { //Goes through each track
+            String name = fields[count].getName();
+
+            //Gets id to play the track (used in LoadMedia())
+            int resourceID = getResources().getIdentifier(name, "raw", getPackageName());
+            audioResourceId.add(resourceID); //list of track id's
+
+            String path = "android.resource://" + getPackageName() + "/raw/" + name; //file path of track
+
+            //Gets the metadata of the track (album, artist, track number in album, track name)
             MediaMetadataRetriever mmr = new MediaMetadataRetriever();
             Resources res = getResources();
             AssetFileDescriptor afd = res.openRawResourceFd(resourceID);
             mmr.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
-            //mmr.setDataSource(path);
             String albumName = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM);
             String artist = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
             String trackNumber = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_CD_TRACK_NUMBER);
             String trackName = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
+
+            //Create track based off of metadata
             Track t = new Track(trackName);
             t.artist = artist;
             t.trackNumber = trackNumber;
-            Log.d("albume name", albumName);
+            Log.d("albume name", albumName); //prints album name for debugging purposes lol
 
+            //Make new album if album does not already exist
             if (!albums.containsKey(albumName)) {
                 Album newAlbum = new Album(albumName);
-                albums.put(albumName, newAlbum);
-                albumtracker.add(newAlbum);
-                newAlbum.tracks.add(t);
+                albums.put(albumName, newAlbum); //albums is a map that maps the album name to its Album object
+                albumtracker.add(newAlbum); //albumtracker has a list of all the album names
+                newAlbum.tracks.add(t); //adds the track to the album
             }
             else
-                albums.get(albumName).tracks.add(t);
+                albums.get(albumName).tracks.add(t); //adds the track to the album
 
-            audioResourceId.add(resourceID);
         }
     }
 
