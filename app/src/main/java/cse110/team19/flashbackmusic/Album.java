@@ -8,10 +8,13 @@ import java.util.ArrayList;
 
 public class Album {
     String title;
+    String artist;
     ArrayList<Track> tracks = new ArrayList();
 
-    public Album (String name) {
-        title = name;
+    public Album (String t, String a)
+    {
+        title = t;
+        artist = a;
     }
 
 }
