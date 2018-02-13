@@ -24,6 +24,7 @@ public class NormalMode extends AppCompatActivity {
     boolean songHasLoaded = false;
     Map<String, Album> albums = new LinkedHashMap<String, Album>();
     List<Album> albumtracker = new ArrayList<Album>();
+
     // Music Library
     private RecyclerView libraryList;
     private RecyclerView.LayoutManager libraryLayout;
@@ -109,21 +110,27 @@ public class NormalMode extends AppCompatActivity {
      * Load the songs.
      */
     public void loadSongs() {
-        final Field[] fields = R.raw.class.getFields();
-        for (int count = 0; count < fields.length; count++) {
+        final Field[] fields = R.raw.class.getFields(); //Gets the all the files (tracks) in raw folder
+        for (int count = 0; count < fields.length; count++) { //Goes through each track
             String name = fields[count].getName();
+
+            //Gets id to play the track (used in LoadMedia())
             int resourceID = getResources().getIdentifier(name, "raw", getPackageName());
+            audioResourceId.add(resourceID);
+
+            //File path of track
             String path = "android.resource://" + getPackageName() + "/raw/" + name;
 
+            //Gets the metadata of the track (album, artist, track number in album, track name)
             MediaMetadataRetriever mmr = new MediaMetadataRetriever();
             Resources res = getResources();
             AssetFileDescriptor afd = res.openRawResourceFd(resourceID);
             mmr.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
-            //mmr.setDataSource(path);
             String albumName = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM);
             String artist = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
             String trackNumber = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_CD_TRACK_NUMBER);
             String trackName = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
+
             // Parse the metadata
             if (albumName == null || albumName.equals("")) {
                 albumName = "Unknown album";
@@ -152,8 +159,6 @@ public class NormalMode extends AppCompatActivity {
             }
             else
                 albums.get(albumName).getTracks().add(t);
-
-            audioResourceId.add(resourceID);
         }
     }
 
@@ -169,6 +174,5 @@ public class NormalMode extends AppCompatActivity {
 
         audioIndex++;
     }
-
 
 }
