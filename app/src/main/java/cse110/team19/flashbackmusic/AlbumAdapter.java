@@ -15,10 +15,12 @@ import java.util.List;
 public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.ViewHolder> {
     public class ViewHolder extends RecyclerView.ViewHolder {
         private TextView album;
+        private TextView artist;
 
         public ViewHolder(View view) {
             super(view);
             album = view.findViewById(R.id.albumTitle);
+            artist = view.findViewById(R.id.artist);
         }
     }
 
