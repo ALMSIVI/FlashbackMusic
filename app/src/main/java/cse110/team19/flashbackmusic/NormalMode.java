@@ -1,7 +1,6 @@
 package cse110.team19.flashbackmusic;
 
 import android.content.res.*;
-import android.graphics.drawable.Drawable;
 import android.media.*;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -10,8 +9,6 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.*;
 import android.widget.*;
-
-import java.io.File;
 import java.lang.reflect.Field;
 import java.util.*;
 
@@ -40,22 +37,10 @@ public class NormalMode extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-
+        // Initialize the media player and load songs
         if (mediaPlayer == null) {
             mediaPlayer = new MediaPlayer();
         }
-        loadSongs();
-
-        // Initialize the library list
-        libraryList = findViewById(R.id.libraryList);
-        libraryList.setHasFixedSize(true);
-        libraryLayout = new LinearLayoutManager(this);
-        libraryList.setLayoutManager(libraryLayout);
-        adapter = new AlbumAdapter(albumtracker);
-        libraryList.setAdapter(adapter);
-
-
-
         mediaPlayer.setOnCompletionListener(
                 new MediaPlayer.OnCompletionListener() {
                     @Override
@@ -68,7 +53,6 @@ public class NormalMode extends AppCompatActivity {
                     }
                 }
         );
-
         mediaPlayer.setOnPreparedListener(
                 new MediaPlayer.OnPreparedListener() {
                     @Override
@@ -78,6 +62,15 @@ public class NormalMode extends AppCompatActivity {
                 }
         );
 
+        loadSongs();
+
+        // Initialize the library list
+        libraryList = findViewById(R.id.libraryList);
+        libraryList.setHasFixedSize(true);
+        libraryLayout = new LinearLayoutManager(this);
+        libraryList.setLayoutManager(libraryLayout);
+        adapter = new AlbumAdapter(albumtracker);
+        libraryList.setAdapter(adapter);
     }
 
     @Override
@@ -88,28 +81,12 @@ public class NormalMode extends AppCompatActivity {
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_normal_mode, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
+    /**
+     * This is the play button's listener. When the user clicks the button, the music will be played
+     * and the button will change to pause. When the button is clicked again, the music will be
+     * paused and the button will change to play.
+     * @param view
+     */
     public void playMusic(View view) {
         Button playButton = findViewById(R.id.playButton);
         //Check if something is already playing
@@ -117,7 +94,6 @@ public class NormalMode extends AppCompatActivity {
             mediaPlayer.pause();
             playButton.setBackgroundResource(android.R.drawable.ic_media_play);
         } else {
-
             if (songHasLoaded == false) {
                 loadMedia(audioResourceId.get(audioIndex));
                 songHasLoaded = true;
@@ -129,6 +105,9 @@ public class NormalMode extends AppCompatActivity {
         }
     }
 
+    /**
+     * Load the songs.
+     */
     public void loadSongs() {
         final Field[] fields = R.raw.class.getFields();
         for (int count = 0; count < fields.length; count++) {
@@ -145,10 +124,8 @@ public class NormalMode extends AppCompatActivity {
             String artist = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
             String trackNumber = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_CD_TRACK_NUMBER);
             String trackName = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
-            Track t = new Track(trackName);
-            t.artist = artist;
-            t.trackNumber = trackNumber;
-            Log.d("albume name", albumName);
+            Track t = new Track(trackName, trackNumber, artist);
+            Log.d("album name", albumName);
 
             if (!albums.containsKey(albumName)) {
                 Album newAlbum = new Album(albumName);
