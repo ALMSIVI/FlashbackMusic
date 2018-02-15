@@ -1,6 +1,7 @@
 package cse110.team19.flashbackmusic;
 
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,7 +14,7 @@ import java.util.List;
  * Created by Tyler on 2/12/18.
  */
 
-public class TrackAdaptor extends RecyclerView.Adapter<TrackAdaptor.ViewHolder> {
+public class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.ViewHolder> {
     public class ViewHolder extends RecyclerView.ViewHolder {
         private TextView trackTitle;
         private Button trackStatus;
@@ -31,26 +32,28 @@ public class TrackAdaptor extends RecyclerView.Adapter<TrackAdaptor.ViewHolder> 
      * Constructor.
      * @param trackList list of tracks in album to be shown
      */
-    public TrackAdaptor(List<Track> trackList) {
+    public TrackAdapter(List<Track> trackList) {
         trackList = tracks;
     }
 
     @Override
-    public TrackAdaptor.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public TrackAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.trackholder, parent, false);
 
-        return new TrackAdaptor.ViewHolder(itemView);
+        return new TrackAdapter.ViewHolder(itemView);
     }
 
     @Override
-    public void onBindViewHolder(TrackAdaptor.ViewHolder holder, int position) {
+    public void onBindViewHolder(TrackAdapter.ViewHolder holder, int position) {
         Track track = tracks.get(position);
         holder.trackTitle.setText(track.getTrackName());
+        //Log.d("track name", track.getTrackName());
     }
 
     @Override
     public int getItemCount() {
-        return tracks.size();
+        return 0;
+        //tracks.size();
     }
 }

@@ -16,4 +16,20 @@
         android:layout_height="wrap_content"
         android:minHeight="20dp"
         android:textSize="15dp" />
+
+    <!--<android.support.v7.widget.RecyclerView
+        android:id="@+id/tracks"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:minHeight="25dp"
+        android:textSize="20dp"/>-->
+    <LinearLayout
+        android:id="@+id/tracks"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+    </LinearLayout>
+
+
 </LinearLayout>
