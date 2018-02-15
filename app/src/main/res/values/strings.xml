@@ -4,4 +4,5 @@
     <string name="normal_mode">Normal Mode</string>
     <string name="library">Your Music Library</string>
     <string name="title_activity_track_mode">TrackMode</string>
+    <string name="title_activity_play_list_">PlayList_Activity</string>
 </resources>
