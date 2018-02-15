@@ -30,7 +30,6 @@ public class NormalMode extends AppCompatActivity {
     private ExpandableListView libraryList;
     private AlbumAdapter adapter;
 
-    Button flashBackB = (Button) findViewById(R.id.flashbackButton);
 
     /* Methods */
     @Override
@@ -71,20 +70,6 @@ public class NormalMode extends AppCompatActivity {
         libraryList = findViewById(R.id.libraryList);
         adapter = new AlbumAdapter(albumtracker);
         libraryList.setAdapter(adapter);
-
-        flashBackB.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //createFlashBackPlaylist();
-                openPlaylist();
-            }
-        });
-    }
-
-    public void openPlaylist()
-    {
-        Intent intent = new Intent(this, PlayList_Activity.class);
-        startActivity(intent);
     }
 
     @Override
@@ -189,4 +174,8 @@ public class NormalMode extends AppCompatActivity {
         audioIndex++;
     }
 
+    public void switchFlashback(View view) {
+        Intent intent = new Intent(this, PlayList_Activity.class);
+        startActivity(intent);
+    }
 }
