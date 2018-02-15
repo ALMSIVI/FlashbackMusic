@@ -20,7 +20,7 @@
         app:layout_constraintHorizontal_bias="0"
         app:layout_constraintRight_toRightOf="parent"/>
 
-    <android.support.v7.widget.RecyclerView
+    <ExpandableListView
         android:id="@+id/libraryList"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -43,7 +43,7 @@
         app:layout_constraintRight_toRightOf="parent"
         />
 
-    <Button
+    <ImageButton
         android:id="@+id/playButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -54,7 +54,7 @@
         app:layout_constraintLeft_toRightOf="@+id/resetButton"
         app:layout_constraintRight_toRightOf="parent"/>
 
-    <Button
+    <ImageButton
         android:id="@+id/resetButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

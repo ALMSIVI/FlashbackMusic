@@ -26,8 +26,7 @@ public class NormalMode extends AppCompatActivity {
     List<Album> albumtracker = new ArrayList<Album>();
 
     // Music Library
-    private RecyclerView libraryList;
-    private RecyclerView.LayoutManager libraryLayout;
+    private ExpandableListView libraryList;
     private AlbumAdapter adapter;
 
     /* Methods */
@@ -67,9 +66,6 @@ public class NormalMode extends AppCompatActivity {
 
         // Initialize the library list
         libraryList = findViewById(R.id.libraryList);
-        libraryList.setHasFixedSize(true);
-        libraryLayout = new LinearLayoutManager(this);
-        libraryList.setLayoutManager(libraryLayout);
         adapter = new AlbumAdapter(albumtracker);
         libraryList.setAdapter(adapter);
     }
@@ -156,9 +152,9 @@ public class NormalMode extends AppCompatActivity {
                 albums.put(albumName, newAlbum);
                 albumtracker.add(newAlbum);
                 newAlbum.getTracks().add(t);
-            }
-            else
+            } else {
                 albums.get(albumName).getTracks().add(t);
+            }
         }
     }
 
