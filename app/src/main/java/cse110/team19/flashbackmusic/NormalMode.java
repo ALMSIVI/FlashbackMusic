@@ -29,9 +29,6 @@ public class NormalMode extends AppCompatActivity {
     // Music Library
     private ExpandableListView libraryList;
     private LibraryAdapter adapter;
-    private ExpandableListView expandableListView;
-
-
     /* Methods */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,7 +36,6 @@ public class NormalMode extends AppCompatActivity {
         setContentView(R.layout.activity_normal_mode);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        expandableListView = (ExpandableListView) findViewById(R.id.expandableListView);
 
         // Initialize the media player and load songs
         if (mediaPlayer == null) {
@@ -73,6 +69,22 @@ public class NormalMode extends AppCompatActivity {
         //TODO: initialize content and the list
         adapter = new LibraryAdapter(albumtracker);
         libraryList.setAdapter(adapter);
+
+        libraryList.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
+            @Override
+            public boolean onChildClick(ExpandableListView parent,
+                                        View view, int i, int i1, long l) {
+                TextView trackView = view.findViewById(R.id.track_name);
+                String trackName = trackView.getText().toString();
+                View parentView = parent.getChildAt(i);
+                TextView albumView = parentView.findViewById(R.id.album_name);
+                String albumName = albumView.getText().toString();
+                int resourceId = albums.get(albumName).getTrack(trackName).getResourceId();
+                loadMedia(resourceId);
+                mediaPlayer.reset();
+                playMusic(view);
+            }
+        });
     }
 
     @Override
@@ -108,6 +120,10 @@ public class NormalMode extends AppCompatActivity {
         }
     }
 
+    public void resetMusic(View view) {
+      mediaPlayer.reset();
+    }
+
     /**
      * Load the songs.
      */
@@ -119,9 +135,6 @@ public class NormalMode extends AppCompatActivity {
             //Gets id to play the track (used in LoadMedia())
             int resourceID = getResources().getIdentifier(name, "raw", getPackageName());
             audioResourceId.add(resourceID);
-
-            //File path of track
-            String path = "android.resource://" + getPackageName() + "/raw/" + name;
 
             //Gets the metadata of the track (album, artist, track number in album, track name)
             MediaMetadataRetriever mmr = new MediaMetadataRetriever();
@@ -151,19 +164,24 @@ public class NormalMode extends AppCompatActivity {
                 trackName = "Unknown track";
             }
 
-            Track t = new Track(trackName, trackNo, artist);
+            // Create the track
+            Track t = new Track(trackName, trackNo, artist, resourceID);
             Log.d("album name", albumName);
             if (!albums.containsKey(albumName)) {
                 Album newAlbum = new Album(albumName, artist, numTracks);
                 albums.put(albumName, newAlbum);
                 albumtracker.add(newAlbum);
-                newAlbum.getTracks().add(t);
+                newAlbum.addTrack(t);
             } else {
-                albums.get(albumName).getTracks().add(t);
+                albums.get(albumName).addTrack(t);
             }
         }
     }
 
+    /**
+     * Load one media file into the player.
+     * @param resourceId id of the media file in system.
+     */
     public void loadMedia(int resourceId) {
         mediaPlayer.reset();
         AssetFileDescriptor assetFileDescriptor = this.getResources().openRawResourceFd(resourceId);
@@ -177,6 +195,10 @@ public class NormalMode extends AppCompatActivity {
         audioIndex++;
     }
 
+    /**
+     * Switch to Flashback mode.
+     * @param view
+     */
     public void switchFlashback(View view) {
         Intent intent = new Intent(this, PlayList_Activity.class);
         startActivity(intent);

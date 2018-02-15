@@ -16,7 +16,6 @@ import java.util.Map;
 /**
  * Created by Tyler on 2/14/18.
  */
-
 public class LibraryAdapter extends BaseExpandableListAdapter {
 
     private Context context;

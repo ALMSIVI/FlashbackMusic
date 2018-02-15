@@ -9,6 +9,7 @@ public class Track {
     private int trackNumber;
     private int score;
     private int status;
+    private int resourceId;
 
     /**
      * Constructor.
@@ -16,10 +17,11 @@ public class Track {
      * @param trackNumber track number of the song
      * @param artist artist of the song
      */
-    public Track(String trackName, int trackNumber, String artist) {
+    public Track(String trackName, int trackNumber, String artist, int resourceId) {
         this.trackName = trackName;
         this.trackNumber = trackNumber;
         this.artist = artist;
+        this.resourceId = resourceId;
         score = 0;
         status = 0;
     }
@@ -94,6 +96,10 @@ public class Track {
 
     public Calendar getCalendar() {
         return cal;
+    }
+
+    public int getResourceId() {
+        return resourceId;
     }
 }
 
