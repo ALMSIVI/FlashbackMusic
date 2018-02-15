@@ -98,6 +98,7 @@ public class NormalMode extends AppCompatActivity {
 
             //Since there is already a song loaded, just resume the song
             mediaPlayer.start();
+
             playButton.setBackgroundResource(android.R.drawable.ic_media_pause);
         }
     }
