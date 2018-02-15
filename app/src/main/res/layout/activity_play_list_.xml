@@ -15,12 +15,18 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            app:navigationIcon="?attr/homeAsUpIndicator"
             android:background="?attr/colorPrimary"
-            app:popupTheme="@style/AppTheme.PopupOverlay"
-
-
-            />
+            app:popupTheme="@style/AppTheme.PopupOverlay">
+            <Button
+                android:id="@+id/normalModeButton"
+                android:layout_margin="5dp"
+                android:layout_width="40dp"
+                android:layout_height="wrap_content"
+                android:text="N"
+                android:textSize="20dp"
+                android:background="#80000000"
+                android:layout_gravity="right"/>
+        </android.support.v7.widget.Toolbar>
 
     </android.support.design.widget.AppBarLayout>
 

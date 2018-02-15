@@ -9,9 +9,58 @@
     tools:showIn="@layout/activity_play_list_">
 
     <TextView
+        android:id="@+id/playListText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="This will be the playlist for flashback mode"
-        />
+        android:text="@string/playlist"
+        android:textSize="20dp"
+        android:layout_margin="5dp"
+        app:layout_constraintBottom_toTopOf="@+id/playList"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintHorizontal_bias="0"
+        app:layout_constraintRight_toRightOf="parent"/>
+
+    <ListView
+        android:id="@+id/playList"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_margin="5dp"
+        app:layout_constraintBottom_toTopOf="@+id/info"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/playListText"/>
+
+
+    <TextView
+        android:id="@+id/info"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Update song info here!"
+        android:layout_margin="5dp"
+        android:gravity="center"
+        app:layout_constraintTop_toBottomOf="@+id/playList"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent" />
+
+    <ImageButton
+        android:id="@+id/playButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@android:drawable/ic_media_play"
+        android:onClick="playMusic"
+        app:layout_constraintTop_toBottomOf="@+id/info"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toRightOf="@+id/resetButton"
+        app:layout_constraintRight_toRightOf="parent"/>
+
+    <ImageButton
+        android:id="@+id/resetButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@android:drawable/ic_media_previous"
+        app:layout_constraintTop_toBottomOf="@+id/info"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@+id/playButton"/>
 
 </android.support.constraint.ConstraintLayout>
