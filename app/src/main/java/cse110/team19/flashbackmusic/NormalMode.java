@@ -1,5 +1,6 @@
 package cse110.team19.flashbackmusic;
 
+import android.content.Intent;
 import android.content.res.*;
 import android.media.*;
 import android.os.Bundle;
@@ -28,6 +29,8 @@ public class NormalMode extends AppCompatActivity {
     // Music Library
     private ExpandableListView libraryList;
     private AlbumAdapter adapter;
+
+    Button flashBackB = (Button) findViewById(R.id.flashbackButton);
 
     /* Methods */
     @Override
@@ -68,6 +71,20 @@ public class NormalMode extends AppCompatActivity {
         libraryList = findViewById(R.id.libraryList);
         adapter = new AlbumAdapter(albumtracker);
         libraryList.setAdapter(adapter);
+
+        flashBackB.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //createFlashBackPlaylist();
+                openPlaylist();
+            }
+        });
+    }
+
+    public void openPlaylist()
+    {
+        Intent intent = new Intent(this, PlayList_Activity.class);
+        startActivity(intent);
     }
 
     @Override
