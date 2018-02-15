@@ -28,7 +28,7 @@ public class NormalMode extends AppCompatActivity {
 
     // Music Library
     private ExpandableListView libraryList;
-    private AlbumAdapter adapter;
+    private LibraryAdapter adapter;
     private ExpandableListView expandableListView;
 
 
@@ -70,7 +70,8 @@ public class NormalMode extends AppCompatActivity {
 
         // Initialize the library list
         libraryList = findViewById(R.id.libraryList);
-        adapter = new AlbumAdapter(albumtracker);
+        //TODO: initialize content and the list
+        adapter = new LibraryAdapter(albumtracker);
         libraryList.setAdapter(adapter);
     }
 

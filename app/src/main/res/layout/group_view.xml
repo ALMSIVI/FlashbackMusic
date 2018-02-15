@@ -1,34 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="horizontal" android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
-    // layout for album title and description
+    android:layout_height="wrap_content"
+    android:layout_width="match_parent"
+    android:orientation="horizontal">
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:orientation="vertical" android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        // TODO set text and constraint
+        android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:layout_weight="4"
+        android:orientation="vertical">
         <TextView
             android:id="@+id/album_name"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="30dp"/>
+            android:minHeight="40dp"
+            android:textSize="30dp"
+            android:textStyle="bold"/>
 
-        // TODO set text and constraints
         <TextView
             android:id="@+id/album_artist"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="15dp"/>
+            android:minHeight="20dp"
+            android:textSize="15dp"
+            android:textStyle="italic"/>
     </LinearLayout>
 
-    // layout for button to play album (should be to the right of the holder)
-    // TODO import vector asset, stylize the button
-    // TODO play button should change to pause button, right?
-    <Button
+    <ImageButton
         android:id="@+id/play_album"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:padding="10dp"
+        android:layout_gravity="center"
+        android:scaleType="fitCenter"
+        android:adjustViewBounds="true"
+        android:background="@android:drawable/ic_media_play"/>
 </LinearLayout>
