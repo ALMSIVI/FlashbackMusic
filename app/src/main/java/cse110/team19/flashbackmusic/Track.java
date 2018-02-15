@@ -91,6 +91,10 @@ public class Track {
     public int getStatus() {
         return status;
     }
+
+    public Calendar getCalendar() {
+        return cal;
+    }
 }
 
 

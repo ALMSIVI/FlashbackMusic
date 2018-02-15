@@ -1,5 +1,6 @@
 package cse110.team19.flashbackmusic;
 
+import android.content.Intent;
 import android.content.res.*;
 import android.media.*;
 import android.os.Bundle;
@@ -26,10 +27,10 @@ public class NormalMode extends AppCompatActivity {
     List<Album> albumtracker = new ArrayList<Album>();
 
     // Music Library
-    private RecyclerView libraryList;
-    private RecyclerView.LayoutManager libraryLayout;
+    private ExpandableListView libraryList;
     private AlbumAdapter adapter;
     private ExpandableListView expandableListView;
+
 
     /* Methods */
     @Override
@@ -69,9 +70,6 @@ public class NormalMode extends AppCompatActivity {
 
         // Initialize the library list
         libraryList = findViewById(R.id.libraryList);
-        libraryList.setHasFixedSize(true);
-        libraryLayout = new LinearLayoutManager(this);
-        libraryList.setLayoutManager(libraryLayout);
         adapter = new AlbumAdapter(albumtracker);
         libraryList.setAdapter(adapter);
     }
@@ -104,6 +102,7 @@ public class NormalMode extends AppCompatActivity {
 
             //Since there is already a song loaded, just resume the song
             mediaPlayer.start();
+
             playButton.setBackgroundResource(android.R.drawable.ic_media_pause);
         }
     }
@@ -158,9 +157,9 @@ public class NormalMode extends AppCompatActivity {
                 albums.put(albumName, newAlbum);
                 albumtracker.add(newAlbum);
                 newAlbum.getTracks().add(t);
-            }
-            else
+            } else {
                 albums.get(albumName).getTracks().add(t);
+            }
         }
     }
 
@@ -177,4 +176,8 @@ public class NormalMode extends AppCompatActivity {
         audioIndex++;
     }
 
+    public void switchFlashback(View view) {
+        Intent intent = new Intent(this, PlayList_Activity.class);
+        startActivity(intent);
+    }
 }
