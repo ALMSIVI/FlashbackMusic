@@ -8,8 +8,6 @@ import android.widget.BaseExpandableListAdapter;
 import android.widget.Button;
 import android.widget.TextView;
 
-import org.w3c.dom.Text;
-
 import java.util.List;
 import java.util.Map;
 
@@ -65,8 +63,7 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
     public boolean hasStableIds() {
         return false;
     }
-
-    // TODO
+    
     @Override
     public View getGroupView(int i, boolean b, View view, ViewGroup viewGroup) {
         Album album = albumData.get(i);
@@ -85,15 +82,37 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
         // TODO set TypeFace here, low priority, just to make things pretty
 
         Button play_button = (Button) view.findViewById(R.id.play_album);
-        // TODO set onClickListener
-
+        play_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // TODO set onClickListener
+            }
+        });
         return view;
     }
 
-    // TODO
     @Override
     public View getChildView(int i, int i1, boolean b, View view, ViewGroup viewGroup) {
-        return null;
+        Album album = albumData.get(i);
+        List<Track> tracks = trackData.get(album);
+        final Track track = tracks.get(i1);
+        if (view == null) {
+            LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            view = layoutInflater.inflate(R.layout.group_view, null);
+        }
+
+        TextView track_name = (TextView) view.findViewById(R.id.track_name);
+        track_name.setText(track.getTrackName());
+        // TODO set TypeFace here, low priority, just to make things pretty
+
+        Button play_button = (Button) view.findViewById(R.id.set_status);
+        play_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                track.updateStatus();
+            }
+        });
+        return view;
     }
 
     @Override

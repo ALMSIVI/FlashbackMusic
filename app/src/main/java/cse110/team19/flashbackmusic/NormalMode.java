@@ -67,7 +67,7 @@ public class NormalMode extends AppCompatActivity {
         // Initialize the library list
         libraryList = findViewById(R.id.libraryList);
         //TODO: initialize content and the list
-        adapter = new LibraryAdapter(albumtracker);
+        adapter = new LibraryAdapter(this, albumtracker);
         libraryList.setAdapter(adapter);
 
         libraryList.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
