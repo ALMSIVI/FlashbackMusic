@@ -29,6 +29,7 @@ public class NormalMode extends AppCompatActivity {
     private RecyclerView libraryList;
     private RecyclerView.LayoutManager libraryLayout;
     private AlbumAdapter adapter;
+    private ExpandableListView expandableListView;
 
     /* Methods */
     @Override
@@ -37,6 +38,7 @@ public class NormalMode extends AppCompatActivity {
         setContentView(R.layout.activity_normal_mode);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        expandableListView = (ExpandableListView) findViewById(R.id.expandableListView);
 
         // Initialize the media player and load songs
         if (mediaPlayer == null) {

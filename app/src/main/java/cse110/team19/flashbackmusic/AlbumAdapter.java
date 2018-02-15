@@ -36,7 +36,7 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.ViewHolder> 
             album = view.findViewById(R.id.albumTitle);
             artist = view.findViewById(R.id.artist);
             context = view.getContext();
-            linearLayout_tracks = view.findViewById(R.id.tracks);
+            //linearLayout_tracks = view.findViewById(R.id.tracks);
             linearLayout_tracks.setVisibility(View.GONE);
             int intMaxNoOfTracks = 0;
             // finding max number of tracks in an album

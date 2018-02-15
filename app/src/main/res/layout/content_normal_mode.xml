@@ -8,6 +8,11 @@
     tools:context="cse110.team19.flashbackmusic.NormalMode"
     tools:showIn="@layout/activity_normal_mode">
 
+    <ExpandableListView
+        android:id="@+id/expandableListView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
     <TextView
         android:id="@+id/libraryText"
         android:layout_width="wrap_content"
@@ -15,11 +20,12 @@
         android:text="@string/library"
         android:textSize="20dp"
         android:layout_margin="5dp"
-        app:layout_constraintBottom_toTopOf="@+id/libraryList"
+        app:layout_constraintBottom_toTopOf="@+id/expandableListView"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintHorizontal_bias="0"
         app:layout_constraintRight_toRightOf="parent"/>
 
+    <!--
     <android.support.v7.widget.RecyclerView
         android:id="@+id/libraryList"
         android:layout_width="0dp"
@@ -29,7 +35,7 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/libraryText"/>
-
+    -->
 
     <TextView
         android:id="@+id/info"
@@ -38,7 +44,7 @@
         android:text="Update song info here!"
         android:layout_margin="5dp"
         android:gravity="center"
-        app:layout_constraintTop_toBottomOf="@+id/libraryList"
+        app:layout_constraintTop_toBottomOf="@+id/expandableListView"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         />

@@ -19,10 +19,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".TrackMode"
-            android:label="@string/normal_mode"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>
