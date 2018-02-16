@@ -87,6 +87,14 @@ public class NormalMode extends AppCompatActivity {
         expandableListView = findViewById(R.id.expandableListView);
         expandableListView.setAdapter(adapter);
 
+        expandableListView.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
+            @Override
+            public boolean onGroupClick(ExpandableListView expandableListView, View view, int i, long l) {
+                expandableListView.expandGroup(i);
+                return false;
+            }
+        });
+
         expandableListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
             @Override
             public boolean onChildClick(ExpandableListView parent,

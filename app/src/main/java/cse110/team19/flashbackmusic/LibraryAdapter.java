@@ -67,7 +67,7 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
     
     @Override
     public View getGroupView(int i, boolean b, View view, ViewGroup viewGroup) {
-        Album album = albumData.get(i);
+        Album album = (Album) getGroup(i);
         String albumName = album.getTitle();
         String albumArtist = album.getArtist();
 
@@ -94,12 +94,11 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
 
     @Override
     public View getChildView(int i, int i1, boolean b, View view, ViewGroup viewGroup) {
-        Album album = albumData.get(i);
-        List<Track> tracks = trackData.get(album);
-        final Track track = tracks.get(i1);
+        final Track track = (Track) getChild(i, i1);
+
         if (view == null) {
             LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            view = layoutInflater.inflate(R.layout.group_view, null);
+            view = layoutInflater.inflate(R.layout.child_view, null);
         }
 
         TextView track_name = (TextView) view.findViewById(R.id.track_name);
