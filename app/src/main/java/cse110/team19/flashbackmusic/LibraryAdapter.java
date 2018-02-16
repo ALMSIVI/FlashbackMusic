@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import java.util.List;
@@ -81,7 +82,7 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
         album_artist.setText(albumArtist);
         // TODO set TypeFace here, low priority, just to make things pretty
 
-        Button play_button = (Button) view.findViewById(R.id.play_album);
+        ImageButton play_button = (ImageButton) view.findViewById(R.id.play_album);
         play_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
