@@ -14,6 +14,7 @@ public class PlayList_Activity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
+        //This needs to go before the button
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_play_list_);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
