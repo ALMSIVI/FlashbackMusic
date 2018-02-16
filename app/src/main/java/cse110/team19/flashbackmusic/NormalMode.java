@@ -30,7 +30,7 @@ public class NormalMode extends AppCompatActivity {
 
     // for the LibraryAdaptor
     List<Album> album_list = new ArrayList<Album>();
-    Map<Album, List<Track>> album_to_tracks = new HashMap<Album, List<Track>>();
+    Map<Album, List<Track>> album_to_tracks = new LinkedHashMap<Album, List<Track>>();
 
     // for the expandable list view (the music library
     private ExpandableListView expandableListView;
@@ -190,8 +190,15 @@ public class NormalMode extends AppCompatActivity {
                 album_data.put(albumName, newAlbum);
                 album_list.add(newAlbum);
                 newAlbum.addTrack(t);
+
+                // update data to be sent to adaptor
+                List<Track> tracks = new LinkedList<Track>();
+                tracks.add(t);
+                album_to_tracks.put(newAlbum, tracks);
+
             } else {
                 album_data.get(albumName).addTrack(t);
+                album_to_tracks.get(album_data.get(albumName)).add(t);
             }
         }
     }
@@ -215,7 +222,7 @@ public class NormalMode extends AppCompatActivity {
 
     /**
      * Switch to Flashback mode.
-     * @param view
+     * @param
      */
     public void switchFlashback() {
         Intent intent = new Intent(this, PlayList_Activity.class);
