@@ -1,5 +1,6 @@
 package cse110.team19.flashbackmusic;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.*;
 import android.media.*;
@@ -18,17 +19,23 @@ import java.util.*;
  */
 public class NormalMode extends AppCompatActivity {
     /* Members */
-    // Player
+    // player
     private MediaPlayer mediaPlayer;
     ArrayList<Integer> audioResourceId = new ArrayList<Integer>();
     int audioIndex = 0;
     boolean songHasLoaded = false;
-    Map<String, Album> albums = new LinkedHashMap<String, Album>();
-    List<Album> albumtracker = new ArrayList<Album>();
 
-    // Music Library
-    private ExpandableListView libraryList;
+    // for extracting metadata
+    Map<String, Album> album_data = new LinkedHashMap<String, Album>();
+
+    // for the LibraryAdaptor
+    List<Album> album_list = new ArrayList<Album>();
+    Map<Album, List<Track>> album_to_tracks = new HashMap<Album, List<Track>>();
+
+    // for the expandable list view (the music library
+    private ExpandableListView expandableListView;
     private LibraryAdapter adapter;
+
     /* Methods */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,12 +72,12 @@ public class NormalMode extends AppCompatActivity {
         loadSongs();
 
         // Initialize the library list
-        libraryList = findViewById(R.id.libraryList);
         //TODO: initialize content and the list
-        adapter = new LibraryAdapter(this, albumtracker);
-        libraryList.setAdapter(adapter);
+        adapter = new LibraryAdapter(this, album_list, album_to_tracks);
+        expandableListView = findViewById(R.id.expandableListView);
+        expandableListView.setAdapter(adapter);
 
-        libraryList.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
+        expandableListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
             @Override
             public boolean onChildClick(ExpandableListView parent,
                                         View view, int i, int i1, long l) {
@@ -79,10 +86,12 @@ public class NormalMode extends AppCompatActivity {
                 View parentView = parent.getChildAt(i);
                 TextView albumView = parentView.findViewById(R.id.album_name);
                 String albumName = albumView.getText().toString();
-                int resourceId = albums.get(albumName).getTrack(trackName).getResourceId();
+                int resourceId = album_data.get(albumName).getTrack(trackName).getResourceId();
                 loadMedia(resourceId);
                 mediaPlayer.reset();
                 playMusic(view);
+                // TODO
+                return true;
             }
         });
     }
@@ -167,13 +176,13 @@ public class NormalMode extends AppCompatActivity {
             // Create the track
             Track t = new Track(trackName, trackNo, artist, resourceID);
             Log.d("album name", albumName);
-            if (!albums.containsKey(albumName)) {
+            if (!album_data.containsKey(albumName)) {
                 Album newAlbum = new Album(albumName, artist, numTracks);
-                albums.put(albumName, newAlbum);
-                albumtracker.add(newAlbum);
+                album_data.put(albumName, newAlbum);
+                album_list.add(newAlbum);
                 newAlbum.addTrack(t);
             } else {
-                albums.get(albumName).addTrack(t);
+                album_data.get(albumName).addTrack(t);
             }
         }
     }

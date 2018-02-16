@@ -20,17 +20,6 @@
         app:layout_constraintHorizontal_bias="0"
         app:layout_constraintRight_toRightOf="parent"/>
 
-    <ExpandableListView
-        android:id="@+id/libraryList"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_margin="5dp"
-        app:layout_constraintBottom_toTopOf="@+id/info"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/libraryText"/>
-
-
     <TextView
         android:id="@+id/info"
         android:layout_width="0dp"
