@@ -25,7 +25,7 @@
             android:textStyle="italic"/>
     </LinearLayout>
 
-    <ImageButton
+    <Button
         android:id="@+id/play_album"
         android:layout_width="0dp"
         android:layout_height="match_parent"
@@ -34,5 +34,6 @@
         android:layout_gravity="center"
         android:scaleType="fitCenter"
         android:adjustViewBounds="true"
-        android:background="@android:drawable/ic_media_play"/>
+        android:drawableTop="@drawable/ic_play_arrow_black_24dp"
+        android:background="@null"/>
 </LinearLayout>

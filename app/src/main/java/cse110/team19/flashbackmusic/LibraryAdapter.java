@@ -82,7 +82,7 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
         album_artist.setText(albumArtist);
         // TODO set TypeFace here, low priority, just to make things pretty
 
-        ImageButton play_button = (ImageButton) view.findViewById(R.id.play_album);
+        Button play_button = (Button) view.findViewById(R.id.play_album);
         play_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

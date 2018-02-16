@@ -3,6 +3,7 @@ package cse110.team19.flashbackmusic;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.*;
+import android.graphics.drawable.Drawable;
 import android.media.*;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -120,12 +121,14 @@ public class NormalMode extends AppCompatActivity {
      * @param view
      */
     public void playMusic(View view) {
-        ImageButton playButton = (ImageButton) findViewById(R.id.playButton);
+        Button playButton = (Button) findViewById(R.id.playButton);
         //Check if something is already playing
         if(mediaPlayer.isPlaying()) {
             mediaPlayer.pause();
-            playButton.setBackgroundResource(android.R.drawable.ic_media_play);
-        } else {
+            Drawable pause = getResources().getDrawable(R.drawable.ic_play_arrow_black_24dp);
+            playButton.setCompoundDrawablesWithIntrinsicBounds(null, pause, null, null);
+        }
+        else {
             if (songHasLoaded == false) {
                 loadMedia(audioResourceId.get(audioIndex));
                 songHasLoaded = true;
@@ -134,7 +137,8 @@ public class NormalMode extends AppCompatActivity {
             //Since there is already a song loaded, just resume the song
             mediaPlayer.start();
 
-            playButton.setBackgroundResource(android.R.drawable.ic_media_pause);
+            Drawable pause = getResources().getDrawable(R.drawable.ic_pause_black_24dp);
+            playButton.setCompoundDrawablesWithIntrinsicBounds(null, pause, null, null);
         }
     }
 
