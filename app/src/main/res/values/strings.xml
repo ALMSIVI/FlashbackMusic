@@ -6,4 +6,5 @@
     <string name="playlist">Flashback Playlist</string>
     <string name="title_activity_track_mode">TrackMode</string>
     <string name="title_activity_play_list_">PlayList_Activity</string>
+    <string name="title_activity_delete">Delete</string>
 </resources>
