@@ -20,7 +20,6 @@ public class PlayList_Activity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        Button normalButton = (Button)findViewById(R.id.normalModeButton);
     }
 
     public void switchNormal(View view) {

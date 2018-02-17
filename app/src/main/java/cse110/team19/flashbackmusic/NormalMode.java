@@ -91,24 +91,6 @@ public class NormalMode extends AppCompatActivity {
                 }
             }
         });
-
-        expandableListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
-            @Override
-            public boolean onChildClick(ExpandableListView parent,
-                                        View view, int i, int i1, long l) {
-                TextView trackView = view.findViewById(R.id.track_name);
-                String trackName = trackView.getText().toString();
-                View parentView = parent.getChildAt(i);
-                TextView albumView = parentView.findViewById(R.id.album_name);
-                String albumName = albumView.getText().toString();
-                int resourceId = album_data.get(albumName).getTrack(trackName).getResourceId();
-                loadMedia(resourceId);
-                mediaPlayer.reset();
-                playMusic(view);
-                // TODO
-                return true;
-            }
-        });
     }
 
     @Override
