@@ -123,13 +123,13 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
         play_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                audioIndex = 0;
                 changePlayPause(view);
+                ArrayList<Integer> audioResourceId = new ArrayList<Integer>();
 
                 for (Track t : listOfTracks) {
                     if (t.getStatus() > -1) {
                         int id = t.getResourceId();
-                        ArrayList<Integer> audioResourceId = new ArrayList<Integer>();
                         audioResourceId.add(id);
                         Log.d("trackname", t.getTrackName());
                         Log.d("track number", t.getTrackNumber() + "");
@@ -142,10 +142,11 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
                             System.out.println(e.toString());
                         }
                     }
+                }
 
                     loadMedia(audioResourceId.get(audioIndex));
                     isPlaying = listOfTracks.get(audioIndex);
-                }
+                //}
             }
         });
 
@@ -171,7 +172,7 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
                 infoView.setText(isPlaying.getTrackName());
                 TextView lastPlayedView = ((Activity) context).findViewById(R.id.lastPlayed);
                 if (isPlaying.getCalendar() == null) {
-                    lastPlayedView.setText(context.getString(R.id.never_played_info));
+                    //lastPlayedView.setText(context.getString(R.id.never_played_info));
                 } else {
                     String lastPlayedInfo = String.format(
                             context.getString(R.string.last_played_info),
