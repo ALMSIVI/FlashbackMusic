@@ -3,6 +3,7 @@ package cse110.team19.flashbackmusic;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
+import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -22,6 +23,7 @@ import java.util.Map;
  * Created by Tyler on 2/14/18.
  */
 public class LibraryAdapter extends BaseExpandableListAdapter {
+
     private Context context;
     // data source for the albums
     private List<Album> albumData;
@@ -75,6 +77,15 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
         return i1;
     }
 
+
+    public void changePlayPause(View view)
+    {
+
+        Button mainPlayButton = (Button) ((Activity)context).findViewById(R.id.playButton);
+        Drawable pause = context.getResources().getDrawable(R.drawable.ic_pause_actuallyblack_24dp);
+        mainPlayButton.setCompoundDrawablesWithIntrinsicBounds(null, pause, null, null);
+    }
+
     @Override
     public boolean hasStableIds() {
         return false;
@@ -112,18 +123,29 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
         play_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                audioIndex = 0;
+
+                changePlayPause(view);
+
                 for (Track t : listOfTracks) {
                     if (t.getStatus() > -1) {
                         int id = t.getResourceId();
+                        ArrayList<Integer> audioResourceId = new ArrayList<Integer>();
                         audioResourceId.add(id);
                         Log.d("trackname", t.getTrackName());
                         Log.d("track number", t.getTrackNumber() + "");
+                        mediaPlayer.reset();
+                        AssetFileDescriptor assetFileDescriptor = context.getResources().openRawResourceFd(id);
+                        try {
+                            mediaPlayer.setDataSource(assetFileDescriptor);
+                            mediaPlayer.prepareAsync();
+                        } catch (Exception e) {
+                            System.out.println(e.toString());
+                        }
                     }
-                }
 
                     loadMedia(audioResourceId.get(audioIndex));
                     isPlaying = listOfTracks.get(audioIndex);
+                }
             }
         });
 
@@ -141,21 +163,19 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
                 }
         );
 
-        mediaPlayer.setOnPreparedListener(
-                new MediaPlayer.OnPreparedListener() {
-                    @Override
-                    public void onPrepared(MediaPlayer mediaPlayer) {
-                        mediaPlayer.start();
-                        TextView infoView = ((Activity)context).findViewById(R.id.info);
-                        infoView.setText(isPlaying.getTrackName());
-                        TextView lastPlayedView = ((Activity)context).findViewById(R.id.lastPlayed);
-                        String lastPlayedInfo = String.format(
-                                context.getResources().getString(R.string.last_played_info),
-                                isPlaying.getCalendar().getTime().toString(), "Dummy", "Dummy");
-                        lastPlayedView.setText(lastPlayedInfo);
-                    }
-                }
-        );
+        mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                @Override
+                public void onPrepared(MediaPlayer mediaPlayer) {
+                mediaPlayer.start();
+                TextView infoView = ((Activity) context).findViewById(R.id.info);
+                infoView.setText(isPlaying.getTrackName());
+                TextView lastPlayedView = ((Activity) context).findViewById(R.id.lastPlayed);
+                String lastPlayedInfo = String.format(
+                        context.getResources().getString(R.string.last_played_info),
+                        isPlaying.getCalendar().getTime().toString(), "Dummy", "Dummy");
+                lastPlayedView.setText(lastPlayedInfo);
+            }
+        });
         return view;
     }
 
@@ -180,11 +200,28 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
         });
         // TODO set TypeFace here, low priority, just to make things pretty
 
-        Button play_button = (Button) view.findViewById(R.id.set_status);
-        play_button.setOnClickListener(new View.OnClickListener() {
+        final Button status_button = (Button) view.findViewById(R.id.set_status);
+        status_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //track.updateStatus();
+                track.updateStatus();
+                int stat = track.getStatus();
+
+                if( stat == 0 )
+                {
+                    Drawable neutral = context.getResources().getDrawable(R.drawable.neutral);
+                    status_button.setCompoundDrawablesWithIntrinsicBounds(null, neutral, null, null);
+                }
+                else if( stat == 1 )
+                {
+                    Drawable liked = context.getResources().getDrawable(R.drawable.favorite);
+                    status_button.setCompoundDrawablesWithIntrinsicBounds(null, liked, null, null);
+                }
+                else if( stat == -1 )
+                {
+                    Drawable disliked = context.getResources().getDrawable(R.drawable.dislike);
+                    status_button.setCompoundDrawablesWithIntrinsicBounds(null, disliked, null, null);
+                }
                 //for (Track t : trackArray)
             }
         });
