@@ -137,8 +137,8 @@ public class NormalMode extends AppCompatActivity {
         //Check if something is already playing
         if(mediaPlayer != null && mediaPlayer.isPlaying()) {
             mediaPlayer.pause();
-            Drawable pause = getResources().getDrawable(R.drawable.ic_play_arrow_black_24dp);
-            playButton.setCompoundDrawablesWithIntrinsicBounds(null, pause, null, null);
+            Drawable play = getResources().getDrawable(R.drawable.ic_play_arrow_actuallyblack_24dp);
+            playButton.setCompoundDrawablesWithIntrinsicBounds(null, play, null, null);
         }
         else {
             //Since there is already a song loaded, just resume the song
@@ -146,7 +146,7 @@ public class NormalMode extends AppCompatActivity {
                 mediaPlayer.start();
             }
 
-            Drawable pause = getResources().getDrawable(R.drawable.ic_pause_black_24dp);
+            Drawable pause = getResources().getDrawable(R.drawable.ic_pause_actuallyblack_24dp);
             playButton.setCompoundDrawablesWithIntrinsicBounds(null, pause, null, null);
         }
     }
