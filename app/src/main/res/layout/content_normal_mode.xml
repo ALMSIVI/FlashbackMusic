@@ -8,11 +8,6 @@
     tools:context="cse110.team19.flashbackmusic.NormalMode"
     tools:showIn="@layout/activity_normal_mode">
 
-    <ExpandableListView
-        android:id="@+id/expandableListView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"></ExpandableListView>
-
     <TextView
         android:id="@+id/libraryText"
         android:layout_width="wrap_content"
@@ -24,6 +19,16 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintHorizontal_bias="0"
         app:layout_constraintRight_toRightOf="parent"/>
+
+    <ExpandableListView
+        android:id="@+id/expandableListView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@+id/info"
+        app:layout_constraintTop_toBottomOf="@id/libraryText"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintHorizontal_bias="0"
+        app:layout_constraintRight_toRightOf="parent"></ExpandableListView>
 
     <TextView
         android:id="@+id/info"

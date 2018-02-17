@@ -21,13 +21,9 @@ public class PlayList_Activity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         Button normalButton = (Button)findViewById(R.id.normalModeButton);
+    }
 
-        normalButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                finish();
-            }
-        });
-
+    public void switchNormal(View view) {
+        finish();
     }
 }
