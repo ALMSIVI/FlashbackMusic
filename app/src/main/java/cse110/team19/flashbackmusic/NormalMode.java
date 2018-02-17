@@ -25,6 +25,7 @@ public class NormalMode extends AppCompatActivity {
     ArrayList<Integer> audioResourceId = new ArrayList<Integer>();
     int audioIndex = 0;
     boolean songHasLoaded = false;
+    boolean listExpanded;
 
     // for extracting metadata
     Map<String, Album> album_data = new LinkedHashMap<String, Album>();
@@ -90,8 +91,13 @@ public class NormalMode extends AppCompatActivity {
         expandableListView.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
             @Override
             public boolean onGroupClick(ExpandableListView expandableListView, View view, int i, long l) {
-                expandableListView.expandGroup(i);
-                return false;
+                if (expandableListView.isGroupExpanded(i)) {
+                    expandableListView.collapseGroup(i);
+                    return false;
+                } else {
+                    expandableListView.expandGroup(i);
+                    return true;
+                }
             }
         });
 
