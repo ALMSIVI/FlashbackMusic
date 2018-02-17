@@ -92,6 +92,30 @@ public class NormalMode extends AppCompatActivity {
                 }
             }
         });
+
+        expandableListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
+            @Override
+            public boolean onChildClick(ExpandableListView parent, View view, int i, int i1, long l) {
+                TextView trackView = view.findViewById(R.id.track_name);
+                String trackName = trackView.getText().toString();
+
+                TextView infoView = findViewById(R.id.info);
+                infoView.setText(trackName);
+
+                View parentView = parent.getChildAt(i);
+                TextView albumView = parentView.findViewById(R.id.album_name);
+                String albumName = albumView.getText().toString();
+
+                Album album = album_data.get(albumName);
+                Track track = album.getTrack(trackName);
+
+                TextView lastPlayedView = view.findViewById(R.id.lastPlayed);
+                lastPlayedView.setText("You last played this song at" +
+                        track.getCalendar().getTime());
+
+                return true;
+            }
+        });
     }
 
     @Override

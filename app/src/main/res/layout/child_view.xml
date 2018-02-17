@@ -13,7 +13,8 @@
         android:padding="5dp"
         android:minHeight="20dp"
         android:textColor="#35465c"
-        android:textSize="11dp"/>
+        android:textSize="11dp"
+        android:focusable="false"/>
 
     <Button
         android:id="@+id/set_status"
@@ -22,5 +23,6 @@
         android:layout_weight="1"
         android:layout_gravity="right"
         android:drawableTop="@drawable/neutral"
-        android:background="@null"/>
+        android:background="@null"
+        android:focusable="false"/>
 </LinearLayout>

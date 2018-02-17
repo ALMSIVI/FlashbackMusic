@@ -3,14 +3,12 @@ package cse110.team19.flashbackmusic;
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.media.MediaPlayer;
-import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -23,7 +21,6 @@ import java.util.Map;
  * Created by Tyler on 2/14/18.
  */
 public class LibraryAdapter extends BaseExpandableListAdapter {
-
     private Context context;
     // data source for the albums
     private List<Album> albumData;
@@ -32,7 +29,13 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
     private MediaPlayer mediaPlayer;
     int audioIndex = 0;
 
-    // constructor
+    /**
+     * Constructor.
+     * @param c
+     * @param l
+     * @param h
+     * @param m
+     */
     public LibraryAdapter(Context c, List<Album> l, Map<Album, List<Track>> h, MediaPlayer m) {
         context = c;
         albumData = l;

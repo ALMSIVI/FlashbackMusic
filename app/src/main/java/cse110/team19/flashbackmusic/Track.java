@@ -1,6 +1,6 @@
 package cse110.team19.flashbackmusic;
 
-import java.util.Calendar;
+import java.util.*;
 
 public class Track {
     private Calendar cal;
@@ -146,6 +146,13 @@ public class Track {
     public void makeScoreZero()
     {
         this.score = 0;
+    }
+
+    public Set<String> getInfo() {
+        HashSet<String> info = new HashSet<String>();
+        info.add(Integer.toString(status));
+        info.add(cal.toString());
+        return info;
     }
 }
 
