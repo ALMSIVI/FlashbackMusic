@@ -79,6 +79,8 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
         Album album = (Album) getGroup(i);
         String albumName = album.getTitle();
         String albumArtist = album.getArtist();
+        final ArrayList<Integer> audioResourceId = new ArrayList<Integer>();
+        int audioIndex = 0;
         final List<Track> listOfTracks = trackData.get(album);
         Collections.sort(listOfTracks, new Comparator<Track>() {
             @Override
@@ -105,7 +107,6 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
             public void onClick(View view) {
                 for (Track t : listOfTracks) {
                     int id = t.getResourceId();
-                    ArrayList<Integer> audioResourceId = new ArrayList<Integer>();
                     audioResourceId.add(id);
                     Log.d("trackname", t.getTrackName());
                     Log.d("track number", t.getTrackNumber() + "");
@@ -120,6 +121,19 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
                 }
             }
         });
+
+        mediaPlayer.setOnCompletionListener(
+                new MediaPlayer.OnCompletionListener() {
+                    @Override
+                    public void onCompletion(MediaPlayer mediaPlayer) {
+                        if (audioResourceId.size() > audioIndex) {
+                            loadMedia(audioResourceId.get(audioIndex));
+                            //mediaPlayer.start();
+                            //mediaPlayer.
+                        }
+                    }
+                }
+        );
         return view;
     }
 
