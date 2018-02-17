@@ -48,6 +48,12 @@ public class Track {
     public void justPlayed()
     {
         cal = Calendar.getInstance();
+
+        if(NormalMode.recentlyPlayed.contains(this))
+        {
+            NormalMode.recentlyPlayed.remove(this);
+        }
+        NormalMode.recentlyPlayed.addFirst(this);
     }
 
     /**
@@ -63,6 +69,34 @@ public class Track {
         String toRet = ("Last Played on: " + month + "/" + day + "/" + year + "at" +
                             hour + ":" + minute);
         return toRet;
+    }
+
+    //Get the tracks time of day
+    public String getTimePlayed()
+    {
+        int hour = cal.get(Calendar.HOUR_OF_DAY);
+
+        if( 5 <= hour && hour < 11)
+        {
+            return "morning";
+        }
+
+        if( 11 <= hour && hour < 17 )
+        {
+            return "afternoon";
+        }
+
+        else
+        {
+            return "evening";
+        }
+    }
+
+    //Get the tracks day of week
+    public int getDayPlayed()
+    {
+        int day = cal.get(Calendar.DAY_OF_WEEK);
+        return day;
     }
 
     /* Getters and setters */
@@ -100,6 +134,18 @@ public class Track {
 
     public int getResourceId() {
         return resourceId;
+    }
+
+    //Increment to the score
+    public void incrementScore()
+    {
+        this.score++;
+    }
+
+    //Make the score zero
+    public void makeScoreZero()
+    {
+        this.score = 0;
     }
 }
 
