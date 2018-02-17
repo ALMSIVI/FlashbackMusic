@@ -1,6 +1,9 @@
 package cse110.team19.flashbackmusic;
 
 import android.content.Context;
+import android.content.res.AssetFileDescriptor;
+import android.media.MediaPlayer;
+import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,12 +25,14 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
     private List<Album> albumData;
     // data source for the tracks within each album
     private Map<Album, List<Track>> trackData;
+    private MediaPlayer mediaPlayer;
 
     // constructor
-    public LibraryAdapter(Context c, List<Album> l, Map<Album, List<Track>> h) {
+    public LibraryAdapter(Context c, List<Album> l, Map<Album, List<Track>> h, MediaPlayer m) {
         context = c;
         albumData = l;
         trackData = h;
+        mediaPlayer = m;
     }
 
     @Override
@@ -95,6 +100,7 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
     @Override
     public View getChildView(int i, int i1, boolean b, View view, ViewGroup viewGroup) {
         final Track track = (Track) getChild(i, i1);
+        //final Track[] trackArray = n
 
         if (view == null) {
             LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -103,13 +109,28 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
 
         TextView track_name = (TextView) view.findViewById(R.id.track_name);
         track_name.setText(track.getTrackName());
+        track_name.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                int id = track.getResourceId();
+                mediaPlayer.reset();
+                AssetFileDescriptor assetFileDescriptor = context.getResources().openRawResourceFd(id);
+                try {
+                    mediaPlayer.setDataSource(assetFileDescriptor);
+                    mediaPlayer.prepareAsync();
+                } catch (Exception e) {
+                    System.out.println(e.toString());
+                }
+            }
+        });
         // TODO set TypeFace here, low priority, just to make things pretty
 
         Button play_button = (Button) view.findViewById(R.id.set_status);
         play_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                track.updateStatus();
+                //track.updateStatus();
+                //for (Track t : trackArray)
             }
         });
         return view;
