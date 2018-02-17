@@ -26,6 +26,7 @@ public class NormalMode extends AppCompatActivity {
     int audioIndex = 0;
     boolean songHasLoaded = false;
     boolean listExpanded;
+    static LinkedList<Track> recentlyPlayed;
 
     // for extracting metadata
     Map<String, Album> album_data = new LinkedHashMap<String, Album>();
@@ -75,7 +76,7 @@ public class NormalMode extends AppCompatActivity {
 
         // Initialize the library list
         //TODO: initialize content and the list
-        adapter = new LibraryAdapter(this, album_list, album_to_tracks, mediaPlayer);
+        adapter = new LibraryAdapter(this, album_list, album_to_tracks);
         expandableListView = findViewById(R.id.expandableListView);
         expandableListView.setAdapter(adapter);
 
@@ -215,8 +216,9 @@ public class NormalMode extends AppCompatActivity {
      * Switch to Flashback mode.
      * @param
      */
-    public void switchFlashback(View view) {
+    public void switchFlashback() {
         Intent intent = new Intent(this, PlayList_Activity.class);
         startActivity(intent);
     }
 }
+

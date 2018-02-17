@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.media.MediaPlayer;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +13,9 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -75,6 +79,14 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
         Album album = (Album) getGroup(i);
         String albumName = album.getTitle();
         String albumArtist = album.getArtist();
+        final List<Track> listOfTracks = trackData.get(album);
+        Collections.sort(listOfTracks, new Comparator<Track>() {
+            @Override
+            public int compare (Track t1, Track t2) {
+                return t1.getTrackNumber() - t2.getTrackNumber();
+            }
+        });
+        //final Track[] trackArray = n
 
         if (view == null) {
             LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -91,7 +103,21 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
         play_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // TODO set onClickListener
+                for (Track t : listOfTracks) {
+                    int id = t.getResourceId();
+                    ArrayList<Integer> audioResourceId = new ArrayList<Integer>();
+                    audioResourceId.add(id);
+                    Log.d("trackname", t.getTrackName());
+                    Log.d("track number", t.getTrackNumber() + "");
+                    mediaPlayer.reset();
+                    AssetFileDescriptor assetFileDescriptor = context.getResources().openRawResourceFd(id);
+                    try {
+                        mediaPlayer.setDataSource(assetFileDescriptor);
+                        mediaPlayer.prepareAsync();
+                    } catch (Exception e) {
+                        System.out.println(e.toString());
+                    }
+                }
             }
         });
         return view;
@@ -100,7 +126,6 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
     @Override
     public View getChildView(int i, int i1, boolean b, View view, ViewGroup viewGroup) {
         final Track track = (Track) getChild(i, i1);
-        //final Track[] trackArray = n
 
         if (view == null) {
             LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
