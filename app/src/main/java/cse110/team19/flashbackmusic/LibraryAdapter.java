@@ -30,6 +30,7 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
     // data source for the tracks within each album
     private Map<Album, List<Track>> trackData;
     private MediaPlayer mediaPlayer;
+    int audioIndex = 0;
 
     // constructor
     public LibraryAdapter(Context c, List<Album> l, Map<Album, List<Track>> h, MediaPlayer m) {
@@ -80,8 +81,8 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
         String albumName = album.getTitle();
         String albumArtist = album.getArtist();
         final ArrayList<Integer> audioResourceId = new ArrayList<Integer>();
-        int audioIndex = 0;
         final List<Track> listOfTracks = trackData.get(album);
+
         Collections.sort(listOfTracks, new Comparator<Track>() {
             @Override
             public int compare (Track t1, Track t2) {
@@ -105,20 +106,15 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
         play_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                audioIndex = 0;
                 for (Track t : listOfTracks) {
                     int id = t.getResourceId();
                     audioResourceId.add(id);
                     Log.d("trackname", t.getTrackName());
                     Log.d("track number", t.getTrackNumber() + "");
-                    mediaPlayer.reset();
-                    AssetFileDescriptor assetFileDescriptor = context.getResources().openRawResourceFd(id);
-                    try {
-                        mediaPlayer.setDataSource(assetFileDescriptor);
-                        mediaPlayer.prepareAsync();
-                    } catch (Exception e) {
-                        System.out.println(e.toString());
-                    }
                 }
+
+                    loadMedia(audioResourceId.get(audioIndex));
             }
         });
 
@@ -131,6 +127,15 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
                             //mediaPlayer.start();
                             //mediaPlayer.
                         }
+                    }
+                }
+        );
+
+        mediaPlayer.setOnPreparedListener(
+                new MediaPlayer.OnPreparedListener() {
+                    @Override
+                    public void onPrepared(MediaPlayer mediaPlayer) {
+                        mediaPlayer.start();
                     }
                 }
         );
@@ -152,14 +157,7 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
             @Override
             public void onClick(View view) {
                 int id = track.getResourceId();
-                mediaPlayer.reset();
-                AssetFileDescriptor assetFileDescriptor = context.getResources().openRawResourceFd(id);
-                try {
-                    mediaPlayer.setDataSource(assetFileDescriptor);
-                    mediaPlayer.prepareAsync();
-                } catch (Exception e) {
-                    System.out.println(e.toString());
-                }
+                loadMedia(id);
             }
         });
         // TODO set TypeFace here, low priority, just to make things pretty
@@ -178,5 +176,21 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
     @Override
     public boolean isChildSelectable(int i, int i1) {
         return true;
+    }
+
+    /**
+     * Load one media file into the player.
+     * @param resourceId id of the media file in system.
+     */
+    public void loadMedia(int resourceId) {
+        mediaPlayer.reset();
+        AssetFileDescriptor assetFileDescriptor = context.getResources().openRawResourceFd(resourceId);
+        try {
+            mediaPlayer.setDataSource(assetFileDescriptor);
+            mediaPlayer.prepareAsync();
+        } catch (Exception e) {
+            System.out.println(e.toString());
+        }
+        audioIndex++;
     }
 }
