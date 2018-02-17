@@ -45,15 +45,6 @@ public class NormalMode extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        Button fButton = (Button)findViewById(R.id.flashbackButton);
-
-        fButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                switchFlashback();
-            }
-        });
-
         // Initialize the media player and load songs
         if (mediaPlayer == null) {
             mediaPlayer = new MediaPlayer();
@@ -236,7 +227,7 @@ public class NormalMode extends AppCompatActivity {
      * Switch to Flashback mode.
      * @param
      */
-    public void switchFlashback() {
+    public void switchFlashback(View view) {
         Intent intent = new Intent(this, PlayList_Activity.class);
         startActivity(intent);
     }
