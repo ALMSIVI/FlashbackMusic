@@ -111,10 +111,12 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
             public void onClick(View view) {
                 audioIndex = 0;
                 for (Track t : listOfTracks) {
-                    int id = t.getResourceId();
-                    audioResourceId.add(id);
-                    Log.d("trackname", t.getTrackName());
-                    Log.d("track number", t.getTrackNumber() + "");
+                    if (t.getStatus() > -1) {
+                        int id = t.getResourceId();
+                        audioResourceId.add(id);
+                        Log.d("trackname", t.getTrackName());
+                        Log.d("track number", t.getTrackNumber() + "");
+                    }
                 }
 
                     loadMedia(audioResourceId.get(audioIndex));
