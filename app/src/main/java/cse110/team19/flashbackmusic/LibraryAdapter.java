@@ -171,7 +171,7 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
                 infoView.setText(isPlaying.getTrackName());
                 TextView lastPlayedView = ((Activity) context).findViewById(R.id.lastPlayed);
                 if (isPlaying.getCalendar() == null) {
-                    lastPlayedView.setText(context.getString(R.id.never_played_info));
+                    lastPlayedView.setText(context.getString(R.string.never_played_info));
                 } else {
                     String lastPlayedInfo = String.format(
                             context.getString(R.string.last_played_info),
