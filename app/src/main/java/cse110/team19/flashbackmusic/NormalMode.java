@@ -76,7 +76,7 @@ public class NormalMode extends AppCompatActivity {
 
         // Initialize the library list
         //TODO: initialize content and the list
-        adapter = new LibraryAdapter(this, album_list, album_to_tracks);
+        adapter = new LibraryAdapter(this, album_list, album_to_tracks, mediaPlayer);
         expandableListView = findViewById(R.id.expandableListView);
         expandableListView.setAdapter(adapter);
 
