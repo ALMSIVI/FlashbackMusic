@@ -7,4 +7,5 @@
     <string name="title_activity_track_mode">TrackMode</string>
     <string name="title_activity_play_list_">PlayList_Activity</string>
     <string name="title_activity_delete">Delete</string>
+    <string name="last_played_info">You last played this song at %1s$, %2s$ in %3s$.</string>
 </resources>

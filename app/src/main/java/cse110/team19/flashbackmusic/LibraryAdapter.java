@@ -1,5 +1,6 @@
 package cse110.team19.flashbackmusic;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.media.MediaPlayer;
@@ -27,7 +28,8 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
     // data source for the tracks within each album
     private Map<Album, List<Track>> trackData;
     private MediaPlayer mediaPlayer;
-    int audioIndex = 0;
+    private int audioIndex = 0;
+    private Track isPlaying;
 
     /**
      * Constructor.
@@ -86,6 +88,7 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
         final ArrayList<Integer> audioResourceId = new ArrayList<Integer>();
         final List<Track> listOfTracks = trackData.get(album);
 
+        // Sort the tracks based on track number
         Collections.sort(listOfTracks, new Comparator<Track>() {
             @Override
             public int compare (Track t1, Track t2) {
@@ -120,6 +123,7 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
                 }
 
                     loadMedia(audioResourceId.get(audioIndex));
+                    isPlaying = listOfTracks.get(audioIndex);
             }
         });
 
@@ -129,6 +133,7 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
                     public void onCompletion(MediaPlayer mediaPlayer) {
                         if (audioResourceId.size() > audioIndex) {
                             loadMedia(audioResourceId.get(audioIndex));
+                            isPlaying = listOfTracks.get(audioIndex);
                             //mediaPlayer.start();
                             //mediaPlayer.
                         }
@@ -141,6 +146,13 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
                     @Override
                     public void onPrepared(MediaPlayer mediaPlayer) {
                         mediaPlayer.start();
+                        TextView infoView = ((Activity)context).findViewById(R.id.info);
+                        infoView.setText(isPlaying.getTrackName());
+                        TextView lastPlayedView = ((Activity)context).findViewById(R.id.lastPlayed);
+                        String lastPlayedInfo = String.format(
+                                context.getResources().getString(R.string.last_played_info),
+                                isPlaying.getCalendar().getTime().toString(), "Dummy", "Dummy");
+                        lastPlayedView.setText(lastPlayedInfo);
                     }
                 }
         );
@@ -163,6 +175,7 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
             public void onClick(View view) {
                 int id = track.getResourceId();
                 loadMedia(id);
+                isPlaying = track;
             }
         });
         // TODO set TypeFace here, low priority, just to make things pretty
