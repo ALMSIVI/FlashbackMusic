@@ -129,19 +129,16 @@ public class NormalMode extends AppCompatActivity {
     public void playMusic(View view) {
         Button playButton = (Button) findViewById(R.id.playButton);
         //Check if something is already playing
-        if(mediaPlayer.isPlaying()) {
+        if(mediaPlayer != null && mediaPlayer.isPlaying()) {
             mediaPlayer.pause();
             Drawable pause = getResources().getDrawable(R.drawable.ic_play_arrow_black_24dp);
             playButton.setCompoundDrawablesWithIntrinsicBounds(null, pause, null, null);
         }
         else {
-            if (songHasLoaded == false) {
-                loadMedia(audioResourceId.get(audioIndex));
-                songHasLoaded = true;
-            }
-
             //Since there is already a song loaded, just resume the song
-            mediaPlayer.start();
+            if (mediaPlayer != null) {
+                mediaPlayer.start();
+            }
 
             Drawable pause = getResources().getDrawable(R.drawable.ic_pause_black_24dp);
             playButton.setCompoundDrawablesWithIntrinsicBounds(null, pause, null, null);
