@@ -20,7 +20,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".PlayList_Activity"
+            android:name=".FlashbackMode"
             android:label="@string/playlist"
             android:theme="@style/AppTheme.NoActionBar" />
     </application>
