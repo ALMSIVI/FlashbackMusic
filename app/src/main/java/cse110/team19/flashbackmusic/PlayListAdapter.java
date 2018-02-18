@@ -52,7 +52,6 @@ public class PlayListAdapter extends BaseAdapter {
                 new MediaPlayer.OnCompletionListener() {
                     @Override
                     public void onCompletion(MediaPlayer mediaPlayer) {
-                        isPlaying.updateStatus();
                         if (audioResourceId.size() > audioIndex) {
                             loadMedia(audioResourceId.get(audioIndex).first, audioResourceId.get(audioIndex).second);
                         }
