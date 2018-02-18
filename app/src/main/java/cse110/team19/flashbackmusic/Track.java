@@ -5,7 +5,7 @@ import android.location.Location;
 import java.util.*;
 
 public class Track {
-    private Calendar cal;
+    private Calendar cal = Calendar.getInstance(); // TODO: update calendar and location
     private String trackName;
     private String artist;
     private int trackNumber;
@@ -13,6 +13,7 @@ public class Track {
     private int status;
     private int resourceId;
     private Location location;
+    private long time;
 
     /**
      * Constructor.
@@ -111,6 +112,10 @@ public class Track {
         this.status = status;
     }
 
+    public void setLocation(Location l) {
+        location = l;
+    }
+
     public String getTrackName() {
         return trackName;
     }
@@ -131,6 +136,11 @@ public class Track {
         return status;
     }
 
+    //Get time since last play
+    public long getTimeSinceLastPlayed() { return time; }
+    //Set time since last play
+    public void setTimeSinceLastPlayed(long time) { this.time = time; }
+
     public Calendar getCalendar() {
         return cal;
     }
@@ -138,6 +148,11 @@ public class Track {
     public int getResourceId() {
         return resourceId;
     }
+
+    public Location getLocation() {
+        return location;
+    }
+
 
     //Increment to the score
     public void incrementScore(int toAdd)
@@ -160,7 +175,7 @@ public class Track {
     }
 
     public void updateInfo() {
-
+        cal = Calendar.getInstance();
     }
 }
 

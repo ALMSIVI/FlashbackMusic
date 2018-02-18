@@ -1,17 +1,23 @@
 package cse110.team19.flashbackmusic;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.*;
 import android.graphics.drawable.Drawable;
+import android.location.Location;
+import android.location.LocationManager;
 import android.media.*;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.ResultReceiver;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.*;
 import android.widget.*;
 import java.lang.reflect.Field;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -21,19 +27,12 @@ public class NormalMode extends AppCompatActivity {
     /* Members */
     // player
     private MediaPlayer mediaPlayer;
-    ArrayList<Integer> audioResourceId = new ArrayList<Integer>();
+    private ArrayList<Integer> audioResourceId = new ArrayList<Integer>();
     static LinkedList<Track> recentlyPlayed;
 
-    // for extracting metadata
-    Map<String, Album> album_data = new LinkedHashMap<String, Album>();
-
     // for the LibraryAdaptor
-    List<Album> album_list = new ArrayList<Album>();
-    Map<Album, List<Track>> album_to_tracks = new LinkedHashMap<Album, List<Track>>();
-
-    // for the expandable list view (the music library
-    private ExpandableListView expandableListView;
-    private LibraryAdapter adapter;
+    private List<Album> album_list = new ArrayList<Album>();
+    private Map<Album, List<Track>> album_to_tracks = new LinkedHashMap<Album, List<Track>>();
 
     /* Methods */
     @Override
@@ -49,6 +48,7 @@ public class NormalMode extends AppCompatActivity {
             switchFlashback(null);
         }
 
+
         // Initialize the media player and load songs
         if (mediaPlayer == null) {
             mediaPlayer = new MediaPlayer();
@@ -58,9 +58,8 @@ public class NormalMode extends AppCompatActivity {
 
         // Initialize the library list
         //TODO: initialize content and the list
-        adapter = new LibraryAdapter(this, album_list, album_to_tracks, mediaPlayer);
-        expandableListView = findViewById(R.id.expandableListView);
-        expandableListView.setAdapter(adapter);
+        ExpandableListView expandableListView = findViewById(R.id.expandableListView);
+        expandableListView.setAdapter(new LibraryAdapter(this, album_list, album_to_tracks, mediaPlayer));
 
         expandableListView.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
             @Override
@@ -76,6 +75,9 @@ public class NormalMode extends AppCompatActivity {
         });
     }
 
+    /**
+     *  onStop
+     */
     @Override
     public void onStop() {
         super.onStop();
@@ -108,6 +110,10 @@ public class NormalMode extends AppCompatActivity {
         }
     }
 
+    /**
+     * Reset music
+     * @param view
+     */
     public void resetMusic(View view) {
         mediaPlayer.seekTo(0);
     }
@@ -116,6 +122,7 @@ public class NormalMode extends AppCompatActivity {
      * Load the songs.
      */
     public void loadSongs() {
+        Map<String, Album> album_data = new LinkedHashMap<String, Album>();
         final Field[] fields = R.raw.class.getFields(); //Gets the all the files (tracks) in raw folder
         for (int count = 0; count < fields.length; count++) { //Goes through each track
             String name = fields[count].getName();
@@ -165,27 +172,48 @@ public class NormalMode extends AppCompatActivity {
                 List<Track> tracks = new LinkedList<Track>();
                 tracks.add(t);
                 album_to_tracks.put(newAlbum, tracks);
-
             } else {
                 album_data.get(albumName).addTrack(t);
                 album_to_tracks.get(album_data.get(albumName)).add(t);
             }
+            // Retrieve data from sharedPreferences
+            SharedPreferences sharedPreferences = getSharedPreferences("user_name", MODE_PRIVATE);
+            Set<String> info = sharedPreferences.getStringSet(t.getTrackName(), null);
+            if (info != null) {
+                Iterator<String> iterator = info.iterator();
+                // status
+                int status = Integer.parseInt(iterator.next());
+                t.setStatus(status);
+                // calendar
+                String cal = iterator.next();
+                SimpleDateFormat format = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.ENGLISH);
+                Calendar calendar = Calendar.getInstance();
+                try {
+                    calendar.setTime(format.parse(cal));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                //String location = iterator.next();
+                // TODO: more data retrieval
+            }
         }
     }
-
-
 
     /**
      * Switch to Flashback mode.
      * @param
      */
     public void switchFlashback(View view) {
+        // Change the mode in sharedpreferences
         SharedPreferences sharedPreferences = getSharedPreferences("user_name", MODE_PRIVATE);
         String mode = sharedPreferences.getString("mode", "");
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("mode", "Flashback");
         editor.apply();
+
+        // Create the intent and switch activity
         Intent intent = new Intent(this, FlashbackMode.class);
         startActivity(intent);
     }
+
 }

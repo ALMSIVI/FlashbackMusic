@@ -2,10 +2,16 @@ package cse110.team19.flashbackmusic;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.AssetFileDescriptor;
 import android.graphics.drawable.Drawable;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationManager;
 import android.media.MediaPlayer;
 import android.util.Log;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,26 +19,39 @@ import android.widget.BaseExpandableListAdapter;
 import android.widget.Button;
 import android.widget.TextView;
 
+import java.io.IOException;
+import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Timer;
+
+import static android.content.Context.MODE_PRIVATE;
 
 /**
  * Created by Tyler on 2/14/18.
  */
 public class LibraryAdapter extends BaseExpandableListAdapter {
-
     private Context context;
     // data source for the albums
     private List<Album> albumData;
     // data source for the tracks within each album
     private Map<Album, List<Track>> trackData;
     private MediaPlayer mediaPlayer;
-    private ArrayList<Integer> audioResourceId;
+    private ArrayList<Pair<Integer, Track>> audioResourceId;
     private int audioIndex = 0;
     private Track isPlaying;
+    private Date time;
+
+    // for recording location of song
+    Geocoder geocoder;
+    List<Address> addresses;
+    GPSTracker gpstracker;
+    Location location;
 
     /**
      * Constructor.
@@ -47,14 +66,30 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
         albumData = l;
         trackData = h;
         mediaPlayer = m;
+        geocoder = new Geocoder(context, Locale.getDefault());
+        gpstracker = new GPSTracker(context);
+        location = gpstracker.getLocation();
+        time = new Date();
 
         mediaPlayer.setOnCompletionListener(
                 new MediaPlayer.OnCompletionListener() {
                     @Override
                     public void onCompletion(MediaPlayer mediaPlayer) {
+                        SharedPreferences sharedPreferences = context.getSharedPreferences("user_name", MODE_PRIVATE);
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
+
+                        // TODO if doesnt work
+                        // update date, time, loc
+                        location = gpstracker.getLocation();
+                        isPlaying.setLocation(location);
+                        isPlaying.updateInfo();
+                        isPlaying.setTimeSinceLastPlayed(time.getTime());
+
+                        editor.putStringSet(isPlaying.getTrackName(), isPlaying.getInfo());
+                        editor.apply();
+
                         if (audioResourceId.size() > audioIndex) {
-                            Log.d("hi", "woah");
-                            loadMedia(audioResourceId.get(audioIndex));
+                            loadMedia(audioResourceId.get(audioIndex).first, audioResourceId.get(audioIndex).second);
                         }
                     }
                 }
@@ -65,22 +100,13 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
             public void onPrepared(MediaPlayer mediaPlayer) {
                 mediaPlayer.start();
                 // Update the "Now playing" text
-                TextView infoView = ((Activity) context).findViewById(R.id.info);
-                infoView.setText(isPlaying.getTrackName());
-                // Update the "Last played" text
-                TextView lastPlayedView = ((Activity) context).findViewById(R.id.lastPlayed);
-                if (isPlaying.getCalendar() == null) {
-                    //lastPlayedView.setText(context.getString(R.id.never_played_info));
-                } else {
-                    String lastPlayedInfo = String.format(
-                            context.getString(R.string.last_played_info),
-                            isPlaying.getCalendar().getTime().toString(), "Dummy", "Dummy");
-                    lastPlayedView.setText(lastPlayedInfo);
-                }
             }
         });
     }
 
+    public Track getIsPlaying() {
+        return isPlaying;
+    }
 
     public void changePlayPause(View view) {
         Button mainPlayButton = (Button) ((Activity) context).findViewById(R.id.playButton);
@@ -93,7 +119,7 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
         Album album = (Album) getGroup(i);
         String albumName = album.getTitle();
         String albumArtist = album.getArtist();
-        audioResourceId = new ArrayList<Integer>();
+
         final List<Track> listOfTracks = trackData.get(album);
 
         // Sort the tracks based on track number
@@ -103,7 +129,6 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
                 return t1.getTrackNumber() - t2.getTrackNumber();
             }
         });
-        //final Track[] trackArray = n
 
         if (view == null) {
             LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -120,14 +145,17 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
         play_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                audioResourceId = new ArrayList<Pair<Integer, Track>>();
                 audioIndex = 0;
                 changePlayPause(view);
                 //ArrayList<Integer> audioResourceId = new ArrayList<Integer>();
 
                 for (Track t : listOfTracks) {
+                    Log.d("audioIndex", audioIndex + "");
+
                     if (t.getStatus() > -1) {
                         int id = t.getResourceId();
-                        audioResourceId.add(id);
+                        audioResourceId.add(new Pair<Integer, Track>(id, t));
                         Log.d("trackname", t.getTrackName());
                         Log.d("track number", t.getTrackNumber() + "");
                         mediaPlayer.reset();
@@ -140,10 +168,8 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
                         }
                     }
                 }
-                loadMedia(audioResourceId.get(audioIndex));
-                isPlaying = listOfTracks.get(audioIndex - 1);
-                //}
 
+                loadMedia(audioResourceId.get(audioIndex).first, audioResourceId.get(audioIndex).second);
             }
         });
         return view;
@@ -163,34 +189,52 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
         track_name.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                changePlayPause(view);
                 int id = track.getResourceId();
-                loadMedia(id);
-                isPlaying = track;
+                audioResourceId = new <Pair<Integer, Track>> ArrayList();
+                audioResourceId.add(new Pair<Integer, Track>(id, track));
+                loadMedia(id, track);
             }
         });
         // TODO set TypeFace here, low priority, just to make things pretty
 
         final Button status_button = (Button) view.findViewById(R.id.set_status);
+        final SharedPreferences sharedPreferences = context.getSharedPreferences("user_name", MODE_PRIVATE);
+        changeButton(track, status_button);
+
         status_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 track.updateStatus();
-                int stat = track.getStatus();
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putStringSet(track.getTrackName(), track.getInfo());
+                editor.apply();
+                changeButton(track, status_button);
 
-                if (stat == 0) {
-                    Drawable neutral = context.getResources().getDrawable(R.drawable.neutral);
-                    status_button.setCompoundDrawablesWithIntrinsicBounds(null, neutral, null, null);
-                } else if (stat == 1) {
-                    Drawable liked = context.getResources().getDrawable(R.drawable.favorite);
-                    status_button.setCompoundDrawablesWithIntrinsicBounds(null, liked, null, null);
-                } else if (stat == -1) {
-                    Drawable disliked = context.getResources().getDrawable(R.drawable.dislike);
-                    status_button.setCompoundDrawablesWithIntrinsicBounds(null, disliked, null, null);
+                if (track.getStatus() == -1 && mediaPlayer.isPlaying() && isPlaying == track)
+                {
+                    mediaPlayer.stop();
+                    if (audioResourceId.size() > audioIndex) {
+                        loadMedia(audioResourceId.get(audioIndex).first, audioResourceId.get(audioIndex).second);
+                    }
                 }
-                //for (Track t : trackArray)
             }
         });
         return view;
+    }
+
+    public void changeButton(Track track, Button button) {
+        int stat = track.getStatus();
+        if (stat == 0) {
+            Drawable neutral = context.getResources().getDrawable(R.drawable.neutral);
+            button.setCompoundDrawablesWithIntrinsicBounds(null, neutral, null, null);
+        } else if (stat == 1) {
+            Drawable liked = context.getResources().getDrawable(R.drawable.favorite);
+            button.setCompoundDrawablesWithIntrinsicBounds(null, liked, null, null);
+        } else if (stat == -1) {
+            Drawable disliked = context.getResources().getDrawable(R.drawable.dislike);
+            button.setCompoundDrawablesWithIntrinsicBounds(null, disliked, null, null);
+        }
     }
 
     /**
@@ -198,7 +242,8 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
      *
      * @param resourceId id of the media file in system.
      */
-    public void loadMedia(int resourceId) {
+    public void loadMedia(int resourceId, Track t) {
+        isPlaying = t;
         mediaPlayer.reset();
         AssetFileDescriptor assetFileDescriptor = context.getResources().openRawResourceFd(resourceId);
         try {
@@ -207,6 +252,35 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
         } catch (Exception e) {
             System.out.println(e.toString());
         }
+
+        // Update the "Now playing" text
+        TextView infoView = ((Activity) context).findViewById(R.id.info);
+        infoView.setText(isPlaying.getTrackName());
+        // Update the "Last played" text
+        TextView lastPlayedView = ((Activity) context).findViewById(R.id.lastPlayed);
+        if (isPlaying.getCalendar() == null) {
+            lastPlayedView.setText(context.getString(R.string.never_played_info));
+        } else {
+            // TODO get location using geocoder
+            String lastLocation = "Unkown location";
+
+            if (location != null) {
+                try {
+                    addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                lastLocation = addresses.get(0).getFeatureName();
+            }
+
+            // TODO update dummy values
+            String lastPlayedInfo = String.format(
+                    context.getString(R.string.last_played_info),
+                    isPlaying.getCalendar().getTime().toString(), "Dummy", lastLocation);
+            lastPlayedView.setText(lastPlayedInfo);
+        }
+
         audioIndex++;
     }
 
