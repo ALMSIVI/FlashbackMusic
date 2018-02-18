@@ -214,7 +214,7 @@ public class NormalMode extends AppCompatActivity {
      * @param
      */
     public void switchFlashback() {
-        Intent intent = new Intent(this, PlayList_Activity.class);
+        Intent intent = new Intent(this, FlashbackMode.class);
         startActivity(intent);
     }
 }
