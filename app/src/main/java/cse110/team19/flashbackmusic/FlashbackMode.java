@@ -62,7 +62,7 @@ public class FlashbackMode extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         loadSongs();
-
+        mediaPlayer = new MediaPlayer();
         ListView playList = findViewById(R.id.playList);
         playList.setAdapter(new PlayListAdapter(this, list, mediaPlayer));
 
