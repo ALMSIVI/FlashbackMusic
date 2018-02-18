@@ -15,6 +15,7 @@ import java.util.TreeMap;
 
 public class FlashbackMode extends AppCompatActivity {
     private MediaPlayer mediaPlayer;
+    private TreeMap<Integer, Track> playList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,9 +35,8 @@ public class FlashbackMode extends AppCompatActivity {
         finish();
     }
 
-    public TreeMap createFlashback(Map<Album, List<Track>> input)
-    {
-        TreeMap <Integer , Track> toRet = new TreeMap<Integer, Track>(
+    public void createFlashback(Map<Album, List<Track>> input) {
+        playList = new TreeMap<Integer, Track>(
                 new Comparator<Integer>() {
                     @Override
                     public int compare(Integer integer, Integer t1) {
@@ -80,13 +80,11 @@ public class FlashbackMode extends AppCompatActivity {
                 }
 
                 if((track.getScore() != 0)) {
-                    toRet.put(track.getScore(), track);
+                    playList.put(track.getScore(), track);
                 }
 
             }
         }
-
-        return toRet;
     }
 
     public String currentTime(int hour) {
