@@ -13,6 +13,7 @@ public class Track {
     private int status;
     private int resourceId;
     private String location;
+    private long time;
 
     /**
      * Constructor.
@@ -130,6 +131,11 @@ public class Track {
     public int getStatus() {
         return status;
     }
+
+    //Get time since last play
+    public long getTimeSinceLastPlayed() { return time; }
+    //Set time since last play
+    public void setTimeSinceLastPlayed(long time) { this.time = time; }
 
     public Calendar getCalendar() {
         return cal;

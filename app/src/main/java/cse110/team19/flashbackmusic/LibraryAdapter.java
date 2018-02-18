@@ -19,12 +19,15 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import java.io.IOException;
+import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Timer;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -41,6 +44,7 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
     private ArrayList<Pair<Integer, Track>> audioResourceId;
     private int audioIndex = 0;
     private Track isPlaying;
+    private Date time;
 
     // for recording location of song once
     Location location;
@@ -60,6 +64,7 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
         albumData = l;
         trackData = h;
         mediaPlayer = m;
+        time = new Date();
 
         mediaPlayer.setOnCompletionListener(
                 new MediaPlayer.OnCompletionListener() {
@@ -78,6 +83,7 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
 
                         // update date, time, loc
                         isPlaying.updateInfo(addresses.get(0).getFeatureName());
+                        isPlaying.setTimeSinceLastPlayed(time.getTime());
 
                         editor.putStringSet(isPlaying.getTrackName(), isPlaying.getInfo());
                         editor.apply();
