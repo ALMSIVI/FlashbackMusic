@@ -78,6 +78,8 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
                         SharedPreferences sharedPreferences = context.getSharedPreferences("user_name", MODE_PRIVATE);
                         SharedPreferences.Editor editor = sharedPreferences.edit();
 
+                        changePausePlay();
+
                         // TODO if doesnt work
                         // update date, time, loc
                         location = gpstracker.getLocation();
@@ -108,10 +110,16 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
         return isPlaying;
     }
 
-    public void changePlayPause(View view) {
+    public void changePlayPause() {
         Button mainPlayButton = (Button) ((Activity) context).findViewById(R.id.playButton);
         Drawable pause = context.getResources().getDrawable(R.drawable.ic_pause_actuallyblack_24dp);
         mainPlayButton.setCompoundDrawablesWithIntrinsicBounds(null, pause, null, null);
+    }
+
+    public void changePausePlay() {
+        Button mainPauseButton = (Button) ((Activity) context).findViewById(R.id.playButton);
+        Drawable play = context.getResources().getDrawable(R.drawable.ic_play_arrow_actuallyblack_24dp);
+        mainPauseButton.setCompoundDrawablesWithIntrinsicBounds(null, play, null, null);
     }
 
     @Override
@@ -147,7 +155,7 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
             public void onClick(View view) {
                 audioResourceId = new ArrayList<Pair<Integer, Track>>();
                 audioIndex = 0;
-                changePlayPause(view);
+                changePlayPause();
                 //ArrayList<Integer> audioResourceId = new ArrayList<Integer>();
 
                 for (Track t : listOfTracks) {
@@ -189,7 +197,7 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
         track_name.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                changePlayPause(view);
+                changePlayPause();
                 int id = track.getResourceId();
                 audioResourceId = new <Pair<Integer, Track>> ArrayList();
                 audioResourceId.add(new Pair<Integer, Track>(id, track));
@@ -244,6 +252,7 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
      */
     public void loadMedia(int resourceId, Track t) {
         isPlaying = t;
+        changePlayPause();
         mediaPlayer.reset();
         AssetFileDescriptor assetFileDescriptor = context.getResources().openRawResourceFd(resourceId);
         try {
