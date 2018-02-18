@@ -31,7 +31,7 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <include layout="@layout/content_play_list_" />
+    <include layout="@layout/content_flashback_mode" />
 
 
 
