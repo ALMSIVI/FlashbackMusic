@@ -1,5 +1,7 @@
 package cse110.team19.flashbackmusic;
 
+import android.location.Location;
+
 import java.util.*;
 
 public class Track {
@@ -10,6 +12,7 @@ public class Track {
     private int score;
     private int status;
     private int resourceId;
+    private Location location;
 
     /**
      * Constructor.
@@ -152,7 +155,12 @@ public class Track {
         HashSet<String> info = new HashSet<String>();
         info.add(Integer.toString(status));
         info.add(cal.toString());
+        info.add(location.toString());
         return info;
+    }
+
+    public void updateInfo() {
+
     }
 }
 
