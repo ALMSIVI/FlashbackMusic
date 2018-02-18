@@ -8,6 +8,7 @@ import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,7 +32,7 @@ public class PlayListAdapter extends BaseAdapter {
     private Context context;
     private MediaPlayer mediaPlayer;
     private List<Track> playList;
-    private ArrayList<Integer> audioResourceId;
+    private ArrayList<Pair<Integer, Track>> audioResourceId;
     private int audioIndex = 0;
     private Track isPlaying;
 
@@ -53,7 +54,7 @@ public class PlayListAdapter extends BaseAdapter {
                     public void onCompletion(MediaPlayer mediaPlayer) {
                         isPlaying.updateStatus();
                         if (audioResourceId.size() > audioIndex) {
-                            loadMedia(audioResourceId.get(audioIndex));
+                            loadMedia(audioResourceId.get(audioIndex).first, audioResourceId.get(audioIndex).second);
                         }
                     }
                 }
@@ -84,20 +85,12 @@ public class PlayListAdapter extends BaseAdapter {
         // inflate the view
         if (view == null) {
             LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            view = layoutInflater.inflate(R.layout.child_view, null);
+            view = layoutInflater.inflate(R.layout.playlist_view, null);
         }
 
         TextView track_name = (TextView) view.findViewById(R.id.track_name);
         track_name.setText(track.getTrackName());
-        track_name.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                changePlayPause(view);
-                int id = track.getResourceId();
-                loadMedia(id);
-                isPlaying = track;
-            }
-        });
+
         // TODO set TypeFace here, low priority, just to make things pretty
 
         final Button status_button = (Button) view.findViewById(R.id.set_status);
@@ -130,12 +123,15 @@ public class PlayListAdapter extends BaseAdapter {
             button.setCompoundDrawablesWithIntrinsicBounds(null, disliked, null, null);
         }
     }
+
+
     /**
      * Load one media file into the player.
      *
      * @param resourceId id of the media file in system.
      */
-    public void loadMedia(int resourceId) {
+    public void loadMedia(int resourceId, Track t) {
+        isPlaying = t;
         mediaPlayer.reset();
         AssetFileDescriptor assetFileDescriptor = context.getResources().openRawResourceFd(resourceId);
         try {
@@ -144,6 +140,21 @@ public class PlayListAdapter extends BaseAdapter {
         } catch (Exception e) {
             System.out.println(e.toString());
         }
+
+        // Update the "Now playing" text
+        TextView infoView = ((Activity) context).findViewById(R.id.info);
+        infoView.setText(isPlaying.getTrackName());
+        // Update the "Last played" text
+        TextView lastPlayedView = ((Activity) context).findViewById(R.id.lastPlayed);
+        if (isPlaying.getCalendar() == null) {
+            //lastPlayedView.setText(context.getString(R.id.never_played_info));
+        } else {
+            String lastPlayedInfo = String.format(
+                    context.getString(R.string.last_played_info),
+                    isPlaying.getCalendar().getTime().toString(), "Dummy", "Dummy");
+            lastPlayedView.setText(lastPlayedInfo);
+        }
+
         audioIndex++;
     }
 

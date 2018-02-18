@@ -1,11 +1,13 @@
 package cse110.team19.flashbackmusic;
 
 import android.content.SharedPreferences;
+import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ListView;
 
 import java.util.ArrayList;
@@ -56,7 +58,6 @@ public class FlashbackMode extends AppCompatActivity {
         int currentDay = calender.get(Calendar.DAY_OF_WEEK);
         String timeOfDay = currentTime(currentHour);
 
-
         //For each album
         for(Map.Entry<Album, List<Track>> entry : input.entrySet()) {
             //This is the list of tracks
@@ -90,8 +91,7 @@ public class FlashbackMode extends AppCompatActivity {
             }
         }
 
-        for( Map.Entry<Integer, Track> entry: tempMap.entrySet())
-        {
+        for( Map.Entry<Integer, Track> entry: tempMap.entrySet()) {
             Track toInsert = entry.getValue();
             list.add(toInsert);
         }
@@ -114,6 +114,20 @@ public class FlashbackMode extends AppCompatActivity {
     }
 
     public void playMusic(View view) {
+        Button playButton = (Button) findViewById(R.id.playButton);
+        //Check if something is already playing
+        if(mediaPlayer != null && mediaPlayer.isPlaying()) {
+            mediaPlayer.pause();
+            Drawable play = getResources().getDrawable(R.drawable.ic_play_arrow_actuallyblack_24dp);
+            playButton.setCompoundDrawablesWithIntrinsicBounds(null, play, null, null);
+        } else {
+            //Since there is already a song loaded, just resume the song
+            if (mediaPlayer != null) {
+                mediaPlayer.start();
+            }
 
+            Drawable pause = getResources().getDrawable(R.drawable.ic_pause_actuallyblack_24dp);
+            playButton.setCompoundDrawablesWithIntrinsicBounds(null, pause, null, null);
+        }
     }
 }

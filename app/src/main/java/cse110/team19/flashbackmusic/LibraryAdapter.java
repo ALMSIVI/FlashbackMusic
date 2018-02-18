@@ -27,7 +27,6 @@ import static android.content.Context.MODE_PRIVATE;
  * Created by Tyler on 2/14/18.
  */
 public class LibraryAdapter extends BaseExpandableListAdapter {
-
     private Context context;
     // data source for the albums
     private List<Album> albumData;
