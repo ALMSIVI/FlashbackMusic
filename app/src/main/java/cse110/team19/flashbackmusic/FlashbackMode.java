@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-public class PlayList_Activity extends AppCompatActivity {
+public class FlashbackMode extends AppCompatActivity {
 
 
     @Override
