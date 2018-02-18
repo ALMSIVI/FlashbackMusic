@@ -5,7 +5,7 @@ import android.location.Location;
 import java.util.*;
 
 public class Track {
-    private Calendar cal = Calendar.getInstance(); // TODO: update calendar and location
+    private Calendar cal;
     private String trackName;
     private String artist;
     private int trackNumber;
@@ -49,8 +49,7 @@ public class Track {
     /**
      * Update the last played up the song.
      */
-    public void justPlayed()
-    {
+    public void justPlayed() {
         cal = Calendar.getInstance();
 
         if(NormalMode.recentlyPlayed.contains(this))
@@ -76,22 +75,14 @@ public class Track {
     }
 
     //Get the tracks time of day
-    public String getTimePlayed()
-    {
+    public String getTimePlayed() {
         int hour = cal.get(Calendar.HOUR_OF_DAY);
 
-        if( 5 <= hour && hour < 11)
-        {
+        if( 5 <= hour && hour < 11) {
             return "morning";
-        }
-
-        if( 11 <= hour && hour < 17 )
-        {
+        } else if( 11 <= hour && hour < 17 ) {
             return "afternoon";
-        }
-
-        else
-        {
+        } else {
             return "evening";
         }
     }
@@ -104,10 +95,6 @@ public class Track {
     }
 
     /* Getters and setters */
-    public void setScore(int score) {
-        this.score = score;
-    }
-
     public void setStatus(int status) {
         this.status = status;
     }
@@ -170,10 +157,11 @@ public class Track {
         LinkedHashSet<String> info = new LinkedHashSet<String>();
         info.add(Integer.toString(status));
         info.add(cal.toString());
-        if (location != null)
+        if (location != null) {
             info.add(location.toString());
-        else
+        } else {
             info.add("Unknown location");
+        }
         return info;
     }
 

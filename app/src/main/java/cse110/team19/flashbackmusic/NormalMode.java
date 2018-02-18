@@ -182,8 +182,13 @@ public class NormalMode extends AppCompatActivity {
             if (info != null) {
                 Iterator<String> iterator = info.iterator();
                 // status
-                int status = Integer.parseInt(iterator.next());
-                t.setStatus(status);
+                try {
+                    int status = Integer.parseInt(iterator.next());
+                    t.setStatus(status);
+                } catch (Exception e) {
+                    t.setStatus(0);
+                }
+
                 // calendar
                 String cal = iterator.next();
                 SimpleDateFormat format = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.ENGLISH);
@@ -193,7 +198,11 @@ public class NormalMode extends AppCompatActivity {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-                //String location = iterator.next();
+
+                String location = iterator.next();
+                if (location != null) {
+                    Log.d("Last played location", location);
+                }
                 // TODO: more data retrieval
             }
         }
@@ -208,7 +217,6 @@ public class NormalMode extends AppCompatActivity {
 
         // Change the mode in sharedpreferences
         SharedPreferences sharedPreferences = getSharedPreferences("user_name", MODE_PRIVATE);
-        String mode = sharedPreferences.getString("mode", "");
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("mode", "Flashback");
         editor.apply();
