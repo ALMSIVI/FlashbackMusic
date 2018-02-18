@@ -137,9 +137,9 @@ public class Track {
     }
 
     //Increment to the score
-    public void incrementScore()
+    public void incrementScore(int toAdd)
     {
-        this.score++;
+        this.score = this.score + toAdd;
     }
 
     //Make the score zero

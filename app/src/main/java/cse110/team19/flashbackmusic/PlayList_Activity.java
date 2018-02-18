@@ -61,13 +61,13 @@ public class PlayList_Activity extends AppCompatActivity {
                 //Check time of day
                 if(track.getTimePlayed().equals(timeOfDay))
                 {
-                    track.incrementScore();
+                    track.incrementScore(5);
                 }
 
                 //Check day of week
                 if(track.getDayPlayed() == (currentDay))
                 {
-                    track.incrementScore();
+                    track.incrementScore(5);
                 }
 
                 //Get status
@@ -75,7 +75,7 @@ public class PlayList_Activity extends AppCompatActivity {
 
                 if(status == 1)
                 {
-                    track.incrementScore();
+                    track.incrementScore(1);
                 }
                 else if(status == -1)
                 {
