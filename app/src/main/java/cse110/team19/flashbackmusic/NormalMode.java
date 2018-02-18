@@ -4,9 +4,12 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.*;
 import android.graphics.drawable.Drawable;
+import android.location.Location;
 import android.location.LocationManager;
 import android.media.*;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.ResultReceiver;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -26,6 +29,9 @@ public class NormalMode extends AppCompatActivity {
     private ArrayList<Integer> audioResourceId = new ArrayList<Integer>();
     static LinkedList<Track> recentlyPlayed;
 
+    // for location
+    private Location location;
+    private ResultReceiver resultReceiver;
 
     // for the LibraryAdaptor
     private List<Album> album_list = new ArrayList<Album>();
@@ -71,6 +77,9 @@ public class NormalMode extends AppCompatActivity {
         });
     }
 
+    /**
+     *  onStop
+     */
     @Override
     public void onStop() {
         super.onStop();
@@ -103,6 +112,10 @@ public class NormalMode extends AppCompatActivity {
         }
     }
 
+    /**
+     * Reset music
+     * @param view
+     */
     public void resetMusic(View view) {
         mediaPlayer.seekTo(0);
     }
@@ -203,5 +216,15 @@ public class NormalMode extends AppCompatActivity {
         // Create the intent and switch activity
         Intent intent = new Intent(this, FlashbackMode.class);
         startActivity(intent);
+    }
+
+    /**
+     *
+     */
+    protected void startInentService() {
+        Intent intent = new Intent(this, FetchAddressIntentService.class);
+        intent.putExtra(Constants.RECEIVER, resultReceiver);
+        intent.putExtra(Constants.LOCATION_DATA_EXTRA, location);
+        startService(intent);
     }
 }
