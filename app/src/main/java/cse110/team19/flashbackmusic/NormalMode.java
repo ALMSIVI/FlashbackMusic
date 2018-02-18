@@ -1,13 +1,12 @@
 package cse110.team19.flashbackmusic;
 
-import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.*;
 import android.graphics.drawable.Drawable;
 import android.media.*;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.*;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.*;
@@ -23,9 +22,6 @@ public class NormalMode extends AppCompatActivity {
     // player
     private MediaPlayer mediaPlayer;
     ArrayList<Integer> audioResourceId = new ArrayList<Integer>();
-    int audioIndex = 0;
-    boolean songHasLoaded = false;
-    boolean listExpanded;
     static LinkedList<Track> recentlyPlayed;
 
     // for extracting metadata
@@ -46,6 +42,12 @@ public class NormalMode extends AppCompatActivity {
         setContentView(R.layout.activity_normal_mode);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        SharedPreferences sharedPreferences = getSharedPreferences("user_name", MODE_PRIVATE);
+        String mode = sharedPreferences.getString("mode", "");
+        if (mode.equals("Flashback")) {
+            switchFlashback(null);
+        }
 
         // Initialize the media player and load songs
         if (mediaPlayer == null) {
@@ -95,8 +97,7 @@ public class NormalMode extends AppCompatActivity {
             mediaPlayer.pause();
             Drawable play = getResources().getDrawable(R.drawable.ic_play_arrow_actuallyblack_24dp);
             playButton.setCompoundDrawablesWithIntrinsicBounds(null, play, null, null);
-        }
-        else {
+        } else {
             //Since there is already a song loaded, just resume the song
             if (mediaPlayer != null) {
                 mediaPlayer.start();
@@ -108,7 +109,7 @@ public class NormalMode extends AppCompatActivity {
     }
 
     public void resetMusic(View view) {
-        mediaPlayer.reset();
+        mediaPlayer.seekTo(0);
     }
 
     /**
@@ -172,28 +173,18 @@ public class NormalMode extends AppCompatActivity {
         }
     }
 
-    /**
-     * Load one media file into the player.
-     * @param resourceId id of the media file in system.
-     */
-    public void loadMedia(int resourceId) {
-        mediaPlayer.reset();
-        AssetFileDescriptor assetFileDescriptor = this.getResources().openRawResourceFd(resourceId);
-        try {
-            mediaPlayer.setDataSource(assetFileDescriptor);
-            mediaPlayer.prepareAsync();
-        } catch (Exception e) {
-            System.out.println(e.toString());
-        }
 
-        audioIndex++;
-    }
 
     /**
      * Switch to Flashback mode.
      * @param
      */
-    public void switchFlashback() {
+    public void switchFlashback(View view) {
+        SharedPreferences sharedPreferences = getSharedPreferences("user_name", MODE_PRIVATE);
+        String mode = sharedPreferences.getString("mode", "");
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("mode", "Flashback");
+        editor.apply();
         Intent intent = new Intent(this, FlashbackMode.class);
         startActivity(intent);
     }

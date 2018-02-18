@@ -1,5 +1,6 @@
 package cse110.team19.flashbackmusic;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -18,7 +19,6 @@ public class FlashbackMode extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         //This needs to go before the button
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_play_list_);
@@ -27,6 +27,11 @@ public class FlashbackMode extends AppCompatActivity {
     }
 
     public void switchNormal(View view) {
+        SharedPreferences sharedPreferences = getSharedPreferences("user_name", MODE_PRIVATE);
+        String mode = sharedPreferences.getString("mode", "");
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("mode", "Normal");
+        editor.apply();
         finish();
     }
 
