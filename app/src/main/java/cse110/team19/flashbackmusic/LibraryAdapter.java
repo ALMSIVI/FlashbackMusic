@@ -30,6 +30,7 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
     // data source for the tracks within each album
     private Map<Album, List<Track>> trackData;
     private MediaPlayer mediaPlayer;
+    private ArrayList<Integer> audioResourceId;
     private int audioIndex = 0;
     private Track isPlaying;
 
@@ -45,6 +46,39 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
         albumData = l;
         trackData = h;
         mediaPlayer = m;
+
+        mediaPlayer.setOnCompletionListener(
+                new MediaPlayer.OnCompletionListener() {
+                    @Override
+                    public void onCompletion(MediaPlayer mediaPlayer) {
+                        if (audioResourceId.size() > audioIndex) {
+                            Log.d("hi", "woah");
+                            loadMedia(audioResourceId.get(audioIndex));
+                            //isPlaying = listOfTracks.get(audioIndex);
+                            //mediaPlayer.start();
+                            //mediaPlayer.
+                        }
+                    }
+                }
+        );
+
+        mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+            @Override
+            public void onPrepared(MediaPlayer mediaPlayer) {
+                mediaPlayer.start();
+                TextView infoView = ((Activity) context).findViewById(R.id.info);
+                infoView.setText(isPlaying.getTrackName());
+                TextView lastPlayedView = ((Activity) context).findViewById(R.id.lastPlayed);
+                if (isPlaying.getCalendar() == null) {
+                    //lastPlayedView.setText(context.getString(R.id.never_played_info));
+                } else {
+                    String lastPlayedInfo = String.format(
+                            context.getString(R.string.last_played_info),
+                            isPlaying.getCalendar().getTime().toString(), "Dummy", "Dummy");
+                    lastPlayedView.setText(lastPlayedInfo);
+                }
+            }
+        });
     }
 
     @Override
@@ -96,7 +130,7 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
         Album album = (Album) getGroup(i);
         String albumName = album.getTitle();
         String albumArtist = album.getArtist();
-        final ArrayList<Integer> audioResourceId = new ArrayList<Integer>();
+        audioResourceId = new ArrayList<Integer>();
         final List<Track> listOfTracks = trackData.get(album);
 
         // Sort the tracks based on track number
@@ -123,13 +157,13 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
         play_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                audioIndex = 0;
                 changePlayPause(view);
+                ArrayList<Integer> audioResourceId = new ArrayList<Integer>();
 
                 for (Track t : listOfTracks) {
                     if (t.getStatus() > -1) {
                         int id = t.getResourceId();
-                        ArrayList<Integer> audioResourceId = new ArrayList<Integer>();
                         audioResourceId.add(id);
                         Log.d("trackname", t.getTrackName());
                         Log.d("track number", t.getTrackNumber() + "");
@@ -142,42 +176,11 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
                             System.out.println(e.toString());
                         }
                     }
-
+                }
                     loadMedia(audioResourceId.get(audioIndex));
                     isPlaying = listOfTracks.get(audioIndex);
-                }
-            }
-        });
+                //}
 
-        mediaPlayer.setOnCompletionListener(
-                new MediaPlayer.OnCompletionListener() {
-                    @Override
-                    public void onCompletion(MediaPlayer mediaPlayer) {
-                        if (audioResourceId.size() > audioIndex) {
-                            loadMedia(audioResourceId.get(audioIndex));
-                            isPlaying = listOfTracks.get(audioIndex);
-                            //mediaPlayer.start();
-                            //mediaPlayer.
-                        }
-                    }
-                }
-        );
-
-        mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-                @Override
-                public void onPrepared(MediaPlayer mediaPlayer) {
-                mediaPlayer.start();
-                TextView infoView = ((Activity) context).findViewById(R.id.info);
-                infoView.setText(isPlaying.getTrackName());
-                TextView lastPlayedView = ((Activity) context).findViewById(R.id.lastPlayed);
-                if (isPlaying.getCalendar() == null) {
-                    lastPlayedView.setText(context.getString(R.string.never_played_info));
-                } else {
-                    String lastPlayedInfo = String.format(
-                            context.getString(R.string.last_played_info),
-                            isPlaying.getCalendar().getTime().toString(), "Dummy", "Dummy");
-                    lastPlayedView.setText(lastPlayedInfo);
-                }
             }
         });
         return view;
