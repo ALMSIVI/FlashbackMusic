@@ -204,7 +204,10 @@ public class NormalMode extends AppCompatActivity {
                 String location = iterator.next();
                 if (location != null) {
                     Log.d("Last played location", location);
+                } else {
+                    Log.d("Last played location", "NULL");
                 }
+
                 // TODO: more data retrieval
             }
         }
