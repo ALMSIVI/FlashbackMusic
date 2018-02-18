@@ -57,6 +57,7 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
                     public void onCompletion(MediaPlayer mediaPlayer) {
                         SharedPreferences sharedPreferences = context.getSharedPreferences("user_name", MODE_PRIVATE);
                         SharedPreferences.Editor editor = sharedPreferences.edit();
+                        isPlaying.updateInfo();
                         editor.putStringSet(isPlaying.getTrackName(), isPlaying.getInfo());
                         editor.apply();
 

@@ -160,7 +160,7 @@ public class Track {
     }
 
     public void updateInfo() {
-
+        cal = Calendar.getInstance();
     }
 }
 
