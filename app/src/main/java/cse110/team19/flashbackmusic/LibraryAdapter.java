@@ -262,7 +262,7 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
             lastPlayedView.setText(context.getString(R.string.never_played_info));
         } else {
             // TODO get location using geocoder
-            String lastLocation = "Unkown location";
+            String lastLocation = "Unknown location";
 
             if (location != null) {
                 try {

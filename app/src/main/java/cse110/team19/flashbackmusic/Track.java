@@ -170,7 +170,10 @@ public class Track {
         LinkedHashSet<String> info = new LinkedHashSet<String>();
         info.add(Integer.toString(status));
         info.add(cal.toString());
-        info.add(location.toString());
+        if (location != null)
+            info.add(location.toString());
+        else
+            info.add("Unknown location");
         return info;
     }
 
