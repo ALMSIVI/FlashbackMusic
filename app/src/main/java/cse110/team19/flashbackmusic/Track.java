@@ -13,6 +13,7 @@ public class Track {
     private int status;
     private int resourceId;
     private Location location;
+    private long time;
 
     /**
      * Constructor.
@@ -135,6 +136,11 @@ public class Track {
         return status;
     }
 
+    //Get time since last play
+    public long getTimeSinceLastPlayed() { return time; }
+    //Set time since last play
+    public void setTimeSinceLastPlayed(long time) { this.time = time; }
+
     public Calendar getCalendar() {
         return cal;
     }
@@ -163,7 +169,7 @@ public class Track {
     public Set<String> getInfo() {
         LinkedHashSet<String> info = new LinkedHashSet<String>();
         info.add(Integer.toString(status));
-        info.add(cal.toString());
+        //info.add(cal.toString());
         //info.add(location.toString());
         return info;
     }

@@ -20,12 +20,15 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import java.io.IOException;
+import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Timer;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -42,6 +45,7 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
     private ArrayList<Pair<Integer, Track>> audioResourceId;
     private int audioIndex = 0;
     private Track isPlaying;
+    private Date time;
 
     // for recording location of song
     Geocoder geocoder;
@@ -65,6 +69,7 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
         geocoder = new Geocoder(context, Locale.getDefault());
         gpstracker = new GPSTracker(context);
         location = gpstracker.getLocation();
+        time = new Date();
 
         mediaPlayer.setOnCompletionListener(
                 new MediaPlayer.OnCompletionListener() {
@@ -78,6 +83,7 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
                         location = gpstracker.getLocation();
                         isPlaying.setLocation(location);
                         isPlaying.updateInfo();
+                        isPlaying.setTimeSinceLastPlayed(time.getTime());
 
                         editor.putStringSet(isPlaying.getTrackName(), isPlaying.getInfo());
                         editor.apply();
@@ -251,7 +257,7 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
         // Update the "Last played" text
         TextView lastPlayedView = ((Activity) context).findViewById(R.id.lastPlayed);
         if (isPlaying.getCalendar() == null) {
-            //lastPlayedView.setText(context.getString(R.id.never_played_info));
+            lastPlayedView.setText(context.getString(R.string.never_played_info));
         } else {
             // TODO get location using geocoder
             String lastLocation = "Unkown location";
@@ -266,6 +272,7 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
                 lastLocation = addresses.get(0).getFeatureName();
             }
 
+            // TODO update dummy values
             String lastPlayedInfo = String.format(
                     context.getString(R.string.last_played_info),
                     isPlaying.getCalendar().getTime().toString(), "Dummy", lastLocation);

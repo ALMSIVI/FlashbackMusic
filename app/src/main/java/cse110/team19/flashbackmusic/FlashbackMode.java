@@ -1,25 +1,57 @@
 package cse110.team19.flashbackmusic;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.res.AssetFileDescriptor;
+import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
+import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.lang.reflect.Field;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 public class FlashbackMode extends AppCompatActivity {
     private MediaPlayer mediaPlayer;
     private List<Track> list = new ArrayList<Track>();
+
+    private ArrayList<Integer> audioResourceId = new ArrayList<Integer>();
+    static LinkedList<Track> recentlyPlayed;
+
+    // for the LibraryAdaptor
+    private List<Album> album_list = new ArrayList<Album>();
+    private Map<Album, List<Track>> album_to_tracks = new LinkedHashMap<Album, List<Track>>();
+
+
+    // Monitors time change
+    private static IntentFilter s_intentFilter;
+    static {
+        s_intentFilter = new IntentFilter();
+        s_intentFilter.addAction(Intent.ACTION_TIME_TICK);
+        s_intentFilter.addAction(Intent.ACTION_TIMEZONE_CHANGED);
+        s_intentFilter.addAction(Intent.ACTION_TIME_CHANGED);
+    }
+    private final BroadcastReceiver m_timeChangedReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            final String action = intent.getAction();
+
+            if (action.equals(Intent.ACTION_TIME_CHANGED)) {
+                // TODO: Update playlist based on time and day
+            }
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,8 +61,12 @@ public class FlashbackMode extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        loadSongs();
+
         ListView playList = findViewById(R.id.playList);
-        //playList.setAdapter(new PlayListAdapter(this, list, mediaPlayer));
+        playList.setAdapter(new PlayListAdapter(this, list, mediaPlayer));
+
+        registerReceiver(m_timeChangedReceiver, s_intentFilter);
     }
 
     public void switchNormal(View view) {
@@ -130,5 +166,92 @@ public class FlashbackMode extends AppCompatActivity {
             Drawable pause = getResources().getDrawable(R.drawable.ic_pause_actuallyblack_24dp);
             playButton.setCompoundDrawablesWithIntrinsicBounds(null, pause, null, null);
         }
+    }
+
+    /**
+     * Load the songs.
+     */
+    public void loadSongs() {
+        Map<String, Album> album_data = new LinkedHashMap<String, Album>();
+        final Field[] fields = R.raw.class.getFields(); //Gets the all the files (tracks) in raw folder
+        for (int count = 0; count < fields.length; count++) { //Goes through each track
+            String name = fields[count].getName();
+
+            //Gets id to play the track (used in LoadMedia())
+            int resourceID = getResources().getIdentifier(name, "raw", getPackageName());
+            audioResourceId.add(resourceID);
+
+            //Gets the metadata of the track (album, artist, track number in album, track name)
+            MediaMetadataRetriever mmr = new MediaMetadataRetriever();
+            Resources res = getResources();
+            AssetFileDescriptor afd = res.openRawResourceFd(resourceID);
+            mmr.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
+            String albumName = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM);
+            String artist = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
+            String trackNumber = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_CD_TRACK_NUMBER);
+            String trackName = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
+
+            // Parse the metadata
+            if (albumName == null || albumName.equals("")) {
+                albumName = "Unknown album";
+            }
+            if (artist == null || artist.equals("")) {
+                artist = "Unknown artist";
+            }
+            int trackNo = 0;
+            int numTracks = 0;
+            if (trackNumber != null) {
+                String[] numbers = trackNumber.split("/");
+                trackNo = Integer.parseInt(numbers[0]);
+                numTracks = Integer.parseInt(numbers[1]);
+            }
+            if (trackName == null || trackName.equals("")) {
+                trackName = "Unknown track";
+            }
+
+            // Create the track
+            Track t = new Track(trackName, trackNo, artist, resourceID);
+            Log.d("album name", albumName);
+            if (!album_data.containsKey(albumName)) {
+                Album newAlbum = new Album(albumName, artist, numTracks);
+                album_data.put(albumName, newAlbum);
+                album_list.add(newAlbum);
+                newAlbum.addTrack(t);
+
+                // update data to be sent to adaptor
+                List<Track> tracks = new LinkedList<Track>();
+                tracks.add(t);
+                album_to_tracks.put(newAlbum, tracks);
+            } else {
+                album_data.get(albumName).addTrack(t);
+                album_to_tracks.get(album_data.get(albumName)).add(t);
+            }
+            // Retrieve data from sharedPreferences
+            SharedPreferences sharedPreferences = getSharedPreferences("user_name", MODE_PRIVATE);
+            Set<String> info = sharedPreferences.getStringSet(t.getTrackName(), null);
+            if (info != null) {
+                Iterator<String> iterator = info.iterator();
+                // status
+                int status = Integer.parseInt(iterator.next());
+                t.setStatus(status);
+                // calendar
+                String cal = iterator.next();
+                SimpleDateFormat format = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.ENGLISH);
+                Calendar calendar = Calendar.getInstance();
+                try {
+                    calendar.setTime(format.parse(cal));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                //String location = iterator.next();
+                // TODO: more data retrieval
+            }
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(m_timeChangedReceiver);
     }
 }
