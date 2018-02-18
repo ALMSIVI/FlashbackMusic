@@ -55,7 +55,11 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
                 new MediaPlayer.OnCompletionListener() {
                     @Override
                     public void onCompletion(MediaPlayer mediaPlayer) {
-                        isPlaying.updateStatus();
+                        SharedPreferences sharedPreferences = context.getSharedPreferences("user_name", MODE_PRIVATE);
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                        editor.putStringSet(isPlaying.getTrackName(), isPlaying.getInfo());
+                        editor.apply();
+
                         if (audioResourceId.size() > audioIndex) {
                             loadMedia(audioResourceId.get(audioIndex).first, audioResourceId.get(audioIndex).second);
                         }
@@ -174,6 +178,7 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
                 track.updateStatus();
                 SharedPreferences.Editor editor = sharedPreferences.edit();
                 editor.putStringSet(track.getTrackName(), track.getInfo());
+                editor.apply();
                 changeButton(track, status_button);
                 //for (Track t : trackArray)
             }
@@ -194,6 +199,7 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
             button.setCompoundDrawablesWithIntrinsicBounds(null, disliked, null, null);
         }
     }
+
     /**
      * Load one media file into the player.
      *

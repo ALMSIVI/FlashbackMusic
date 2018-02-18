@@ -5,7 +5,7 @@ import android.location.Location;
 import java.util.*;
 
 public class Track {
-    private Calendar cal;
+    private Calendar cal = Calendar.getInstance(); // TODO: update calendar and location
     private String trackName;
     private String artist;
     private int trackNumber;
@@ -155,7 +155,7 @@ public class Track {
         LinkedHashSet<String> info = new LinkedHashSet<String>();
         info.add(Integer.toString(status));
         info.add(cal.toString());
-        info.add(location.toString());
+        //info.add(location.toString());
         return info;
     }
 

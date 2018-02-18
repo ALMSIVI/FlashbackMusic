@@ -188,8 +188,6 @@ public class NormalMode extends AppCompatActivity {
         }
     }
 
-
-
     /**
      * Switch to Flashback mode.
      * @param

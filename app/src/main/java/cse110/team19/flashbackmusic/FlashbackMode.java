@@ -34,11 +34,12 @@ public class FlashbackMode extends AppCompatActivity {
     }
 
     public void switchNormal(View view) {
+        // update sharedPreferences
         SharedPreferences sharedPreferences = getSharedPreferences("user_name", MODE_PRIVATE);
-        String mode = sharedPreferences.getString("mode", "");
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("mode", "Normal");
         editor.apply();
+        // Finish the task
         finish();
     }
 
