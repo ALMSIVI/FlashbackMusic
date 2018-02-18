@@ -191,6 +191,8 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
             public void onClick(View view) {
                 changePlayPause(view);
                 int id = track.getResourceId();
+                audioResourceId = new <Pair<Integer, Track>> ArrayList();
+                audioResourceId.add(new Pair<Integer, Track>(id, track));
                 loadMedia(id, track);
             }
         });
