@@ -155,7 +155,7 @@ public class Track {
         LinkedHashSet<String> info = new LinkedHashSet<String>();
         info.add(Integer.toString(status));
         info.add(cal.toString());
-        info.add(location.toString());
+        //info.add(location.toString());
         return info;
     }
 

@@ -30,7 +30,7 @@ public class FlashbackMode extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         ListView playList = findViewById(R.id.playList);
-        playList.setAdapter(new PlayListAdapter(this, list, mediaPlayer));
+        //playList.setAdapter(new PlayListAdapter(this, list, mediaPlayer));
     }
 
     public void switchNormal(View view) {
