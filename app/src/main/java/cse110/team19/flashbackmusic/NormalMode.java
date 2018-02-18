@@ -182,7 +182,7 @@ public class NormalMode extends AppCompatActivity {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-                String location = iterator.next();
+                //String location = iterator.next();
                 // TODO: more data retrieval
             }
         }
