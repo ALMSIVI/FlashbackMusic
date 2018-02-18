@@ -8,6 +8,7 @@ import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.location.LocationManager;
 import android.media.MediaPlayer;
 import android.util.Log;
 import android.util.Pair;
@@ -42,10 +43,11 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
     private int audioIndex = 0;
     private Track isPlaying;
 
-    // for recording location of song once
-    Location location;
-    Geocoder geocoder = new Geocoder(context, Locale.getDefault());
+    // for recording location of song
+    Geocoder geocoder;
     List<Address> addresses;
+    GPSTracker gpstracker;
+    Location location;
 
     /**
      * Constructor.
@@ -60,6 +62,9 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
         albumData = l;
         trackData = h;
         mediaPlayer = m;
+        geocoder = new Geocoder(context, Locale.getDefault());
+        gpstracker = new GPSTracker(context);
+        location = gpstracker.getLocation();
 
         mediaPlayer.setOnCompletionListener(
                 new MediaPlayer.OnCompletionListener() {
@@ -68,16 +73,11 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
                         SharedPreferences sharedPreferences = context.getSharedPreferences("user_name", MODE_PRIVATE);
                         SharedPreferences.Editor editor = sharedPreferences.edit();
 
-                        // get location when song ends
-                        try {
-                            addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
-                        }
-                        catch (IOException e) {
-                            e.printStackTrace();
-                        }
-
+                        // TODO if doesnt work
                         // update date, time, loc
-                        isPlaying.updateInfo(addresses.get(0).getFeatureName());
+                        location = gpstracker.getLocation();
+                        isPlaying.setLocation(location);
+                        isPlaying.updateInfo();
 
                         editor.putStringSet(isPlaying.getTrackName(), isPlaying.getInfo());
                         editor.apply();
@@ -253,9 +253,22 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
         if (isPlaying.getCalendar() == null) {
             //lastPlayedView.setText(context.getString(R.id.never_played_info));
         } else {
+            // TODO get location using geocoder
+            String lastLocation = "Unkown location";
+
+            if (location != null) {
+                try {
+                    addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                lastLocation = addresses.get(0).getFeatureName();
+            }
+
             String lastPlayedInfo = String.format(
                     context.getString(R.string.last_played_info),
-                    isPlaying.getCalendar().getTime().toString(), "Dummy", "Dummy");
+                    isPlaying.getCalendar().getTime().toString(), "Dummy", lastLocation);
             lastPlayedView.setText(lastPlayedInfo);
         }
 

@@ -1,5 +1,6 @@
 package cse110.team19.flashbackmusic;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.*;
@@ -29,10 +30,6 @@ public class NormalMode extends AppCompatActivity {
     private ArrayList<Integer> audioResourceId = new ArrayList<Integer>();
     static LinkedList<Track> recentlyPlayed;
 
-    // for location
-    private Location location;
-    private ResultReceiver resultReceiver;
-
     // for the LibraryAdaptor
     private List<Album> album_list = new ArrayList<Album>();
     private Map<Album, List<Track>> album_to_tracks = new LinkedHashMap<Album, List<Track>>();
@@ -50,6 +47,7 @@ public class NormalMode extends AppCompatActivity {
         if (mode.equals("Flashback")) {
             switchFlashback(null);
         }
+
 
         // Initialize the media player and load songs
         if (mediaPlayer == null) {
@@ -218,13 +216,4 @@ public class NormalMode extends AppCompatActivity {
         startActivity(intent);
     }
 
-    /**
-     *
-     */
-    protected void startInentService() {
-        Intent intent = new Intent(this, FetchAddressIntentService.class);
-        intent.putExtra(Constants.RECEIVER, resultReceiver);
-        intent.putExtra(Constants.LOCATION_DATA_EXTRA, location);
-        startService(intent);
-    }
 }

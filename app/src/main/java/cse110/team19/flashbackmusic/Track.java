@@ -12,7 +12,7 @@ public class Track {
     private int score;
     private int status;
     private int resourceId;
-    private String location;
+    private Location location;
 
     /**
      * Constructor.
@@ -111,6 +111,10 @@ public class Track {
         this.status = status;
     }
 
+    public void setLocation(Location l) {
+        location = l;
+    }
+
     public String getTrackName() {
         return trackName;
     }
@@ -139,6 +143,11 @@ public class Track {
         return resourceId;
     }
 
+    public Location getLocation() {
+        return location;
+    }
+
+
     //Increment to the score
     public void incrementScore(int toAdd)
     {
@@ -159,9 +168,8 @@ public class Track {
         return info;
     }
 
-    public void updateInfo(String l) {
+    public void updateInfo() {
         cal = Calendar.getInstance();
-        location = l;
     }
 }
 
