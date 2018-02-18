@@ -56,16 +56,17 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
     /**
      * Constructor.
      *
-     * @param c
-     * @param l
-     * @param h
-     * @param m
+     * @param c NormalMode Activity
+     * @param l list of albums
+     * @param h albums and their tracks
+     * @param m media player
      */
     public LibraryAdapter(Context c, List<Album> l, Map<Album, List<Track>> h, MediaPlayer m) {
         context = c;
         albumData = l;
         trackData = h;
         mediaPlayer = m;
+        // Initialize the locations
         geocoder = new Geocoder(context, Locale.getDefault());
         gpstracker = new GPSTracker(context);
         location = gpstracker.getLocation();
@@ -106,12 +107,6 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
 
     public Track getIsPlaying() {
         return isPlaying;
-    }
-
-    public void changePlayPause(View view) {
-        Button mainPlayButton = (Button) ((Activity) context).findViewById(R.id.playButton);
-        Drawable pause = context.getResources().getDrawable(R.drawable.ic_pause_actuallyblack_24dp);
-        mainPlayButton.setCompoundDrawablesWithIntrinsicBounds(null, pause, null, null);
     }
 
     @Override
@@ -184,6 +179,7 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
             view = layoutInflater.inflate(R.layout.child_view, null);
         }
 
+        // When we click on the textfield, play the song
         TextView track_name = (TextView) view.findViewById(R.id.track_name);
         track_name.setText(track.getTrackName());
         track_name.setOnClickListener(new View.OnClickListener() {
@@ -196,8 +192,10 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
                 loadMedia(id, track);
             }
         });
+
         // TODO set TypeFace here, low priority, just to make things pretty
 
+        // When we click on the button, set the status
         final Button status_button = (Button) view.findViewById(R.id.set_status);
         final SharedPreferences sharedPreferences = context.getSharedPreferences("user_name", MODE_PRIVATE);
         changeButton(track, status_button);
@@ -211,8 +209,7 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
                 editor.apply();
                 changeButton(track, status_button);
 
-                if (track.getStatus() == -1 && mediaPlayer.isPlaying() && isPlaying == track)
-                {
+                if (track.getStatus() == -1 && mediaPlayer.isPlaying() && isPlaying == track) {
                     mediaPlayer.stop();
                     if (audioResourceId.size() > audioIndex) {
                         loadMedia(audioResourceId.get(audioIndex).first, audioResourceId.get(audioIndex).second);
@@ -221,6 +218,12 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
             }
         });
         return view;
+    }
+
+    public void changePlayPause(View view) {
+        Button mainPlayButton = (Button) ((Activity) context).findViewById(R.id.playButton);
+        Drawable pause = context.getResources().getDrawable(R.drawable.ic_pause_actuallyblack_24dp);
+        mainPlayButton.setCompoundDrawablesWithIntrinsicBounds(null, pause, null, null);
     }
 
     public void changeButton(Track track, Button button) {
@@ -274,10 +277,9 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
                 lastLocation = addresses.get(0).getFeatureName();
             }
 
-            // TODO update dummy values
             String lastPlayedInfo = String.format(
                     context.getString(R.string.last_played_info),
-                    isPlaying.getCalendar().getTime().toString(), "Dummy", lastLocation);
+                    isPlaying.getCalendar().getTime().toString(), lastLocation);
             lastPlayedView.setText(lastPlayedInfo);
         }
 
