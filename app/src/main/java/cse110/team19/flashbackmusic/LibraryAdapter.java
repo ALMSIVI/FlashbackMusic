@@ -6,6 +6,7 @@ import android.content.res.AssetFileDescriptor;
 import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.util.Log;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,7 +31,7 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
     // data source for the tracks within each album
     private Map<Album, List<Track>> trackData;
     private MediaPlayer mediaPlayer;
-    private ArrayList<Integer> audioResourceId;
+    private ArrayList<Pair<Integer, Track>> audioResourceId;
     private int audioIndex = 0;
     private Track isPlaying;
 
@@ -55,7 +56,7 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
                         isPlaying.updateStatus();
                         if (audioResourceId.size() > audioIndex) {
                             Log.d("hi", "woah");
-                            loadMedia(audioResourceId.get(audioIndex));
+                            loadMedia(audioResourceId.get(audioIndex).first, audioResourceId.get(audioIndex).second);
                         }
                     }
                 }
@@ -85,7 +86,7 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
         Album album = (Album) getGroup(i);
         String albumName = album.getTitle();
         String albumArtist = album.getArtist();
-        audioResourceId = new ArrayList<Integer>();
+
         final List<Track> listOfTracks = trackData.get(album);
 
         // Sort the tracks based on track number
@@ -95,7 +96,6 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
                 return t1.getTrackNumber() - t2.getTrackNumber();
             }
         });
-        //final Track[] trackArray = n
 
         if (view == null) {
             LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -112,14 +112,17 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
         play_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                audioResourceId = new ArrayList<Pair<Integer, Track>>();
                 audioIndex = 0;
                 changePlayPause(view);
                 //ArrayList<Integer> audioResourceId = new ArrayList<Integer>();
 
                 for (Track t : listOfTracks) {
+                    Log.d("audioIndex", audioIndex + "");
+
                     if (t.getStatus() > -1) {
                         int id = t.getResourceId();
-                        audioResourceId.add(id);
+                        audioResourceId.add(new Pair<Integer, Track>(id, t));
                         Log.d("trackname", t.getTrackName());
                         Log.d("track number", t.getTrackNumber() + "");
                         mediaPlayer.reset();
@@ -133,9 +136,7 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
                     }
                 }
 
-                isPlaying = listOfTracks.get(audioIndex - 1);
-                loadMedia(audioResourceId.get(audioIndex));
-                //}
+                loadMedia(audioResourceId.get(audioIndex).first, audioResourceId.get(audioIndex).second);
 
             }
         });
@@ -158,8 +159,7 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
             public void onClick(View view) {
                 changePlayPause(view);
                 int id = track.getResourceId();
-                loadMedia(id);
-                isPlaying = track;
+                loadMedia(id, track);
             }
         });
         // TODO set TypeFace here, low priority, just to make things pretty
@@ -192,7 +192,8 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
      *
      * @param resourceId id of the media file in system.
      */
-    public void loadMedia(int resourceId) {
+    public void loadMedia(int resourceId, Track t) {
+        isPlaying = t;
         mediaPlayer.reset();
         AssetFileDescriptor assetFileDescriptor = context.getResources().openRawResourceFd(resourceId);
         try {
@@ -201,6 +202,21 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
         } catch (Exception e) {
             System.out.println(e.toString());
         }
+
+        // Update the "Now playing" text
+        TextView infoView = ((Activity) context).findViewById(R.id.info);
+        infoView.setText(isPlaying.getTrackName());
+        // Update the "Last played" text
+        TextView lastPlayedView = ((Activity) context).findViewById(R.id.lastPlayed);
+        if (isPlaying.getCalendar() == null) {
+            //lastPlayedView.setText(context.getString(R.id.never_played_info));
+        } else {
+            String lastPlayedInfo = String.format(
+                    context.getString(R.string.last_played_info),
+                    isPlaying.getCalendar().getTime().toString(), "Dummy", "Dummy");
+            lastPlayedView.setText(lastPlayedInfo);
+        }
+
         audioIndex++;
     }
 
