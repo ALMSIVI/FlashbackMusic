@@ -108,7 +108,7 @@ public class NormalMode extends AppCompatActivity {
     }
 
     public void resetMusic(View view) {
-      mediaPlayer.reset();
+        mediaPlayer.seekTo(0);
     }
 
     /**
