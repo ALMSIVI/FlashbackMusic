@@ -159,7 +159,7 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
             public void onClick(View view) {
                 audioIndex = 0;
                 changePlayPause(view);
-                ArrayList<Integer> audioResourceId = new ArrayList<Integer>();
+                //ArrayList<Integer> audioResourceId = new ArrayList<Integer>();
 
                 for (Track t : listOfTracks) {
                     if (t.getStatus() > -1) {
@@ -178,7 +178,7 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
                     }
                 }
                     loadMedia(audioResourceId.get(audioIndex));
-                    isPlaying = listOfTracks.get(audioIndex);
+                    isPlaying = listOfTracks.get(audioIndex - 1);
                 //}
             }
         });
