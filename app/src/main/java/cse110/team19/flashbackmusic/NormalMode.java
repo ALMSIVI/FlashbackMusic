@@ -51,26 +51,6 @@ public class NormalMode extends AppCompatActivity {
         if (mediaPlayer == null) {
             mediaPlayer = new MediaPlayer();
         }
-        mediaPlayer.setOnCompletionListener(
-                new MediaPlayer.OnCompletionListener() {
-                    @Override
-                    public void onCompletion(MediaPlayer mediaPlayer) {
-                        if (audioResourceId.size() > audioIndex) {
-                            loadMedia(audioResourceId.get(audioIndex));
-                            //mediaPlayer.start();
-                            //mediaPlayer.
-                        }
-                    }
-                }
-        );
-        mediaPlayer.setOnPreparedListener(
-                new MediaPlayer.OnPreparedListener() {
-                    @Override
-                    public void onPrepared(MediaPlayer mediaPlayer) {
-                        mediaPlayer.start();
-                    }
-                }
-        );
 
         loadSongs();
 
@@ -218,4 +198,3 @@ public class NormalMode extends AppCompatActivity {
         startActivity(intent);
     }
 }
-

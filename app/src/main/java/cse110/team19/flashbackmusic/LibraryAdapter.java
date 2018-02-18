@@ -54,9 +54,6 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
                         if (audioResourceId.size() > audioIndex) {
                             Log.d("hi", "woah");
                             loadMedia(audioResourceId.get(audioIndex));
-                            //isPlaying = listOfTracks.get(audioIndex);
-                            //mediaPlayer.start();
-                            //mediaPlayer.
                         }
                     }
                 }
@@ -66,8 +63,10 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
             @Override
             public void onPrepared(MediaPlayer mediaPlayer) {
                 mediaPlayer.start();
+                // Update the "Now playing" text
                 TextView infoView = ((Activity) context).findViewById(R.id.info);
                 infoView.setText(isPlaying.getTrackName());
+                // Update the "Last played" text
                 TextView lastPlayedView = ((Activity) context).findViewById(R.id.lastPlayed);
                 if (isPlaying.getCalendar() == null) {
                     //lastPlayedView.setText(context.getString(R.id.never_played_info));
@@ -81,49 +80,14 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
         });
     }
 
-    @Override
-    public int getGroupCount() {
-        return albumData.size();
-    }
 
-    @Override
-    public int getChildrenCount(int i) {
-        return trackData.get(albumData.get(i)).size();
-    }
-
-    @Override
-    public Object getGroup(int i) {
-        return albumData.get(i);
-    }
-
-    @Override
-    public Object getChild(int i, int i1) {
-        return trackData.get(albumData.get(i)).get(i1);
-    }
-
-    @Override
-    public long getGroupId(int i) {
-        return i;
-    }
-
-    @Override
-    public long getChildId(int i, int i1) {
-        return i1;
-    }
-
-
-    public void changePlayPause(View view)
-    {
-
+    public void changePlayPause(View view) {
         Button mainPlayButton = (Button) ((Activity)context).findViewById(R.id.playButton);
         Drawable pause = context.getResources().getDrawable(R.drawable.ic_pause_actuallyblack_24dp);
         mainPlayButton.setCompoundDrawablesWithIntrinsicBounds(null, pause, null, null);
     }
 
-    @Override
-    public boolean hasStableIds() {
-        return false;
-    }
+
     
     @Override
     public View getGroupView(int i, boolean b, View view, ViewGroup viewGroup) {
@@ -180,6 +144,7 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
                     loadMedia(audioResourceId.get(audioIndex));
                     isPlaying = listOfTracks.get(audioIndex - 1);
                 //}
+
             }
         });
         return view;
@@ -188,7 +153,7 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
     @Override
     public View getChildView(int i, int i1, boolean b, View view, ViewGroup viewGroup) {
         final Track track = (Track) getChild(i, i1);
-
+        // inflate the view
         if (view == null) {
             LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             view = layoutInflater.inflate(R.layout.child_view, null);
@@ -213,18 +178,13 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
                 track.updateStatus();
                 int stat = track.getStatus();
 
-                if( stat == 0 )
-                {
+                if( stat == 0 ) {
                     Drawable neutral = context.getResources().getDrawable(R.drawable.neutral);
                     status_button.setCompoundDrawablesWithIntrinsicBounds(null, neutral, null, null);
-                }
-                else if( stat == 1 )
-                {
+                } else if( stat == 1 ) {
                     Drawable liked = context.getResources().getDrawable(R.drawable.favorite);
                     status_button.setCompoundDrawablesWithIntrinsicBounds(null, liked, null, null);
-                }
-                else if( stat == -1 )
-                {
+                } else if( stat == -1 ) {
                     Drawable disliked = context.getResources().getDrawable(R.drawable.dislike);
                     status_button.setCompoundDrawablesWithIntrinsicBounds(null, disliked, null, null);
                 }
@@ -232,11 +192,6 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
             }
         });
         return view;
-    }
-
-    @Override
-    public boolean isChildSelectable(int i, int i1) {
-        return true;
     }
 
     /**
@@ -253,5 +208,46 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
             System.out.println(e.toString());
         }
         audioIndex++;
+    }
+
+    /* Overridden methods */
+    @Override
+    public int getGroupCount() {
+        return albumData.size();
+    }
+
+    @Override
+    public int getChildrenCount(int i) {
+        return trackData.get(albumData.get(i)).size();
+    }
+
+    @Override
+    public Object getGroup(int i) {
+        return albumData.get(i);
+    }
+
+    @Override
+    public Object getChild(int i, int i1) {
+        return trackData.get(albumData.get(i)).get(i1);
+    }
+
+    @Override
+    public long getGroupId(int i) {
+        return i;
+    }
+
+    @Override
+    public long getChildId(int i, int i1) {
+        return i1;
+    }
+
+    @Override
+    public boolean hasStableIds() {
+        return false;
+    }
+
+    @Override
+    public boolean isChildSelectable(int i, int i1) {
+        return true;
     }
 }
