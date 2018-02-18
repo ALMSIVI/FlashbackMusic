@@ -84,6 +84,9 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
         });
     }
 
+    public Track getIsPlaying() {
+        return isPlaying;
+    }
 
     public void changePlayPause(View view) {
         Button mainPlayButton = (Button) ((Activity) context).findViewById(R.id.playButton);
