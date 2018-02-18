@@ -181,7 +181,14 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
                 editor.putStringSet(track.getTrackName(), track.getInfo());
                 editor.apply();
                 changeButton(track, status_button);
-                //for (Track t : trackArray)
+
+                if (track.getStatus() == -1 && mediaPlayer.isPlaying() && isPlaying == track)
+                {
+                    mediaPlayer.stop();
+                    if (audioResourceId.size() > audioIndex) {
+                        loadMedia(audioResourceId.get(audioIndex).first, audioResourceId.get(audioIndex).second);
+                    }
+                }
             }
         });
         return view;
