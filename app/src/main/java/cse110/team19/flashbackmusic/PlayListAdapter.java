@@ -2,6 +2,8 @@ package cse110.team19.flashbackmusic;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.AssetFileDescriptor;
 import android.graphics.drawable.Drawable;
@@ -35,6 +37,7 @@ public class PlayListAdapter extends BaseAdapter {
     private ArrayList<Pair<Integer, Track>> audioResourceId;
     private int audioIndex = 0;
     private Track isPlaying;
+
 
     /**
      * Constructor.
