@@ -5,6 +5,9 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.AssetFileDescriptor;
 import android.graphics.drawable.Drawable;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
 import android.media.MediaPlayer;
 import android.util.Log;
 import android.util.Pair;
@@ -15,10 +18,12 @@ import android.widget.BaseExpandableListAdapter;
 import android.widget.Button;
 import android.widget.TextView;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import static android.content.Context.MODE_PRIVATE;
@@ -36,6 +41,11 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
     private ArrayList<Pair<Integer, Track>> audioResourceId;
     private int audioIndex = 0;
     private Track isPlaying;
+
+    // for recording location of song once
+    Location location;
+    Geocoder geocoder = new Geocoder(context, Locale.getDefault());
+    List<Address> addresses;
 
     /**
      * Constructor.
@@ -57,7 +67,18 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
                     public void onCompletion(MediaPlayer mediaPlayer) {
                         SharedPreferences sharedPreferences = context.getSharedPreferences("user_name", MODE_PRIVATE);
                         SharedPreferences.Editor editor = sharedPreferences.edit();
-                        isPlaying.updateInfo();
+
+                        // get location when song ends
+                        try {
+                            addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
+                        }
+                        catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+                        // update date, time, loc
+                        isPlaying.updateInfo(addresses.get(0).getFeatureName());
+
                         editor.putStringSet(isPlaying.getTrackName(), isPlaying.getInfo());
                         editor.apply();
 

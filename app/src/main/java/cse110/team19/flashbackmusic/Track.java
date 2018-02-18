@@ -12,7 +12,7 @@ public class Track {
     private int score;
     private int status;
     private int resourceId;
-    private Location location;
+    private String location;
 
     /**
      * Constructor.
@@ -159,8 +159,9 @@ public class Track {
         return info;
     }
 
-    public void updateInfo() {
+    public void updateInfo(String l) {
         cal = Calendar.getInstance();
+        location = l;
     }
 }
 
