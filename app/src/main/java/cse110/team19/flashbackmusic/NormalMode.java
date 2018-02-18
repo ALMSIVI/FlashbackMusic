@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.*;
 import android.widget.*;
 import java.lang.reflect.Field;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -173,12 +174,23 @@ public class NormalMode extends AppCompatActivity {
             // Retrieve data from sharedPreferences
             SharedPreferences sharedPreferences = getSharedPreferences("user_name", MODE_PRIVATE);
             Set<String> info = sharedPreferences.getStringSet(t.getTrackName(), null);
-            Iterator<String> iterator = info.iterator();
-            int status = Integer.parseInt(iterator.next());
-            t.setStatus(status);
-            String calendar = iterator.next();
-            String location = iterator.next();
-            // TODO: more data retrieval
+            if (info != null) {
+                Iterator<String> iterator = info.iterator();
+                // status
+                int status = Integer.parseInt(iterator.next());
+                t.setStatus(status);
+                // calendar
+                String cal = iterator.next();
+                SimpleDateFormat format = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.ENGLISH);
+                Calendar calendar = Calendar.getInstance();
+                try {
+                    calendar.setTime(format.parse(cal));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                String location = iterator.next();
+                // TODO: more data retrieval
+            }
         }
     }
 
@@ -189,11 +201,14 @@ public class NormalMode extends AppCompatActivity {
      * @param
      */
     public void switchFlashback(View view) {
+        // Change the mode in sharedpreferences
         SharedPreferences sharedPreferences = getSharedPreferences("user_name", MODE_PRIVATE);
         String mode = sharedPreferences.getString("mode", "");
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("mode", "Flashback");
         editor.apply();
+
+        // Create the intent and switch activity
         Intent intent = new Intent(this, FlashbackMode.class);
         startActivity(intent);
     }

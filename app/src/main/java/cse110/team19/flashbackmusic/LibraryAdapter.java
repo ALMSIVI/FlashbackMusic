@@ -138,8 +138,6 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
 
                 isPlaying = listOfTracks.get(audioIndex - 1);
                 loadMedia(audioResourceId.get(audioIndex));
-                //}
-
             }
         });
         return view;
