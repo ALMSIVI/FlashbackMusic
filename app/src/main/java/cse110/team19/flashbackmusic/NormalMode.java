@@ -165,11 +165,17 @@ public class NormalMode extends AppCompatActivity {
                 List<Track> tracks = new LinkedList<Track>();
                 tracks.add(t);
                 album_to_tracks.put(newAlbum, tracks);
-
             } else {
                 album_data.get(albumName).addTrack(t);
                 album_to_tracks.get(album_data.get(albumName)).add(t);
             }
+            // Retrieve data from sharedPreferences
+            SharedPreferences sharedPreferences = getSharedPreferences("user_name", MODE_PRIVATE);
+            Set<String> info = sharedPreferences.getStringSet(t.getTrackName(), null);
+            Iterator<String> iterator = info.iterator();
+            int status = Integer.parseInt(iterator.next());
+            t.setStatus(status);
+            // TODO: more data retrieval
         }
     }
 

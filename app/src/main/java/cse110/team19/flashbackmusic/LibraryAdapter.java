@@ -2,6 +2,7 @@ package cse110.team19.flashbackmusic;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.AssetFileDescriptor;
 import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
@@ -16,8 +17,12 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+import static android.content.Context.MODE_PRIVATE;
 
 /**
  * Created by Tyler on 2/14/18.
@@ -172,28 +177,35 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
         // TODO set TypeFace here, low priority, just to make things pretty
 
         final Button status_button = (Button) view.findViewById(R.id.set_status);
+        final SharedPreferences sharedPreferences = context.getSharedPreferences("user_name", MODE_PRIVATE);
+        changeButton(track, status_button);
+
         status_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 track.updateStatus();
-                int stat = track.getStatus();
-
-                if (stat == 0) {
-                    Drawable neutral = context.getResources().getDrawable(R.drawable.neutral);
-                    status_button.setCompoundDrawablesWithIntrinsicBounds(null, neutral, null, null);
-                } else if (stat == 1) {
-                    Drawable liked = context.getResources().getDrawable(R.drawable.favorite);
-                    status_button.setCompoundDrawablesWithIntrinsicBounds(null, liked, null, null);
-                } else if (stat == -1) {
-                    Drawable disliked = context.getResources().getDrawable(R.drawable.dislike);
-                    status_button.setCompoundDrawablesWithIntrinsicBounds(null, disliked, null, null);
-                }
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putStringSet(track.getTrackName(), track.getInfo());
+                changeButton(track, status_button);
                 //for (Track t : trackArray)
             }
         });
         return view;
     }
 
+    public void changeButton(Track track, Button button) {
+        int stat = track.getStatus();
+        if (stat == 0) {
+            Drawable neutral = context.getResources().getDrawable(R.drawable.neutral);
+            button.setCompoundDrawablesWithIntrinsicBounds(null, neutral, null, null);
+        } else if (stat == 1) {
+            Drawable liked = context.getResources().getDrawable(R.drawable.favorite);
+            button.setCompoundDrawablesWithIntrinsicBounds(null, liked, null, null);
+        } else if (stat == -1) {
+            Drawable disliked = context.getResources().getDrawable(R.drawable.dislike);
+            button.setCompoundDrawablesWithIntrinsicBounds(null, disliked, null, null);
+        }
+    }
     /**
      * Load one media file into the player.
      *
