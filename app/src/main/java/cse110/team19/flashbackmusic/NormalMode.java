@@ -175,6 +175,8 @@ public class NormalMode extends AppCompatActivity {
             Iterator<String> iterator = info.iterator();
             int status = Integer.parseInt(iterator.next());
             t.setStatus(status);
+            String calendar = iterator.next();
+            String location = iterator.next();
             // TODO: more data retrieval
         }
     }
