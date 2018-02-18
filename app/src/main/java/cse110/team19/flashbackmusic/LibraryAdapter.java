@@ -55,6 +55,7 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
                 new MediaPlayer.OnCompletionListener() {
                     @Override
                     public void onCompletion(MediaPlayer mediaPlayer) {
+                        isPlaying.updateStatus();
                         if (audioResourceId.size() > audioIndex) {
                             Log.d("hi", "woah");
                             loadMedia(audioResourceId.get(audioIndex));
@@ -68,18 +69,6 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
             public void onPrepared(MediaPlayer mediaPlayer) {
                 mediaPlayer.start();
                 // Update the "Now playing" text
-                TextView infoView = ((Activity) context).findViewById(R.id.info);
-                infoView.setText(isPlaying.getTrackName());
-                // Update the "Last played" text
-                TextView lastPlayedView = ((Activity) context).findViewById(R.id.lastPlayed);
-                if (isPlaying.getCalendar() == null) {
-                    //lastPlayedView.setText(context.getString(R.id.never_played_info));
-                } else {
-                    String lastPlayedInfo = String.format(
-                            context.getString(R.string.last_played_info),
-                            isPlaying.getCalendar().getTime().toString(), "Dummy", "Dummy");
-                    lastPlayedView.setText(lastPlayedInfo);
-                }
             }
         });
     }
@@ -146,8 +135,9 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
                         }
                     }
                 }
-                loadMedia(audioResourceId.get(audioIndex));
+
                 isPlaying = listOfTracks.get(audioIndex - 1);
+                loadMedia(audioResourceId.get(audioIndex));
                 //}
 
             }
