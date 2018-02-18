@@ -128,7 +128,7 @@ public class NormalMode extends AppCompatActivity {
     }
 
     public void resetMusic(View view) {
-      mediaPlayer.reset();
+        mediaPlayer.reset();
     }
 
     /**
@@ -218,4 +218,3 @@ public class NormalMode extends AppCompatActivity {
         startActivity(intent);
     }
 }
-
