@@ -251,8 +251,9 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
         // Update the "Last played" text
         TextView lastPlayedView = ((Activity) context).findViewById(R.id.lastPlayed);
         if (isPlaying.getCalendar() == null) {
-            //lastPlayedView.setText(context.getString(R.id.never_played_info));
+            lastPlayedView.setText(context.getString(R.string.never_played_info));
         } else {
+            // TODO update dummy values
             String lastPlayedInfo = String.format(
                     context.getString(R.string.last_played_info),
                     isPlaying.getCalendar().getTime().toString(), "Dummy", "Dummy");
