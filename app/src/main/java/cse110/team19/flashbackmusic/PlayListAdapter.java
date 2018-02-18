@@ -30,7 +30,7 @@ import static android.content.Context.MODE_PRIVATE;
 public class PlayListAdapter extends BaseAdapter {
     private Context context;
     private MediaPlayer mediaPlayer;
-    private TreeMap<Integer, Track> playList;
+    private List<Track> playList;
     private ArrayList<Integer> audioResourceId;
     private int audioIndex = 0;
     private Track isPlaying;
@@ -42,7 +42,7 @@ public class PlayListAdapter extends BaseAdapter {
      * @param l playlist
      * @param m media player
      */
-    public PlayListAdapter(Context c, TreeMap<Integer, Track> l, MediaPlayer m) {
+    public PlayListAdapter(Context c, List<Track> l, MediaPlayer m) {
         context = c;
         playList = l;
         mediaPlayer = m;
@@ -53,7 +53,6 @@ public class PlayListAdapter extends BaseAdapter {
                     public void onCompletion(MediaPlayer mediaPlayer) {
                         isPlaying.updateStatus();
                         if (audioResourceId.size() > audioIndex) {
-                            Log.d("hi", "woah");
                             loadMedia(audioResourceId.get(audioIndex));
                         }
                     }
@@ -157,12 +156,12 @@ public class PlayListAdapter extends BaseAdapter {
 
     @Override
     public Object getItem(int i) {
-        return ;
+        return playList.get(i);
     }
 
     @Override
     public long getItemId(int i) {
-        return 0;
+        return i;
     }
 
     @Override

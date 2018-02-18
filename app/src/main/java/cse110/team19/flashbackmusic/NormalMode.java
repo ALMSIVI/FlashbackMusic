@@ -23,19 +23,13 @@ public class NormalMode extends AppCompatActivity {
     /* Members */
     // player
     private MediaPlayer mediaPlayer;
-    ArrayList<Integer> audioResourceId = new ArrayList<Integer>();
+    private ArrayList<Integer> audioResourceId = new ArrayList<Integer>();
     static LinkedList<Track> recentlyPlayed;
 
-    // for extracting metadata
-    Map<String, Album> album_data = new LinkedHashMap<String, Album>();
 
     // for the LibraryAdaptor
-    List<Album> album_list = new ArrayList<Album>();
-    Map<Album, List<Track>> album_to_tracks = new LinkedHashMap<Album, List<Track>>();
-
-    // for the expandable list view (the music library
-    private ExpandableListView expandableListView;
-    private LibraryAdapter adapter;
+    private List<Album> album_list = new ArrayList<Album>();
+    private Map<Album, List<Track>> album_to_tracks = new LinkedHashMap<Album, List<Track>>();
 
     /* Methods */
     @Override
@@ -60,9 +54,8 @@ public class NormalMode extends AppCompatActivity {
 
         // Initialize the library list
         //TODO: initialize content and the list
-        adapter = new LibraryAdapter(this, album_list, album_to_tracks, mediaPlayer);
-        expandableListView = findViewById(R.id.expandableListView);
-        expandableListView.setAdapter(adapter);
+        ExpandableListView expandableListView = findViewById(R.id.expandableListView);
+        expandableListView.setAdapter(new LibraryAdapter(this, album_list, album_to_tracks, mediaPlayer));
 
         expandableListView.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
             @Override
@@ -118,6 +111,7 @@ public class NormalMode extends AppCompatActivity {
      * Load the songs.
      */
     public void loadSongs() {
+        Map<String, Album> album_data = new LinkedHashMap<String, Album>();
         final Field[] fields = R.raw.class.getFields(); //Gets the all the files (tracks) in raw folder
         for (int count = 0; count < fields.length; count++) { //Goes through each track
             String name = fields[count].getName();

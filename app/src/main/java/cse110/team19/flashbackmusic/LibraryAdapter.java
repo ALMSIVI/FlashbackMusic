@@ -57,7 +57,6 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
                     public void onCompletion(MediaPlayer mediaPlayer) {
                         isPlaying.updateStatus();
                         if (audioResourceId.size() > audioIndex) {
-                            Log.d("hi", "woah");
                             loadMedia(audioResourceId.get(audioIndex));
                         }
                     }

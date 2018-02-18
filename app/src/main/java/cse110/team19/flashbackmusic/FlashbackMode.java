@@ -6,7 +6,9 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.ListView;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.List;
@@ -15,7 +17,7 @@ import java.util.TreeMap;
 
 public class FlashbackMode extends AppCompatActivity {
     private MediaPlayer mediaPlayer;
-    private TreeMap<Integer, Track> playList;
+    private List<Track> list = new ArrayList<Track>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,6 +26,9 @@ public class FlashbackMode extends AppCompatActivity {
         setContentView(R.layout.activity_flashback_mode);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        ListView playList = findViewById(R.id.playList);
+        playList.setAdapter(new PlayListAdapter(this, list, mediaPlayer));
     }
 
     public void switchNormal(View view) {
@@ -36,7 +41,7 @@ public class FlashbackMode extends AppCompatActivity {
     }
 
     public void createFlashback(Map<Album, List<Track>> input) {
-        playList = new TreeMap<Integer, Track>(
+        TreeMap<Integer, Track> tempMap = new TreeMap<Integer, Track>(
                 new Comparator<Integer>() {
                     @Override
                     public int compare(Integer integer, Integer t1) {
@@ -80,10 +85,15 @@ public class FlashbackMode extends AppCompatActivity {
                 }
 
                 if((track.getScore() != 0)) {
-                    playList.put(track.getScore(), track);
+                    tempMap.put(track.getScore(), track);
                 }
-
             }
+        }
+
+        for( Map.Entry<Integer, Track> entry: tempMap.entrySet())
+        {
+            Track toInsert = entry.getValue();
+            list.add(toInsert);
         }
     }
 
