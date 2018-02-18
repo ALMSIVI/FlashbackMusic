@@ -36,6 +36,7 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
 
     /**
      * Constructor.
+     *
      * @param c
      * @param l
      * @param h
@@ -82,13 +83,11 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
 
 
     public void changePlayPause(View view) {
-        Button mainPlayButton = (Button) ((Activity)context).findViewById(R.id.playButton);
+        Button mainPlayButton = (Button) ((Activity) context).findViewById(R.id.playButton);
         Drawable pause = context.getResources().getDrawable(R.drawable.ic_pause_actuallyblack_24dp);
         mainPlayButton.setCompoundDrawablesWithIntrinsicBounds(null, pause, null, null);
     }
 
-
-    
     @Override
     public View getGroupView(int i, boolean b, View view, ViewGroup viewGroup) {
         Album album = (Album) getGroup(i);
@@ -100,7 +99,7 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
         // Sort the tracks based on track number
         Collections.sort(listOfTracks, new Comparator<Track>() {
             @Override
-            public int compare (Track t1, Track t2) {
+            public int compare(Track t1, Track t2) {
                 return t1.getTrackNumber() - t2.getTrackNumber();
             }
         });
@@ -141,8 +140,8 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
                         }
                     }
                 }
-                    loadMedia(audioResourceId.get(audioIndex));
-                    isPlaying = listOfTracks.get(audioIndex - 1);
+                loadMedia(audioResourceId.get(audioIndex));
+                isPlaying = listOfTracks.get(audioIndex - 1);
                 //}
 
             }
@@ -161,7 +160,7 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
 
         TextView track_name = (TextView) view.findViewById(R.id.track_name);
         track_name.setText(track.getTrackName());
-        track_name.setOnClickListener(new View.OnClickListener(){
+        track_name.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 int id = track.getResourceId();
@@ -178,13 +177,13 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
                 track.updateStatus();
                 int stat = track.getStatus();
 
-                if( stat == 0 ) {
+                if (stat == 0) {
                     Drawable neutral = context.getResources().getDrawable(R.drawable.neutral);
                     status_button.setCompoundDrawablesWithIntrinsicBounds(null, neutral, null, null);
-                } else if( stat == 1 ) {
+                } else if (stat == 1) {
                     Drawable liked = context.getResources().getDrawable(R.drawable.favorite);
                     status_button.setCompoundDrawablesWithIntrinsicBounds(null, liked, null, null);
-                } else if( stat == -1 ) {
+                } else if (stat == -1) {
                     Drawable disliked = context.getResources().getDrawable(R.drawable.dislike);
                     status_button.setCompoundDrawablesWithIntrinsicBounds(null, disliked, null, null);
                 }
@@ -196,6 +195,7 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
 
     /**
      * Load one media file into the player.
+     *
      * @param resourceId id of the media file in system.
      */
     public void loadMedia(int resourceId) {
