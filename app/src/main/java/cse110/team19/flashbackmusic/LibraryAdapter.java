@@ -88,11 +88,6 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
         mainPlayButton.setCompoundDrawablesWithIntrinsicBounds(null, pause, null, null);
     }
 
-<<<<<<< HEAD
-
-
-=======
->>>>>>> 7e4988864cc3177c9ef2454cab3cbdf05e129fd6
     @Override
     public View getGroupView(int i, boolean b, View view, ViewGroup viewGroup) {
         Album album = (Album) getGroup(i);
