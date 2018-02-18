@@ -79,12 +79,13 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
                         SharedPreferences sharedPreferences = context.getSharedPreferences("user_name", MODE_PRIVATE);
                         SharedPreferences.Editor editor = sharedPreferences.edit();
 
-                        // TODO if doesnt work
-                        // update date, time, loc
                         location = gpstracker.getLocation();
-                        isPlaying.setLocation(location);
-                        isPlaying.updateInfo();
-                        isPlaying.setTimeSinceLastPlayed(time.getTime());
+                        if (location != null) {
+                            Log.d("location", location.toString());
+                        } else {
+                            Log.d("location", "Not working");
+                        }
+                        isPlaying.updateInfo(location, time.getTime());
 
                         editor.putStringSet(isPlaying.getTrackName(), isPlaying.getInfo());
                         editor.apply();

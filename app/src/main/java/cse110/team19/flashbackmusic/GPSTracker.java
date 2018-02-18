@@ -3,7 +3,6 @@ package cse110.team19.flashbackmusic;
 /**
  * Created by sarahji on 2/18/18.
  */
-
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
