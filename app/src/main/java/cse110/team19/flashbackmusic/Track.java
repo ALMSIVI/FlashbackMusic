@@ -140,6 +140,10 @@ public class Track {
         cal = calendar;
     }
 
+    public void setLocation(Location location) {
+        this.location = location;
+    }
+
     //Increment to the score
     public void incrementScore(int toAdd)
     {
@@ -157,7 +161,7 @@ public class Track {
         info.add(Integer.toString(status));
         info.add(cal.getTime().toString());
         if (location != null) {
-            info.add(location.toString());
+            info.add(location.getLatitude() + " " + location.getLongitude());
         } else {
             info.add("Unknown location");
         }

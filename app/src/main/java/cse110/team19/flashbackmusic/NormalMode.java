@@ -201,14 +201,15 @@ public class NormalMode extends AppCompatActivity {
                     e.printStackTrace();
                 }
 
-                String location = iterator.next();
-                if (location != null) {
-                    Log.d("Last played location", location);
-                } else {
-                    Log.d("Last played location", "NULL");
+                String[] location = iterator.next().split(" ");
+                if (!location[0].equals("Unknown")) {
+                    double latitude = Double.parseDouble(location[0]);
+                    double longitude = Double.parseDouble(location[1]);
+                    Location loc = new Location("");
+                    loc.setLatitude(latitude);
+                    loc.setLongitude(longitude);
+                    t.setLocation(loc);
                 }
-
-                // TODO: more data retrieval
             }
         }
     }
