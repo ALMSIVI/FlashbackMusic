@@ -103,7 +103,9 @@ public class PlayListAdapter extends BaseAdapter {
         for (Track t : playList) {
             Log.d("audioIndex", audioIndex + "");
             int id = t.getResourceId();
-            audioResourceId.add(new Pair<Integer, Track>(id, t));
+            if (t.getStatus() > -1) {
+                audioResourceId.add(new Pair<Integer, Track>(id, t));
+            }
             Log.d("trackname", t.getTrackName());
             Log.d("track number", t.getTrackNumber() + "");
             AssetFileDescriptor assetFileDescriptor = context.getResources().openRawResourceFd(id);
