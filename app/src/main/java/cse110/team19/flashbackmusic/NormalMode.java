@@ -14,6 +14,7 @@ import android.os.Handler;
 import android.os.ResultReceiver;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentActivity;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -70,7 +71,8 @@ public class NormalMode extends AppCompatActivity {
 
         promptLocation(this);
 
-        SharedPreferences sharedPreferences = getSharedPreferences("user_name", MODE_PRIVATE);
+        SharedPreferences sharedPreferences = getSharedPreferences("mode", MODE_PRIVATE);
+
         String mode = sharedPreferences.getString("mode", "");
         if (mode.equals("Flashback")) {
             switchFlashback(null);
@@ -206,12 +208,10 @@ public class NormalMode extends AppCompatActivity {
                 album_data.get(albumName).addTrack(t);
                 album_to_tracks.get(album_data.get(albumName)).add(t);
             }
-
             // Retrieve data from sharedPreferences
-            SharedPreferences sharedPreferences = getSharedPreferences("user_name", MODE_PRIVATE);
+            SharedPreferences sharedPreferences = getSharedPreferences("track_info", MODE_PRIVATE);
             int status = sharedPreferences.getInt(t.getTrackName() + "Status", 0);
             t.setStatus(status);
-
 
             // calendar
             String cal = sharedPreferences.getString(t.getTrackName() + "Time", null);
@@ -240,6 +240,8 @@ public class NormalMode extends AppCompatActivity {
         }
     }
 
+
+
     /**
      * Switch to Flashback mode.
      *
@@ -250,7 +252,7 @@ public class NormalMode extends AppCompatActivity {
             mediaPlayer.stop();
         }
         // Change the mode in sharedpreferences
-        SharedPreferences sharedPreferences = getSharedPreferences("user_name", MODE_PRIVATE);
+        SharedPreferences sharedPreferences = getSharedPreferences("mode", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("mode", "Flashback");
         editor.apply();

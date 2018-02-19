@@ -1,5 +1,6 @@
 package cse110.team19.flashbackmusic;
 
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -8,6 +9,9 @@ import android.content.SharedPreferences;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.os.Bundle;
@@ -18,7 +22,9 @@ import android.util.Pair;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.TextView;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -26,6 +32,9 @@ import java.util.*;
 public class FlashbackMode extends AppCompatActivity {
     private MediaPlayer mediaPlayer;
     private List<Track> list = new ArrayList<Track>();
+    private Track isPlaying;
+    private int audioIndex = 0;
+    private Date time;
 
     private ArrayList<Integer> audioResourceId = new ArrayList<Integer>();
     static LinkedList<Track> recentlyPlayed;
@@ -34,15 +43,23 @@ public class FlashbackMode extends AppCompatActivity {
     private List<Album> album_list = new ArrayList<Album>();
     private Map<Album, List<Track>> album_to_tracks = new LinkedHashMap<Album, List<Track>>();
 
+    // for recording location of song
+    Geocoder geocoder;
+    List<Address> addresses;
+    GPSTracker gpstracker;
+    Location location;
+
 
     // Monitors time change
     private static IntentFilter s_intentFilter;
+
     static {
         s_intentFilter = new IntentFilter();
         s_intentFilter.addAction(Intent.ACTION_TIME_TICK);
         s_intentFilter.addAction(Intent.ACTION_TIMEZONE_CHANGED);
         s_intentFilter.addAction(Intent.ACTION_TIME_CHANGED);
     }
+
     private final BroadcastReceiver m_timeChangedReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -54,6 +71,11 @@ public class FlashbackMode extends AppCompatActivity {
         }
     };
 
+    /**
+     * Initialize the activity.
+     *
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         //This needs to go before the button
@@ -63,24 +85,60 @@ public class FlashbackMode extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         loadSongs();
-        //TODO: add this line - createFlashback(album_to_tracks);
         createFlashback(album_to_tracks);
-        Log.d("list size", list.size() + "");
         mediaPlayer = new MediaPlayer();
+        mediaPlayer.setOnCompletionListener(
+                new MediaPlayer.OnCompletionListener() {
+                    @Override
+                    public void onCompletion(MediaPlayer mediaPlayer) {
+
+                        location = gpstracker.getLocation();
+                        isPlaying.updateInfo(location, time.getTime());
+
+                        saveTrackInfo(true, isPlaying);
+
+                        if(audioResourceId.size() > audioIndex) {
+                            loadMedia(audioResourceId.get(audioIndex));
+                        }
+                        else{
+                            changePausePlay();
+                            updateText();
+                        }
+                    }
+                }
+        );
+
+        mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+            @Override
+            public void onPrepared(MediaPlayer mediaPlayer) {
+                mediaPlayer.start();
+            }
+        });
+
         ListView playList = findViewById(R.id.playList);
         playList.setAdapter(new PlayListAdapter(this, list, mediaPlayer));
 
         registerReceiver(m_timeChangedReceiver, s_intentFilter);
-    }
 
-    public void switchNormal(View view) {
-        // update sharedPreferences
-        SharedPreferences sharedPreferences = getSharedPreferences("user_name", MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString("mode", "Normal");
-        editor.apply();
-        // Finish the task
-        finish();
+        // Begin playing the songs
+        for (Track t : list) {
+            int id = t.getResourceId();
+            audioResourceId.add(id);
+            Log.d("trackname", t.getTrackName());
+            Log.d("track number", t.getTrackNumber() + "");
+            mediaPlayer.reset();
+            AssetFileDescriptor assetFileDescriptor = getResources().openRawResourceFd(id);
+            try {
+                mediaPlayer.setDataSource(assetFileDescriptor);
+                mediaPlayer.prepareAsync();
+            } catch (Exception e) {
+                System.out.println(e.toString());
+            }
+        }
+
+        isPlaying = list.get(0);
+        loadMedia(audioResourceId.get(audioIndex));
+        playMusic(null);
     }
 
     public void createFlashback(Map<Album, List<Track>> input) {
@@ -93,35 +151,32 @@ public class FlashbackMode extends AppCompatActivity {
         String timeOfDay = currentTime(currentHour);
 
         //For each album
-        for(Map.Entry<Album, List<Track>> entry : input.entrySet()) {
+        for (Map.Entry<Album, List<Track>> entry : input.entrySet()) {
             //This is the list of tracks
             List<Track> currentList = entry.getValue();
 
             //For each track
             for (Track track : currentList) {
-                Log.d("track name woo", track.getTrackName());
-                //TODO: MAKE SURE THIS CODE IS UNCOMMENTED AND WORKS!!! Check time of day
-                //TODO: This was causing a null pointer exception :)
-                /*if(track.getTimePlayed() != null && track.getTimePlayed().equals(timeOfDay)) {
+                // Check time of day
+                if (track.getTimePlayed() != null && track.getTimePlayed().equals(timeOfDay)) {
                     track.incrementScore(5);
                 }
 
                 //Check day of week
-                if(track.getDayPlayed() > -1 && track.getDayPlayed() == (currentDay)) {
+                if (track.getDayPlayed() > -1 && track.getDayPlayed() == (currentDay)) {
                     track.incrementScore(5);
-                }*/
+                }
 
                 //Get status
                 int status = track.getStatus();
 
-                if(status == 1) {
+                if (status == 1) {
                     track.incrementScore(1);
-                } else if(status == -1) {
+                } else if (status == -1) {
                     track.makeScoreNegative();
                 }
                 Log.d("track score", track.getScore() + "");
-                if((track.getScore() >= 0)) {
-                    //tempMap.put(track.getScore(), track);
+                if ((track.getScore() >= 0)) {
                     tempMap.add(track);
                 }
             }
@@ -135,18 +190,18 @@ public class FlashbackMode extends AppCompatActivity {
             }
         });
 
-        for (Track t: tempMap) {
+        for (Track t : tempMap) {
             Track toInsert = t;
             list.add(toInsert);
         }
     }
 
     public String currentTime(int hour) {
-        if( 5 <= hour && hour < 11) {
+        if (5 <= hour && hour < 11) {
             return "morning";
         }
 
-        if( 11 <= hour && hour < 17 ) {
+        if (11 <= hour && hour < 17) {
             return "afternoon";
         } else {
             return "evening";
@@ -160,7 +215,7 @@ public class FlashbackMode extends AppCompatActivity {
     public void playMusic(View view) {
         Button playButton = (Button) findViewById(R.id.playButton);
         //Check if something is already playing
-        if(mediaPlayer != null && mediaPlayer.isPlaying()) {
+        if (mediaPlayer != null && mediaPlayer.isPlaying()) {
             mediaPlayer.pause();
             Drawable play = getResources().getDrawable(R.drawable.ic_play_arrow_actuallyblack_24dp);
             playButton.setCompoundDrawablesWithIntrinsicBounds(null, play, null, null);
@@ -218,7 +273,6 @@ public class FlashbackMode extends AppCompatActivity {
 
             // Create the track
             Track t = new Track(trackName, trackNo, artist, resourceID);
-            Log.d("album name", albumName);
             if (!album_data.containsKey(albumName)) {
                 Album newAlbum = new Album(albumName, artist, numTracks);
                 album_data.put(albumName, newAlbum);
@@ -233,27 +287,109 @@ public class FlashbackMode extends AppCompatActivity {
                 album_data.get(albumName).addTrack(t);
                 album_to_tracks.get(album_data.get(albumName)).add(t);
             }
+
             // Retrieve data from sharedPreferences
-            SharedPreferences sharedPreferences = getSharedPreferences("user_name", MODE_PRIVATE);
-            Set<String> info = sharedPreferences.getStringSet(t.getTrackName(), null);
-            if (info != null) {
-                Iterator<String> iterator = info.iterator();
-                // status
-                int status = Integer.parseInt(iterator.next());
-                t.setStatus(status);
-                // calendar
-                String cal = iterator.next();
-                SimpleDateFormat format = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.ENGLISH);
-                Calendar calendar = Calendar.getInstance();
+            SharedPreferences sharedPreferences = getSharedPreferences("track_info", MODE_PRIVATE);
+            int status = sharedPreferences.getInt(t.getTrackName() + "Status", 0);
+            t.setStatus(status);
+
+
+            // calendar
+            String cal = sharedPreferences.getString(t.getTrackName() + "Time", null);
+            SimpleDateFormat format = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.ENGLISH);
+            if (cal != null) {
                 try {
+                    Calendar calendar = Calendar.getInstance();
                     calendar.setTime(format.parse(cal));
+                    t.setCalendar(calendar);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-                //String location = iterator.next();
-                // TODO: more data retrieval
+            }
+
+            // location
+            String loc = sharedPreferences.getString(t.getTrackName() + "Location", "Unknown Location");
+            if (!loc.equals("Unknown Location")) {
+                String[] locationValue = loc.split("");
+                double latitude = Double.parseDouble(locationValue[0]);
+                double longitude = Double.parseDouble(locationValue[1]);
+                Location location = new Location("");
+                location.setLatitude(latitude);
+                location.setLongitude(longitude);
+                t.setLocation(location);
             }
         }
+    }
+
+    public void loadMedia(int resourceId) {
+        mediaPlayer.reset();
+        AssetFileDescriptor assetFileDescriptor = getResources().openRawResourceFd(resourceId);
+        try {
+            mediaPlayer.setDataSource(assetFileDescriptor);
+            mediaPlayer.prepareAsync();
+        } catch (Exception e) {
+            System.out.println(e.toString());
+        }
+
+        updateText();
+
+        audioIndex++;
+    }
+
+    private void updateText() {
+        // Update the "Now playing" text
+        TextView infoView = findViewById(R.id.info);
+        infoView.setText(isPlaying.getTrackName());
+        // Update the "Last played" text
+        TextView lastPlayedView = findViewById(R.id.lastPlayed);
+        if (isPlaying.getTime() == null) {
+            lastPlayedView.setText(getString(R.string.never_played_info));
+        } else {
+            String lastLocation = "Unknown location";
+
+            if (location != null) {
+                try {
+                    addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                lastLocation = addresses.get(0).getFeatureName();
+            }
+
+            String lastPlayedInfo = String.format(getString(R.string.last_played_info),
+                    isPlaying.getTime(), lastLocation);
+            lastPlayedView.setText(lastPlayedInfo);
+        }
+    }
+
+    public void switchNormal(View view) {
+        // update sharedPreferences
+        SharedPreferences sharedPreferences = getSharedPreferences("mode", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("mode", "Normal");
+        editor.apply();
+        // Finish the task
+        finish();
+    }
+
+    private void saveTrackInfo(boolean all, Track track) {
+        SharedPreferences sharedPreferences = getSharedPreferences("track_info", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+
+        editor.putInt(track.getTrackName() + "Status", track.getStatus());
+
+        if(all) {
+            editor.putString(track.getTrackName() + "Time", track.getTime());
+            editor.putString(track.getTrackName() + "Location", track.getLocation());
+        }
+        editor.apply();
+    }
+
+    private void changePausePlay() {
+        Button mainPauseButton = (Button)findViewById(R.id.playButton);
+        Drawable play = getResources().getDrawable(R.drawable.ic_play_arrow_actuallyblack_24dp);
+        mainPauseButton.setCompoundDrawablesWithIntrinsicBounds(null, play, null, null);
     }
 
     @Override
