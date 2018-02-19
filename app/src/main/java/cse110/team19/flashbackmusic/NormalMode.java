@@ -87,7 +87,6 @@ public class NormalMode extends AppCompatActivity {
         loadSongs();
 
         // Initialize the library list
-        //TODO: initialize content and the list
         ExpandableListView expandableListView = findViewById(R.id.expandableListView);
         expandableListView.setAdapter(new LibraryAdapter(this, album_list, album_to_tracks, mediaPlayer));
 
@@ -208,6 +207,7 @@ public class NormalMode extends AppCompatActivity {
                 album_data.get(albumName).addTrack(t);
                 album_to_tracks.get(album_data.get(albumName)).add(t);
             }
+
             // Retrieve data from sharedPreferences
             SharedPreferences sharedPreferences = getSharedPreferences("track_info", MODE_PRIVATE);
             int status = sharedPreferences.getInt(t.getTrackName() + "Status", 0);
@@ -215,10 +215,10 @@ public class NormalMode extends AppCompatActivity {
 
             // calendar
             String cal = sharedPreferences.getString(t.getTrackName() + "Time", null);
-            SimpleDateFormat format = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.ENGLISH);
             if (cal != null) {
                 try {
                     Calendar calendar = Calendar.getInstance();
+                    SimpleDateFormat format = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.ENGLISH);
                     calendar.setTime(format.parse(cal));
                     t.setCalendar(calendar);
                 } catch (Exception e) {
