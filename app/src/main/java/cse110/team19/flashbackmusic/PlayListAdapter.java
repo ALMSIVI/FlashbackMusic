@@ -115,7 +115,6 @@ public class PlayListAdapter extends BaseAdapter {
     @Override
     public View getView(int i, View view, ViewGroup viewGroup) {
         final Track track = (Track) getItem(i);
-        updateTrackInfo(track);
 
         // inflate the view
         if (view == null) {
@@ -129,7 +128,7 @@ public class PlayListAdapter extends BaseAdapter {
         // TODO set TypeFace here, low priority, just to make things pretty
 
         final Button status_button = (Button) view.findViewById(R.id.set_status);
-        final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext());
+        final SharedPreferences sharedPreferences = context.getSharedPreferences("track_info", MODE_PRIVATE);
         changeButton(track, status_button);
 
         status_button.setOnClickListener(new View.OnClickListener() {
@@ -185,40 +184,6 @@ public class PlayListAdapter extends BaseAdapter {
         audioIndex++;
     }
 
-
-    private void updateTrackInfo(Track t) {
-        // Retrieve data from sharedPreferences
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext());
-        int status = sharedPreferences.getInt(t.getTrackName() + "Status", 0);
-        t.setStatus(status);
-
-
-        // calendar
-        String cal = sharedPreferences.getString(t.getTrackName() + "Time", null);
-        SimpleDateFormat format = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.ENGLISH);
-        if (cal != null) {
-            try {
-                Calendar calendar = Calendar.getInstance();
-                calendar.setTime(format.parse(cal));
-                t.setCalendar(calendar);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
-        // location
-        String loc = sharedPreferences.getString(t.getTrackName() + "Location", "Unknown Location");
-        if (!loc.equals("Unknown Location")) {
-            String[] locationValue = loc.split("");
-            double latitude = Double.parseDouble(locationValue[0]);
-            double longitude = Double.parseDouble(locationValue[1]);
-            Location location = new Location("");
-            location.setLatitude(latitude);
-            location.setLongitude(longitude);
-            t.setLocation(location);
-        }
-    }
-
     private void updateText() {
         // Update the "Now playing" text
         TextView infoView = ((Activity) context).findViewById(R.id.info);
@@ -251,7 +216,7 @@ public class PlayListAdapter extends BaseAdapter {
      * Store the current song's info into sharedPreferences. This method does NOT update song's info.
      */
     private void saveTrackInfo(boolean all, Track track) {
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext());
+        SharedPreferences sharedPreferences = context.getSharedPreferences("track_info", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
 
         editor.putInt(track.getTrackName() + "Status", track.getStatus());

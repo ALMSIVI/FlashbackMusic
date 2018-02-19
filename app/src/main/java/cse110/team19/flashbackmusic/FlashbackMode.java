@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
+import android.location.Location;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.os.Bundle;
@@ -75,7 +76,7 @@ public class FlashbackMode extends AppCompatActivity {
 
     public void switchNormal(View view) {
         // update sharedPreferences
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        SharedPreferences sharedPreferences = getSharedPreferences("mode", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("mode", "Normal");
         editor.apply();
@@ -230,6 +231,37 @@ public class FlashbackMode extends AppCompatActivity {
             } else {
                 album_data.get(albumName).addTrack(t);
                 album_to_tracks.get(album_data.get(albumName)).add(t);
+            }
+
+            // Retrieve data from sharedPreferences
+            SharedPreferences sharedPreferences = getSharedPreferences("track_info", MODE_PRIVATE);
+            int status = sharedPreferences.getInt(t.getTrackName() + "Status", 0);
+            t.setStatus(status);
+
+
+            // calendar
+            String cal = sharedPreferences.getString(t.getTrackName() + "Time", null);
+            SimpleDateFormat format = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.ENGLISH);
+            if (cal != null) {
+                try {
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.setTime(format.parse(cal));
+                    t.setCalendar(calendar);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+            // location
+            String loc = sharedPreferences.getString(t.getTrackName() + "Location", "Unknown Location");
+            if (!loc.equals("Unknown Location")) {
+                String[] locationValue = loc.split("");
+                double latitude = Double.parseDouble(locationValue[0]);
+                double longitude = Double.parseDouble(locationValue[1]);
+                Location location = new Location("");
+                location.setLatitude(latitude);
+                location.setLongitude(longitude);
+                t.setLocation(location);
             }
         }
     }
