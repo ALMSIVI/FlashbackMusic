@@ -83,7 +83,8 @@ public class PlayListAdapter extends BaseAdapter {
 
     @Override
     public View getView(int i, View view, ViewGroup viewGroup) {
-        final Track track = null;
+        final Track track = (Track) getItem(i);
+        Log.d("track name flashback", track.getTrackName());
         // inflate the view
         if (view == null) {
             LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -153,7 +154,7 @@ public class PlayListAdapter extends BaseAdapter {
         } else {
             String lastPlayedInfo = String.format(
                     context.getString(R.string.last_played_info),
-                    isPlaying.getCalendar().getTime().toString(), "Dummy", "Dummy");
+                    isPlaying.getCalendar().getTime().toString(), "Dummy");
             lastPlayedView.setText(lastPlayedInfo);
         }
 
