@@ -87,8 +87,6 @@ public class FlashbackMode extends AppCompatActivity {
         playList.setAdapter(new PlayListAdapter(this, list, mediaPlayer));
 
         registerReceiver(m_timeChangedReceiver, s_intentFilter);
-
-        playMusic(null);
     }
 
     public void createFlashback(Map<Album, List<Track>> input) {
@@ -272,6 +270,7 @@ public class FlashbackMode extends AppCompatActivity {
 
     public void switchNormal(View view) {
         // update sharedPreferences
+        mediaPlayer.stop();
         SharedPreferences sharedPreferences = getSharedPreferences("mode", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("mode", "Normal");
