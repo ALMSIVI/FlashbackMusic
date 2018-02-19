@@ -180,8 +180,39 @@ public class NormalMode extends AppCompatActivity {
                 album_data.get(albumName).addTrack(t);
                 album_to_tracks.get(album_data.get(albumName)).add(t);
             }
+            // Retrieve data from sharedPreferences
+            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+            int status = sharedPreferences.getInt(t.getTrackName() + "Status", 0);
+            t.setStatus(status);
+
+            // calendar
+            String cal = sharedPreferences.getString(t.getTrackName() + "Time", null);
+            SimpleDateFormat format = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.ENGLISH);
+            if (cal != null) {
+                try {
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.setTime(format.parse(cal));
+                    t.setCalendar(calendar);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+            // location
+            String loc = sharedPreferences.getString(t.getTrackName() + "Location", "Unknown Location");
+            if (!loc.equals("Unknown Location")) {
+                String[] locationValue = loc.split("");
+                double latitude = Double.parseDouble(locationValue[0]);
+                double longitude = Double.parseDouble(locationValue[1]);
+                Location location = new Location("");
+                location.setLatitude(latitude);
+                location.setLongitude(longitude);
+                t.setLocation(location);
+            }
         }
     }
+
+
 
     /**
      * Switch to Flashback mode.

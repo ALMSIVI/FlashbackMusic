@@ -185,8 +185,6 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
     public View getChildView(int i, int i1, boolean b, View view, ViewGroup viewGroup) {
         final Track track = (Track) getChild(i, i1);
 
-        updateTrackInfo(track);
-
         // inflate the view
         if (view == null) {
             LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -272,37 +270,6 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
         audioIndex++;
     }
 
-    private void updateTrackInfo(Track t) {
-        // Retrieve data from sharedPreferences
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext());
-        int status = sharedPreferences.getInt(t.getTrackName() + "Status", 0);
-        t.setStatus(status);
-
-        // calendar
-        String cal = sharedPreferences.getString(t.getTrackName() + "Time", null);
-        SimpleDateFormat format = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.ENGLISH);
-        if (cal != null) {
-            try {
-                Calendar calendar = Calendar.getInstance();
-                calendar.setTime(format.parse(cal));
-                t.setCalendar(calendar);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
-        // location
-        String loc = sharedPreferences.getString(t.getTrackName() + "Location", "Unknown Location");
-        if (!loc.equals("Unknown Location")) {
-            String[] locationValue = loc.split("");
-            double latitude = Double.parseDouble(locationValue[0]);
-            double longitude = Double.parseDouble(locationValue[1]);
-            Location location = new Location("");
-            location.setLatitude(latitude);
-            location.setLongitude(longitude);
-            t.setLocation(location);
-        }
-    }
 
     private void updateText() {
         // Update the "Now playing" text
