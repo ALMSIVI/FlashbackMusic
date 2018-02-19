@@ -76,7 +76,7 @@ public class FlashbackMode extends AppCompatActivity {
 
     public void switchNormal(View view) {
         // update sharedPreferences
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        SharedPreferences sharedPreferences = getSharedPreferences("mode", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("mode", "Normal");
         editor.apply();
@@ -234,7 +234,7 @@ public class FlashbackMode extends AppCompatActivity {
             }
 
             // Retrieve data from sharedPreferences
-            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+            SharedPreferences sharedPreferences = getSharedPreferences("track_info", MODE_PRIVATE);
             int status = sharedPreferences.getInt(t.getTrackName() + "Status", 0);
             t.setStatus(status);
 
