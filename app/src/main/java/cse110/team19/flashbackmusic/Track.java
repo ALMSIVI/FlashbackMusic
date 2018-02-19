@@ -59,21 +59,6 @@ public class Track {
         NormalMode.recentlyPlayed.addFirst(this);
     }
 
-    /**
-     * Get the date and time this song was last played.
-     */
-    public String getDateTime() {
-        int year = cal.get(Calendar.YEAR);
-        int month = cal.get(Calendar.MONTH);      // 0 to 11
-        int day = cal.get(Calendar.DAY_OF_MONTH);
-        int hour = cal.get(Calendar.HOUR_OF_DAY);
-        int minute = cal.get(Calendar.MINUTE);
-
-        String toRet = ("Last Played on: " + month + "/" + day + "/" + year + "at" +
-                            hour + ":" + minute);
-        return toRet;
-    }
-
     //Get the tracks time of day
     public String getTimePlayed() {
         int hour = cal.get(Calendar.HOUR_OF_DAY);
@@ -88,10 +73,31 @@ public class Track {
     }
 
     //Get the tracks day of week
-    public int getDayPlayed()
-    {
+    public int getDayPlayed() {
         int day = cal.get(Calendar.DAY_OF_WEEK);
         return day;
+    }
+
+    // Get info for flashback
+    public String getTime() {
+        if (cal == null) { // not implemented
+            return null;
+        } else {
+            return cal.getTime().toString();
+        }
+    }
+
+    public String getLocation() {
+        if (location != null) {
+            return location.getLatitude() + " " + location.getLongitude();
+        } else {
+            return "Unknown location";
+        }
+    }
+
+    //Get time since last play
+    public long getTimeSinceLastPlayed() {
+        return time;
     }
 
     /* Getters and setters */
@@ -119,21 +125,8 @@ public class Track {
         return status;
     }
 
-    //Get time since last play
-    public long getTimeSinceLastPlayed() {
-        return time;
-    }
-
-    public Calendar getCalendar() {
-        return cal;
-    }
-
     public int getResourceId() {
         return resourceId;
-    }
-
-    public Location getLocation() {
-        return location;
     }
 
     public void setCalendar(Calendar calendar) {
@@ -154,18 +147,6 @@ public class Track {
     public void makeScoreZero()
     {
         this.score = 0;
-    }
-
-    public Set<String> getInfo() {
-        LinkedHashSet<String> info = new LinkedHashSet<String>();
-        info.add(Integer.toString(status));
-        info.add(cal.getTime().toString());
-        if (location != null) {
-            info.add(location.getLatitude() + " " + location.getLongitude());
-        } else {
-            info.add("Unknown location");
-        }
-        return info;
     }
 
     public void updateInfo(Location location, long time) {

@@ -16,6 +16,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.*;
 import android.widget.*;
+
 import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -76,7 +77,7 @@ public class NormalMode extends AppCompatActivity {
     }
 
     /**
-     *  onStop
+     * onStop
      */
     @Override
     public void onStop() {
@@ -90,12 +91,13 @@ public class NormalMode extends AppCompatActivity {
      * This is the play button's listener. When the user clicks the button, the music will be played
      * and the button will change to pause. When the button is clicked again, the music will be
      * paused and the button will change to play.
+     *
      * @param view
      */
     public void playMusic(View view) {
         Button playButton = (Button) findViewById(R.id.playButton);
         //Check if something is already playing
-        if(mediaPlayer != null && mediaPlayer.isPlaying()) {
+        if (mediaPlayer != null && mediaPlayer.isPlaying()) {
             mediaPlayer.pause();
             Drawable play = getResources().getDrawable(R.drawable.ic_play_arrow_actuallyblack_24dp);
             playButton.setCompoundDrawablesWithIntrinsicBounds(null, play, null, null);
@@ -112,6 +114,7 @@ public class NormalMode extends AppCompatActivity {
 
     /**
      * Reset music
+     *
      * @param view
      */
     public void resetMusic(View view) {
@@ -176,51 +179,47 @@ public class NormalMode extends AppCompatActivity {
                 album_data.get(albumName).addTrack(t);
                 album_to_tracks.get(album_data.get(albumName)).add(t);
             }
+
             // Retrieve data from sharedPreferences
             SharedPreferences sharedPreferences = getSharedPreferences("user_name", MODE_PRIVATE);
-            Set<String> info = sharedPreferences.getStringSet(t.getTrackName(), null);
-            if (info != null) {
-                Iterator<String> iterator = info.iterator();
-                // status
-                try {
-                    int status = Integer.parseInt(iterator.next());
-                    t.setStatus(status);
-                } catch (Exception e) {
-                    t.setStatus(0);
-                }
+            int status = sharedPreferences.getInt(t.getTrackName() + "Status", 0);
+            t.setStatus(status);
 
-                // calendar
 
-                String cal = iterator.next();
-                SimpleDateFormat format = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.ENGLISH);
-                Calendar calendar = Calendar.getInstance();
+            // calendar
+            String cal = sharedPreferences.getString(t.getTrackName() + "Time", null);
+            SimpleDateFormat format = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.ENGLISH);
+            if (cal != null) {
                 try {
+                    Calendar calendar = Calendar.getInstance();
                     calendar.setTime(format.parse(cal));
                     t.setCalendar(calendar);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
+            }
 
-                String[] location = iterator.next().split(" ");
-                if (!location[0].equals("Unknown")) {
-                    double latitude = Double.parseDouble(location[0]);
-                    double longitude = Double.parseDouble(location[1]);
-                    Location loc = new Location("");
-                    loc.setLatitude(latitude);
-                    loc.setLongitude(longitude);
-                    t.setLocation(loc);
-                }
+            // location
+            String loc = sharedPreferences.getString(t.getTrackName() + "Location", "Unknown Location");
+            if (!loc.equals("Unknown Location")) {
+                String[] locationValue = loc.split("");
+                double latitude = Double.parseDouble(locationValue[0]);
+                double longitude = Double.parseDouble(locationValue[1]);
+                Location location = new Location("");
+                location.setLatitude(latitude);
+                location.setLongitude(longitude);
+                t.setLocation(location);
             }
         }
     }
 
     /**
      * Switch to Flashback mode.
+     *
      * @param
      */
     public void switchFlashback(View view) {
         mediaPlayer.stop();
-
         // Change the mode in sharedpreferences
         SharedPreferences sharedPreferences = getSharedPreferences("user_name", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();

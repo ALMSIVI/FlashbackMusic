@@ -76,24 +76,16 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
                 new MediaPlayer.OnCompletionListener() {
                     @Override
                     public void onCompletion(MediaPlayer mediaPlayer) {
-                        SharedPreferences sharedPreferences = context.getSharedPreferences("user_name", MODE_PRIVATE);
-                        SharedPreferences.Editor editor = sharedPreferences.edit();
-
-                        changePausePlay();
-
                         location = gpstracker.getLocation();
-                        if (location != null) {
-                            Log.d("location", location.toString());
-                        } else {
-                            Log.d("location", "Not working");
-                        }
                         isPlaying.updateInfo(location, time.getTime());
 
-                        editor.putStringSet(isPlaying.getTrackName(), isPlaying.getInfo());
-                        editor.apply();
+                        updateSongInfo();
 
                         if (audioResourceId.size() > audioIndex) {
                             loadMedia(audioResourceId.get(audioIndex).first, audioResourceId.get(audioIndex).second);
+                        } else {
+                            updateText();
+                            changePausePlay();
                         }
                     }
                 }
@@ -103,7 +95,6 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
             @Override
             public void onPrepared(MediaPlayer mediaPlayer) {
                 mediaPlayer.start();
-                // Update the "Now playing" text
             }
         });
     }
@@ -112,13 +103,13 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
         return isPlaying;
     }
 
-    public void changePlayPause() {
+    private void changePlayPause() {
         Button mainPlayButton = (Button) ((Activity) context).findViewById(R.id.playButton);
         Drawable pause = context.getResources().getDrawable(R.drawable.ic_pause_actuallyblack_24dp);
         mainPlayButton.setCompoundDrawablesWithIntrinsicBounds(null, pause, null, null);
     }
 
-    public void changePausePlay() {
+    private void changePausePlay() {
         Button mainPauseButton = (Button) ((Activity) context).findViewById(R.id.playButton);
         Drawable play = context.getResources().getDrawable(R.drawable.ic_play_arrow_actuallyblack_24dp);
         mainPauseButton.setCompoundDrawablesWithIntrinsicBounds(null, play, null, null);
@@ -220,9 +211,7 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
             @Override
             public void onClick(View view) {
                 track.updateStatus();
-                SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.putStringSet(track.getTrackName(), track.getInfo());
-                editor.apply();
+                updateSongInfo();
                 changeButton(track, status_button);
 
                 if (track.getStatus() == -1 && mediaPlayer.isPlaying() && isPlaying == track) {
@@ -268,12 +257,18 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
             System.out.println(e.toString());
         }
 
+        updateText();
+
+        audioIndex++;
+    }
+
+    private void updateText() {
         // Update the "Now playing" text
         TextView infoView = ((Activity) context).findViewById(R.id.info);
         infoView.setText(isPlaying.getTrackName());
         // Update the "Last played" text
         TextView lastPlayedView = ((Activity) context).findViewById(R.id.lastPlayed);
-        if (isPlaying.getCalendar() == null) {
+        if (isPlaying.getTime() == null) {
             lastPlayedView.setText(context.getString(R.string.never_played_info));
         } else {
             String lastLocation = "Unknown location";
@@ -290,11 +285,22 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
 
             String lastPlayedInfo = String.format(
                     context.getString(R.string.last_played_info),
-                    isPlaying.getCalendar().getTime().toString(), lastLocation);
+                    isPlaying.getTime(), lastLocation);
             lastPlayedView.setText(lastPlayedInfo);
         }
+    }
 
-        audioIndex++;
+    /**
+     * Store the current song's info into sharedPreferences. This method does NOT update song's info.
+     */
+    private void updateSongInfo() {
+        SharedPreferences sharedPreferences = context.getSharedPreferences("user_name", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+
+        editor.putInt(isPlaying.getTrackName() + "Status", isPlaying.getScore());
+        editor.putString(isPlaying.getTrackName() + "Time", isPlaying.getTime());
+        editor.putString(isPlaying.getTrackName() + "Location", isPlaying.getLocation());
+        editor.apply();
     }
 
     /* Overridden methods */
