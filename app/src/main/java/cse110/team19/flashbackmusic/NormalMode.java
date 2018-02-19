@@ -69,8 +69,6 @@ public class NormalMode extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        promptLocation(this);
-
         SharedPreferences sharedPreferences = getSharedPreferences("mode", MODE_PRIVATE);
 
         String mode = sharedPreferences.getString("mode", "");
@@ -240,8 +238,6 @@ public class NormalMode extends AppCompatActivity {
         }
     }
 
-
-
     /**
      * Switch to Flashback mode.
      *
@@ -260,80 +256,5 @@ public class NormalMode extends AppCompatActivity {
         // Create the intent and switch activity
         Intent intent = new Intent(this, FlashbackMode.class);
         startActivity(intent);
-    }
-
-    /**
-     * Prompt the user to turn on location settings
-     * Source: https://developer.android.com/training/location/change-location-settings.html#prompt
-     */
-    protected void promptLocation(Context c) {
-        GoogleApiClient client = new GoogleApiClient.Builder(c).addApi(LocationServices.API).build();
-        client.connect();
-
-        LocationRequest locationRequest = new LocationRequest();
-        locationRequest.setInterval(10000);
-        locationRequest.setFastestInterval(5000);
-        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-
-        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder();
-        SettingsClient settingsClient = LocationServices.getSettingsClient(c);
-        Task<LocationSettingsResponse> task = settingsClient.checkLocationSettings(builder.build());
-
-        /*
-        task.addOnSuccessListener(this, new OnSuccessListener<LocationSettingsResponse>() {
-            @Override
-            public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
-                // All location settings are satisfied. The client can initialize
-                // location requests here.
-                // TODO I think just do nothing
-            }
-        });
-
-        task.addOnFailureListener(this, new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                if (e instanceof ResolvableApiException) {
-                    // Location settings are not satisfied, but this can be fixed
-                    // by showing the user a dialog.
-                    try {
-                        // Show the dialog by calling startResolutionForResult(),
-                        // and check the result in onActivityResult().
-                        ResolvableApiException resolvable = (ResolvableApiException) e;
-                        // TODO REQUEST_CHECK_SETTINGS
-                        resolvable.startResolutionForResult(NormalMode.this, 0);
-                    } catch (IntentSender.SendIntentException sendEx) {
-                        // Ignore the error.
-                    }
-                }
-            }
-        });
-        */
-
-        PendingResult<LocationSettingsResult> result = LocationServices.SettingsApi.checkLocationSettings(client, builder.build());
-        result.setResultCallback(new ResultCallback<LocationSettingsResult>() {
-            @Override
-            public void onResult(LocationSettingsResult result) {
-                final Status status = result.getStatus();
-                switch (status.getStatusCode()) {
-                    case LocationSettingsStatusCodes.SUCCESS:
-                        //Log.i(TAG, "All location settings are satisfied.");
-                        break;
-                    case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
-                        //Log.i(TAG, "Location settings are not satisfied. Show the user a dialog to upgrade location settings ");
-
-                        try {
-                            // Show the dialog by calling startResolutionForResult(), and check the result
-                            // in onActivityResult().
-                            status.startResolutionForResult(NormalMode.this, 420);
-                        } catch (IntentSender.SendIntentException e) {
-                            //Log.i(TAG, "PendingIntent unable to execute request.");
-                        }
-                        break;
-                    case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
-                        //Log.i(TAG, "Location settings are inadequate, and cannot be fixed here. Dialog not created.");
-                        break;
-                }
-            }
-        });
     }
 }
