@@ -42,7 +42,6 @@ public class PlayAlbumTest {
                                         1),
                                 1),
                         isDisplayed()));
-        //button.check(matches(isDisplayed()));
         onView(withId(R.id.play_album)).check(matches(isCompletelyDisplayed()));
 
         ViewInteraction appCompatButton = onView(
