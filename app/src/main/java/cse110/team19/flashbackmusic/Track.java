@@ -61,6 +61,9 @@ public class Track {
 
     //Get the tracks time of day
     public String getTimePlayed() {
+        if (cal == null) {
+            return null;
+        }
         int hour = cal.get(Calendar.HOUR_OF_DAY);
 
         if( 5 <= hour && hour < 11) {
@@ -74,6 +77,9 @@ public class Track {
 
     //Get the tracks day of week
     public int getDayPlayed() {
+        if (cal == null) {
+            return 0;
+        }
         int day = cal.get(Calendar.DAY_OF_WEEK);
         return day;
     }

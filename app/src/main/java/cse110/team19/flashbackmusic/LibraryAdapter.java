@@ -8,9 +8,7 @@ import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
-import android.location.LocationManager;
 import android.media.MediaPlayer;
-import android.preference.PreferenceManager;
 import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
@@ -86,7 +84,6 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
                             isPlaying.updateInfo(location, time.getTime());
 
                             saveTrackInfo(true, isPlaying);
-
 
                             if (audioResourceId.size() > audioIndex) {
                                 loadMedia(audioResourceId.get(audioIndex).first, audioResourceId.get(audioIndex).second);
