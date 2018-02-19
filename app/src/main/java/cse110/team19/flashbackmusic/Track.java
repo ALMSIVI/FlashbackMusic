@@ -99,10 +99,6 @@ public class Track {
         this.status = status;
     }
 
-    public void setLocation(Location l) {
-        location = l;
-    }
-
     public String getTrackName() {
         return trackName;
     }
@@ -124,9 +120,9 @@ public class Track {
     }
 
     //Get time since last play
-    public long getTimeSinceLastPlayed() { return time; }
-    //Set time since last play
-    public void setTimeSinceLastPlayed(long time) { this.time = time; }
+    public long getTimeSinceLastPlayed() {
+        return time;
+    }
 
     public Calendar getCalendar() {
         return cal;
@@ -140,6 +136,9 @@ public class Track {
         return location;
     }
 
+    public void setCalendar(Calendar calendar) {
+        cal = calendar;
+    }
 
     //Increment to the score
     public void incrementScore(int toAdd)
@@ -156,7 +155,7 @@ public class Track {
     public Set<String> getInfo() {
         LinkedHashSet<String> info = new LinkedHashSet<String>();
         info.add(Integer.toString(status));
-        info.add(cal.toString());
+        info.add(cal.getTime().toString());
         if (location != null) {
             info.add(location.toString());
         } else {
@@ -165,8 +164,10 @@ public class Track {
         return info;
     }
 
-    public void updateInfo() {
+    public void updateInfo(Location location, long time) {
         cal = Calendar.getInstance();
+        this.location = location;
+        this.time = time;
     }
 }
 

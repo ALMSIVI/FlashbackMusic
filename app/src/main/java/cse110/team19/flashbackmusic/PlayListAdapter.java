@@ -154,7 +154,7 @@ public class PlayListAdapter extends BaseAdapter {
         } else {
             String lastPlayedInfo = String.format(
                     context.getString(R.string.last_played_info),
-                    isPlaying.getCalendar().getTime().toString(), "Dummy");
+                    isPlaying.getCalendar().getTime().toString(), isPlaying.getLocation().toString());
             lastPlayedView.setText(lastPlayedInfo);
         }
 

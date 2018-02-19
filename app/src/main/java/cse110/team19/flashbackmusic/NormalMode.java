@@ -190,11 +190,13 @@ public class NormalMode extends AppCompatActivity {
                 }
 
                 // calendar
+
                 String cal = iterator.next();
                 SimpleDateFormat format = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.ENGLISH);
                 Calendar calendar = Calendar.getInstance();
                 try {
                     calendar.setTime(format.parse(cal));
+                    t.setCalendar(calendar);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -202,7 +204,10 @@ public class NormalMode extends AppCompatActivity {
                 String location = iterator.next();
                 if (location != null) {
                     Log.d("Last played location", location);
+                } else {
+                    Log.d("Last played location", "NULL");
                 }
+
                 // TODO: more data retrieval
             }
         }
