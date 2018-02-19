@@ -116,7 +116,6 @@ public class PlayListAdapter extends BaseAdapter {
         }
 
         loadMedia(audioResourceId.get(audioIndex).first, audioResourceId.get(audioIndex).second);
-        mediaPlayer.start();
     }
 
     public Track getIsPlaying() {
