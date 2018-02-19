@@ -79,7 +79,7 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
                         location = gpstracker.getLocation();
                         isPlaying.updateInfo(location, time.getTime());
 
-                        updateSongInfo();
+                        updateSongInfo(true, isPlaying);
 
                         if (audioResourceId.size() > audioIndex) {
                             loadMedia(audioResourceId.get(audioIndex).first, audioResourceId.get(audioIndex).second);
@@ -210,8 +210,9 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
         status_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                boolean all = false;
                 track.updateStatus();
-                updateSongInfo();
+                updateSongInfo(all, track);
                 changeButton(track, status_button);
 
                 if (track.getStatus() == -1 && mediaPlayer.isPlaying() && isPlaying == track) {
@@ -293,13 +294,16 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
     /**
      * Store the current song's info into sharedPreferences. This method does NOT update song's info.
      */
-    private void updateSongInfo() {
+    private void updateSongInfo(boolean all, Track track) {
         SharedPreferences sharedPreferences = context.getSharedPreferences("user_name", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
 
-        editor.putInt(isPlaying.getTrackName() + "Status", isPlaying.getScore());
-        editor.putString(isPlaying.getTrackName() + "Time", isPlaying.getTime());
-        editor.putString(isPlaying.getTrackName() + "Location", isPlaying.getLocation());
+        editor.putInt(track.getTrackName() + "Status", track.getScore());
+
+        if(all) {
+            editor.putString(track.getTrackName() + "Time", track.getTime());
+            editor.putString(track.getTrackName() + "Location", track.getLocation());
+        }
         editor.apply();
     }
 

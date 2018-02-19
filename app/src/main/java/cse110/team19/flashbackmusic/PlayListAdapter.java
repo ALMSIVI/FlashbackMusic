@@ -73,14 +73,16 @@ public class PlayListAdapter extends BaseAdapter {
                 new MediaPlayer.OnCompletionListener() {
                     @Override
                     public void onCompletion(MediaPlayer mediaPlayer) {
-                        if (audioResourceId.size() > audioIndex) {
-                            location = gpstracker.getLocation();
-                            isPlaying.updateInfo(location, time.getTime());
 
-                            updateSongInfo();
+                        location = gpstracker.getLocation();
+                        isPlaying.updateInfo(location, time.getTime());
 
+                        updateSongInfo(true, isPlaying);
+
+                        if(audioResourceId.size() > audioIndex) {
                             loadMedia(audioResourceId.get(audioIndex).first, audioResourceId.get(audioIndex).second);
-                        } else {
+                        }
+                        else{
                             changePausePlay();
                             updateText();
                         }
@@ -130,7 +132,7 @@ public class PlayListAdapter extends BaseAdapter {
             @Override
             public void onClick(View view) {
                 track.updateStatus();
-                updateSongInfo();
+                updateSongInfo(false, track);
                 changeButton(track, status_button);
                 //for (Track t : trackArray)
             }
@@ -210,15 +212,19 @@ public class PlayListAdapter extends BaseAdapter {
     /**
      * Store the current song's info into sharedPreferences. This method does NOT update song's info.
      */
-    private void updateSongInfo() {
+    private void updateSongInfo(boolean all, Track track) {
         SharedPreferences sharedPreferences = context.getSharedPreferences("user_name", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
 
-        editor.putInt(isPlaying.getTrackName() + "Status", isPlaying.getScore());
-        editor.putString(isPlaying.getTrackName() + "Time", isPlaying.getTime());
-        editor.putString(isPlaying.getTrackName() + "Location", isPlaying.getLocation());
+        editor.putInt(track.getTrackName() + "Status", track.getScore());
+
+        if(all) {
+            editor.putString(track.getTrackName() + "Time", track.getTime());
+            editor.putString(track.getTrackName() + "Location", track.getLocation());
+        }
         editor.apply();
     }
+
 
     /* Overridden methods */
     @Override

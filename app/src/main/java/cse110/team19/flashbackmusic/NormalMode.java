@@ -219,7 +219,9 @@ public class NormalMode extends AppCompatActivity {
      * @param
      */
     public void switchFlashback(View view) {
-        mediaPlayer.stop();
+        if(mediaPlayer != null) {
+            mediaPlayer.stop();
+        }
         // Change the mode in sharedpreferences
         SharedPreferences sharedPreferences = getSharedPreferences("user_name", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
