@@ -75,7 +75,7 @@ public class FlashbackMode extends AppCompatActivity {
 
     public void switchNormal(View view) {
         // update sharedPreferences
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("mode", "Normal");
         editor.apply();
@@ -230,27 +230,6 @@ public class FlashbackMode extends AppCompatActivity {
             } else {
                 album_data.get(albumName).addTrack(t);
                 album_to_tracks.get(album_data.get(albumName)).add(t);
-            }
-            // Retrieve data from sharedPreferences
-            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-            Set<String> info = sharedPreferences.getStringSet(t.getTrackName(), null);
-
-            if (info != null) {
-                Iterator<String> iterator = info.iterator();
-                // status
-                int status = Integer.parseInt(iterator.next());
-                t.setStatus(status);
-                // calendar
-                String cal = iterator.next();
-                SimpleDateFormat format = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.ENGLISH);
-                Calendar calendar = Calendar.getInstance();
-                try {
-                    calendar.setTime(format.parse(cal));
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                //String location = iterator.next();
-                // TODO: more data retrieval
             }
         }
     }
