@@ -32,9 +32,7 @@ import java.util.*;
 public class FlashbackMode extends AppCompatActivity {
     private MediaPlayer mediaPlayer;
     private List<Track> list = new ArrayList<Track>();
-    private Track isPlaying;
-    private int audioIndex = 0;
-    private Date time;
+
 
     private ArrayList<Integer> audioResourceId = new ArrayList<Integer>();
     static LinkedList<Track> recentlyPlayed;
@@ -42,12 +40,6 @@ public class FlashbackMode extends AppCompatActivity {
     // for the LibraryAdaptor
     private List<Album> album_list = new ArrayList<Album>();
     private Map<Album, List<Track>> album_to_tracks = new LinkedHashMap<Album, List<Track>>();
-
-    // for recording location of song
-    Geocoder geocoder;
-    List<Address> addresses;
-    GPSTracker gpstracker;
-    Location location;
 
 
     // Monitors time change
@@ -84,60 +76,18 @@ public class FlashbackMode extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        if (mediaPlayer == null) {
+            mediaPlayer = new MediaPlayer();
+        }
+
         loadSongs();
         createFlashback(album_to_tracks);
-        mediaPlayer = new MediaPlayer();
-        mediaPlayer.setOnCompletionListener(
-                new MediaPlayer.OnCompletionListener() {
-                    @Override
-                    public void onCompletion(MediaPlayer mediaPlayer) {
-
-                        location = gpstracker.getLocation();
-                        isPlaying.updateInfo(location, time.getTime());
-
-                        saveTrackInfo(true, isPlaying);
-
-                        if(audioResourceId.size() > audioIndex) {
-                            loadMedia(audioResourceId.get(audioIndex));
-                        }
-                        else{
-                            changePausePlay();
-                            updateText();
-                        }
-                    }
-                }
-        );
-
-        mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-            @Override
-            public void onPrepared(MediaPlayer mediaPlayer) {
-                mediaPlayer.start();
-            }
-        });
 
         ListView playList = findViewById(R.id.playList);
         playList.setAdapter(new PlayListAdapter(this, list, mediaPlayer));
 
         registerReceiver(m_timeChangedReceiver, s_intentFilter);
 
-        // Begin playing the songs
-        for (Track t : list) {
-            int id = t.getResourceId();
-            audioResourceId.add(id);
-            Log.d("trackname", t.getTrackName());
-            Log.d("track number", t.getTrackNumber() + "");
-            mediaPlayer.reset();
-            AssetFileDescriptor assetFileDescriptor = getResources().openRawResourceFd(id);
-            try {
-                mediaPlayer.setDataSource(assetFileDescriptor);
-                mediaPlayer.prepareAsync();
-            } catch (Exception e) {
-                System.out.println(e.toString());
-            }
-        }
-
-        isPlaying = list.get(0);
-        loadMedia(audioResourceId.get(audioIndex));
         playMusic(null);
     }
 
@@ -293,13 +243,12 @@ public class FlashbackMode extends AppCompatActivity {
             int status = sharedPreferences.getInt(t.getTrackName() + "Status", 0);
             t.setStatus(status);
 
-
             // calendar
             String cal = sharedPreferences.getString(t.getTrackName() + "Time", null);
-            SimpleDateFormat format = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.ENGLISH);
             if (cal != null) {
                 try {
                     Calendar calendar = Calendar.getInstance();
+                    SimpleDateFormat format = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.ENGLISH);
                     calendar.setTime(format.parse(cal));
                     t.setCalendar(calendar);
                 } catch (Exception e) {
@@ -321,48 +270,6 @@ public class FlashbackMode extends AppCompatActivity {
         }
     }
 
-    public void loadMedia(int resourceId) {
-        mediaPlayer.reset();
-        AssetFileDescriptor assetFileDescriptor = getResources().openRawResourceFd(resourceId);
-        try {
-            mediaPlayer.setDataSource(assetFileDescriptor);
-            mediaPlayer.prepareAsync();
-        } catch (Exception e) {
-            System.out.println(e.toString());
-        }
-
-        updateText();
-
-        audioIndex++;
-    }
-
-    private void updateText() {
-        // Update the "Now playing" text
-        TextView infoView = findViewById(R.id.info);
-        infoView.setText(isPlaying.getTrackName());
-        // Update the "Last played" text
-        TextView lastPlayedView = findViewById(R.id.lastPlayed);
-        if (isPlaying.getTime() == null) {
-            lastPlayedView.setText(getString(R.string.never_played_info));
-        } else {
-            String lastLocation = "Unknown location";
-
-            if (location != null) {
-                try {
-                    addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                lastLocation = addresses.get(0).getFeatureName();
-            }
-
-            String lastPlayedInfo = String.format(getString(R.string.last_played_info),
-                    isPlaying.getTime(), lastLocation);
-            lastPlayedView.setText(lastPlayedInfo);
-        }
-    }
-
     public void switchNormal(View view) {
         // update sharedPreferences
         SharedPreferences sharedPreferences = getSharedPreferences("mode", MODE_PRIVATE);
@@ -371,25 +278,6 @@ public class FlashbackMode extends AppCompatActivity {
         editor.apply();
         // Finish the task
         finish();
-    }
-
-    private void saveTrackInfo(boolean all, Track track) {
-        SharedPreferences sharedPreferences = getSharedPreferences("track_info", MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-
-        editor.putInt(track.getTrackName() + "Status", track.getStatus());
-
-        if(all) {
-            editor.putString(track.getTrackName() + "Time", track.getTime());
-            editor.putString(track.getTrackName() + "Location", track.getLocation());
-        }
-        editor.apply();
-    }
-
-    private void changePausePlay() {
-        Button mainPauseButton = (Button)findViewById(R.id.playButton);
-        Drawable play = getResources().getDrawable(R.drawable.ic_play_arrow_actuallyblack_24dp);
-        mainPauseButton.setCompoundDrawablesWithIntrinsicBounds(null, play, null, null);
     }
 
     @Override

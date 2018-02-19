@@ -115,10 +115,6 @@ public class Track {
         return trackName;
     }
 
-    public String getArtist() {
-        return artist;
-    }
-
     public int getTrackNumber() {
         return trackNumber;
     }
