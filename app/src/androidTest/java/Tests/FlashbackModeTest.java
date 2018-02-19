@@ -20,15 +20,18 @@ import static junit.framework.Assert.assertEquals;
 
 public class FlashbackModeTest {
     @Rule
-    public ActivityTestRule<FlashbackMode> normal = new ActivityTestRule<FlashbackMode>(FlashbackMode.class);
+    public ActivityTestRule<FlashbackMode> flashback = new ActivityTestRule<FlashbackMode>(FlashbackMode.class);
 
-    @Before
-    public void openListView() {
-
-    }
+    int hour1 = 7;
+    int hour2 = 14;
+    int hour3 = 20;
 
     @Test
-    public void test1() {
+    public void testCurrentTime() {
+        assertEquals("morning", flashback.getActivity().currentTime(hour1));
 
+        assertEquals("afternoon", flashback.getActivity().currentTime(hour2));
+
+        assertEquals("evening", flashback.getActivity().currentTime(hour3));
     }
 }
