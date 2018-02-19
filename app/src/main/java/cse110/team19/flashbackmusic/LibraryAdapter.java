@@ -141,7 +141,6 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
                 audioResourceId = new ArrayList<Pair<Integer, Track>>();
                 audioIndex = 0;
                 changePlayPause();
-                //ArrayList<Integer> audioResourceId = new ArrayList<Integer>();
 
                 for (Track t : listOfTracks) {
                     Log.d("audioIndex", audioIndex + "");
