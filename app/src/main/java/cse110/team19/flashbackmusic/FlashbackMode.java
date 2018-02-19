@@ -11,6 +11,7 @@ import android.graphics.drawable.Drawable;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -75,7 +76,7 @@ public class FlashbackMode extends AppCompatActivity {
 
     public void switchNormal(View view) {
         // update sharedPreferences
-        SharedPreferences sharedPreferences = getSharedPreferences("user_name", MODE_PRIVATE);
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("mode", "Normal");
         editor.apply();
@@ -234,7 +235,7 @@ public class FlashbackMode extends AppCompatActivity {
                 album_to_tracks.get(album_data.get(albumName)).add(t);
             }
             // Retrieve data from sharedPreferences
-            SharedPreferences sharedPreferences = getSharedPreferences("user_name", MODE_PRIVATE);
+            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
             Set<String> info = sharedPreferences.getStringSet(t.getTrackName(), null);
             if (info != null) {
                 Iterator<String> iterator = info.iterator();

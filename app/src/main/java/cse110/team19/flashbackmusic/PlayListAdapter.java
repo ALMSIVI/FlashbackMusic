@@ -11,6 +11,7 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.media.MediaPlayer;
+import android.preference.PreferenceManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.util.Pair;
@@ -125,7 +126,7 @@ public class PlayListAdapter extends BaseAdapter {
         // TODO set TypeFace here, low priority, just to make things pretty
 
         final Button status_button = (Button) view.findViewById(R.id.set_status);
-        final SharedPreferences sharedPreferences = context.getSharedPreferences("user_name", MODE_PRIVATE);
+        final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         changeButton(track, status_button);
 
         status_button.setOnClickListener(new View.OnClickListener() {
@@ -213,7 +214,7 @@ public class PlayListAdapter extends BaseAdapter {
      * Store the current song's info into sharedPreferences. This method does NOT update song's info.
      */
     private void updateSongInfo(boolean all, Track track) {
-        SharedPreferences sharedPreferences = context.getSharedPreferences("user_name", MODE_PRIVATE);
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor editor = sharedPreferences.edit();
 
         editor.putInt(track.getTrackName() + "Status", track.getScore());

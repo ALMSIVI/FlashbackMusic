@@ -11,6 +11,7 @@ import android.media.*;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.ResultReceiver;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -43,7 +44,7 @@ public class NormalMode extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        SharedPreferences sharedPreferences = getSharedPreferences("user_name", MODE_PRIVATE);
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         String mode = sharedPreferences.getString("mode", "");
         if (mode.equals("Flashback")) {
             switchFlashback(null);
@@ -181,7 +182,7 @@ public class NormalMode extends AppCompatActivity {
             }
 
             // Retrieve data from sharedPreferences
-            SharedPreferences sharedPreferences = getSharedPreferences("user_name", MODE_PRIVATE);
+            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
             int status = sharedPreferences.getInt(t.getTrackName() + "Status", 0);
             t.setStatus(status);
 
@@ -223,7 +224,7 @@ public class NormalMode extends AppCompatActivity {
             mediaPlayer.stop();
         }
         // Change the mode in sharedpreferences
-        SharedPreferences sharedPreferences = getSharedPreferences("user_name", MODE_PRIVATE);
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("mode", "Flashback");
         editor.apply();
