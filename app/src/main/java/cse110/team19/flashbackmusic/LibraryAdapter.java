@@ -8,7 +8,6 @@ import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
-import android.location.LocationManager;
 import android.media.MediaPlayer;
 import android.util.Log;
 import android.util.Pair;
@@ -21,7 +20,9 @@ import android.widget.TextView;
 
 import java.io.IOException;
 import java.sql.Time;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -77,15 +78,19 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
                     @Override
                     public void onCompletion(MediaPlayer mediaPlayer) {
                         location = gpstracker.getLocation();
-                        isPlaying.updateInfo(location, time.getTime());
 
-                        updateSongInfo();
+                        // If we have not started loading any media
+                        if (isPlaying != null) {
+                            isPlaying.updateInfo(location, time.getTime());
 
-                        if (audioResourceId.size() > audioIndex) {
-                            loadMedia(audioResourceId.get(audioIndex).first, audioResourceId.get(audioIndex).second);
-                        } else {
-                            updateText();
-                            changePausePlay();
+                            saveTrackInfo(true, isPlaying);
+
+                            if (audioResourceId.size() > audioIndex) {
+                                loadMedia(audioResourceId.get(audioIndex).first, audioResourceId.get(audioIndex).second);
+                            } else {
+                                updateText();
+                                changePausePlay();
+                            }
                         }
                     }
                 }
@@ -180,6 +185,7 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
     @Override
     public View getChildView(int i, int i1, boolean b, View view, ViewGroup viewGroup) {
         final Track track = (Track) getChild(i, i1);
+
         // inflate the view
         if (view == null) {
             LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -192,11 +198,13 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
         track_name.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                changePlayPause();
-                int id = track.getResourceId();
-                audioResourceId = new <Pair<Integer, Track>> ArrayList();
-                audioResourceId.add(new Pair<Integer, Track>(id, track));
-                loadMedia(id, track);
+                if (track.getStatus() > -1) {
+                    changePlayPause();
+                    int id = track.getResourceId();
+                    audioResourceId = new <Pair<Integer, Track>>ArrayList();
+                    audioResourceId.add(new Pair<Integer, Track>(id, track));
+                    loadMedia(id, track);
+                }
             }
         });
 
@@ -204,14 +212,15 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
 
         // When we click on the button, set the status
         final Button status_button = (Button) view.findViewById(R.id.set_status);
-        final SharedPreferences sharedPreferences = context.getSharedPreferences("user_name", MODE_PRIVATE);
+        final SharedPreferences sharedPreferences = context.getSharedPreferences("track_info", MODE_PRIVATE);
         changeButton(track, status_button);
 
         status_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                boolean all = false;
                 track.updateStatus();
-                updateSongInfo();
+                saveTrackInfo(all, track);
                 changeButton(track, status_button);
 
                 if (track.getStatus() == -1 && mediaPlayer.isPlaying() && isPlaying == track) {
@@ -262,6 +271,7 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
         audioIndex++;
     }
 
+
     private void updateText() {
         // Update the "Now playing" text
         TextView infoView = ((Activity) context).findViewById(R.id.info);
@@ -293,13 +303,16 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
     /**
      * Store the current song's info into sharedPreferences. This method does NOT update song's info.
      */
-    private void updateSongInfo() {
-        SharedPreferences sharedPreferences = context.getSharedPreferences("user_name", MODE_PRIVATE);
+    private void saveTrackInfo(boolean all, Track track) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences("track_info", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
 
-        editor.putInt(isPlaying.getTrackName() + "Status", isPlaying.getScore());
-        editor.putString(isPlaying.getTrackName() + "Time", isPlaying.getTime());
-        editor.putString(isPlaying.getTrackName() + "Location", isPlaying.getLocation());
+        editor.putInt(track.getTrackName() + "Status", track.getStatus());
+
+        if(all) {
+            editor.putString(track.getTrackName() + "Time", track.getTime());
+            editor.putString(track.getTrackName() + "Location", track.getLocation());
+        }
         editor.apply();
     }
 
