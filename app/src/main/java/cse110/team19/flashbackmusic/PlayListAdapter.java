@@ -11,6 +11,7 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.media.MediaPlayer;
+import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -94,6 +95,29 @@ public class PlayListAdapter extends BaseAdapter {
                 mediaPlayer.start();
             }
         });
+
+        // Load the songs to the player
+        audioResourceId = new ArrayList<Pair<Integer, Track>>();
+        audioIndex = 0;
+        changePlayPause();
+        for (Track t : playList) {
+            Log.d("audioIndex", audioIndex + "");
+            int id = t.getResourceId();
+            if (t.getStatus() > -1) {
+                audioResourceId.add(new Pair<Integer, Track>(id, t));
+            }
+            Log.d("trackname", t.getTrackName());
+            Log.d("track number", t.getTrackNumber() + "");
+            AssetFileDescriptor assetFileDescriptor = context.getResources().openRawResourceFd(id);
+            try {
+                mediaPlayer.setDataSource(assetFileDescriptor);
+                mediaPlayer.prepareAsync();
+            } catch (Exception e) {
+                System.out.println(e.toString());
+            }
+        }
+
+        loadMedia(audioResourceId.get(audioIndex).first, audioResourceId.get(audioIndex).second);
     }
 
     public Track getIsPlaying() {
