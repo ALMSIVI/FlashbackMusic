@@ -144,9 +144,9 @@ public class Track {
     }
 
     //Make the score zero
-    public void makeScoreZero()
+    public void makeScoreNegative()
     {
-        this.score = 0;
+        this.score = -1;
     }
 
     public void updateInfo(Location location, long time) {

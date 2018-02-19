@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.util.Pair;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
@@ -62,6 +63,9 @@ public class FlashbackMode extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         loadSongs();
+        //TODO: add this line - createFlashback(album_to_tracks);
+        createFlashback(album_to_tracks);
+        Log.d("list size", list.size() + "");
         mediaPlayer = new MediaPlayer();
         ListView playList = findViewById(R.id.playList);
         playList.setAdapter(new PlayListAdapter(this, list, mediaPlayer));
@@ -80,14 +84,7 @@ public class FlashbackMode extends AppCompatActivity {
     }
 
     public void createFlashback(Map<Album, List<Track>> input) {
-        TreeMap<Integer, Track> tempMap = new TreeMap<Integer, Track>(
-                new Comparator<Integer>() {
-                    @Override
-                    public int compare(Integer integer, Integer t1) {
-                        return t1.compareTo(integer);
-                    }
-                }
-        );
+        final ArrayList<Track> tempMap = new ArrayList<Track>();
 
         Calendar calender;
         calender = Calendar.getInstance();
@@ -102,16 +99,17 @@ public class FlashbackMode extends AppCompatActivity {
 
             //For each track
             for (Track track : currentList) {
-
-                //Check time of day
-                if(track.getTimePlayed().equals(timeOfDay)) {
+                Log.d("track name woo", track.getTrackName());
+                //TODO: MAKE SURE THIS CODE IS UNCOMMENTED AND WORKS!!! Check time of day
+                //TODO: This was causing a null pointer exception :)
+                /*if(track.getTimePlayed() != null && track.getTimePlayed().equals(timeOfDay)) {
                     track.incrementScore(5);
                 }
 
                 //Check day of week
-                if(track.getDayPlayed() == (currentDay)) {
+                if(track.getDayPlayed() > -1 && track.getDayPlayed() == (currentDay)) {
                     track.incrementScore(5);
-                }
+                }*/
 
                 //Get status
                 int status = track.getStatus();
@@ -119,17 +117,26 @@ public class FlashbackMode extends AppCompatActivity {
                 if(status == 1) {
                     track.incrementScore(1);
                 } else if(status == -1) {
-                    track.makeScoreZero();
+                    track.makeScoreNegative();
                 }
-
-                if((track.getScore() != 0)) {
-                    tempMap.put(track.getScore(), track);
+                Log.d("track score", track.getScore() + "");
+                if((track.getScore() >= 0)) {
+                    //tempMap.put(track.getScore(), track);
+                    tempMap.add(track);
                 }
             }
         }
 
-        for( Map.Entry<Integer, Track> entry: tempMap.entrySet()) {
-            Track toInsert = entry.getValue();
+        // Sort the tracks based on track number
+        Collections.sort(tempMap, new Comparator<Track>() {
+            @Override
+            public int compare(Track t1, Track t2) {
+                return t2.getScore() - t1.getScore();
+            }
+        });
+
+        for (Track t: tempMap) {
+            Track toInsert = t;
             list.add(toInsert);
         }
     }
