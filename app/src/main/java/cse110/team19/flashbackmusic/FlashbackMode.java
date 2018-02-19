@@ -41,6 +41,9 @@ public class FlashbackMode extends AppCompatActivity {
     private List<Album> album_list = new ArrayList<Album>();
     private Map<Album, List<Track>> album_to_tracks = new LinkedHashMap<Album, List<Track>>();
 
+    // for recording location at onset of flashback mode
+    GPSTracker gpsTracker;
+    Location startingLocation;
 
     // Monitors time change
     private static IntentFilter s_intentFilter;
@@ -76,6 +79,9 @@ public class FlashbackMode extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        gpsTracker = new GPSTracker(this);
+        startingLocation = gpsTracker.getLocation();
+
         if (mediaPlayer == null) {
             mediaPlayer = new MediaPlayer();
         }
@@ -90,7 +96,7 @@ public class FlashbackMode extends AppCompatActivity {
     }
 
     public void createFlashback(Map<Album, List<Track>> input) {
-        final ArrayList<Track> tempMap = new ArrayList<Track>();
+        final Map<Integer, Track> tempMap = new TreeMap<>();
 
         Calendar calender;
         calender = Calendar.getInstance();
@@ -98,7 +104,6 @@ public class FlashbackMode extends AppCompatActivity {
         int currentDay = calender.get(Calendar.DAY_OF_WEEK);
         String timeOfDay = currentTime(currentHour);
 
-        //For each album
         for (Map.Entry<Album, List<Track>> entry : input.entrySet()) {
             //This is the list of tracks
             List<Track> currentList = entry.getValue();
@@ -107,39 +112,43 @@ public class FlashbackMode extends AppCompatActivity {
             for (Track track : currentList) {
                 // Check time of day
                 if (track.getTimePlayed() != null && track.getTimePlayed().equals(timeOfDay)) {
-                    track.incrementScore(5);
+                    track.incrementScore(500);
                 }
 
                 //Check day of week
                 if (track.getDayPlayed() > -1 && track.getDayPlayed() == (currentDay)) {
-                    track.incrementScore(5);
+                    track.incrementScore(500);
                 }
 
                 //Get status
                 int status = track.getStatus();
 
                 if (status == 1) {
-                    track.incrementScore(1);
+                    track.incrementScore(100);
                 } else if (status == -1) {
                     track.makeScoreNegative();
                 }
-                Log.d("track score", track.getScore() + "");
-                if ((track.getScore() >= 0)) {
-                    tempMap.add(track);
+
+                //To insert into the tree map
+                if(track.getScore() > -1)
+                {
+                    //Check if there is a tie
+                    while(tempMap.containsKey(track.getScore()))
+                    {
+                        Track temp = tempMap.get(track.getScore());
+                        if(track.getTimeSinceLastPlayed() > temp.getTimeSinceLastPlayed())
+                        {
+                            track.incrementScore(1);
+                        }
+                    }
+
+                    tempMap.put(track.getScore(), track);
                 }
             }
         }
 
-        // Sort the tracks based on track number
-        Collections.sort(tempMap, new Comparator<Track>() {
-            @Override
-            public int compare(Track t1, Track t2) {
-                return t2.getScore() - t1.getScore();
-            }
-        });
-
-        for (Track t : tempMap) {
-            Track toInsert = t;
+        for(Map.Entry<Integer, Track> entry : tempMap.entrySet()){
+            Track toInsert = entry.getValue();
             list.add(toInsert);
         }
     }

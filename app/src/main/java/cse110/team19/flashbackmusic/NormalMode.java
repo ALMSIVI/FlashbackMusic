@@ -2,6 +2,7 @@ package cse110.team19.flashbackmusic;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.content.res.*;
 import android.graphics.drawable.Drawable;
@@ -11,6 +12,8 @@ import android.media.*;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.ResultReceiver;
+import android.support.annotation.NonNull;
+import android.support.v4.app.FragmentActivity;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -18,9 +21,31 @@ import android.util.Log;
 import android.view.*;
 import android.widget.*;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.Api;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.common.api.ResolvableApiException;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsResponse;
+import com.google.android.gms.location.LocationSettingsResult;
+import com.google.android.gms.location.LocationSettingsStatusCodes;
+import com.google.android.gms.location.SettingsClient;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+
+import java.io.FileDescriptor;
+import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
+
 
 /**
  * This is the normal mode window.
@@ -45,6 +70,7 @@ public class NormalMode extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         SharedPreferences sharedPreferences = getSharedPreferences("mode", MODE_PRIVATE);
+
         String mode = sharedPreferences.getString("mode", "");
         if (mode.equals("Flashback")) {
             switchFlashback(null);
@@ -212,8 +238,6 @@ public class NormalMode extends AppCompatActivity {
         }
     }
 
-
-
     /**
      * Switch to Flashback mode.
      *
@@ -233,5 +257,4 @@ public class NormalMode extends AppCompatActivity {
         Intent intent = new Intent(this, FlashbackMode.class);
         startActivity(intent);
     }
-
 }

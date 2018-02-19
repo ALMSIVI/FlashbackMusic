@@ -2,6 +2,7 @@ package cse110.team19.flashbackmusic;
 
 /**
  * Created by sarahji on 2/18/18.
+ * https://www.androidhive.info/2012/07/android-gps-location-manager-tutorial/
  */
 import android.app.AlertDialog;
 import android.content.Context;
