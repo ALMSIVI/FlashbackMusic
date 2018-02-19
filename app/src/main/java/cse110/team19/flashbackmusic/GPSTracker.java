@@ -3,7 +3,6 @@ package cse110.team19.flashbackmusic;
 /**
  * Created by sarahji on 2/18/18.
  */
-
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -55,11 +54,6 @@ public final class GPSTracker implements LocationListener {
      * @return
      */
     public Location getLocation() {
-        if ( Build.VERSION.SDK_INT >= 23 &&
-                ContextCompat.checkSelfPermission(mContext, android.Manifest.permission.ACCESS_FINE_LOCATION ) != PackageManager.PERMISSION_GRANTED &&
-                ContextCompat.checkSelfPermission(mContext, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return null;
-        }
         try {
             locationManager = (LocationManager) mContext
                     .getSystemService(Context.LOCATION_SERVICE);
@@ -117,7 +111,7 @@ public final class GPSTracker implements LocationListener {
                 }
             }
 
-        } catch (Exception e) {
+        } catch (SecurityException e) {
             e.printStackTrace();
         }
 

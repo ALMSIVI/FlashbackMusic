@@ -7,6 +7,9 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.AssetFileDescriptor;
 import android.graphics.drawable.Drawable;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
 import android.media.MediaPlayer;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -18,10 +21,13 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.TextView;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -37,7 +43,13 @@ public class PlayListAdapter extends BaseAdapter {
     private ArrayList<Pair<Integer, Track>> audioResourceId;
     private int audioIndex = 0;
     private Track isPlaying;
+    private Date time;
 
+    // for recording location of song
+    Geocoder geocoder;
+    List<Address> addresses;
+    GPSTracker gpstracker;
+    Location location;
 
     /**
      * Constructor.
@@ -51,12 +63,26 @@ public class PlayListAdapter extends BaseAdapter {
         playList = l;
         mediaPlayer = m;
 
+        // Initialize the locations
+        geocoder = new Geocoder(context, Locale.getDefault());
+        gpstracker = new GPSTracker(context);
+        location = gpstracker.getLocation();
+        time = new Date();
+
         mediaPlayer.setOnCompletionListener(
                 new MediaPlayer.OnCompletionListener() {
                     @Override
                     public void onCompletion(MediaPlayer mediaPlayer) {
                         if (audioResourceId.size() > audioIndex) {
+                            location = gpstracker.getLocation();
+                            isPlaying.updateInfo(location, time.getTime());
+
+                            updateSongInfo();
+
                             loadMedia(audioResourceId.get(audioIndex).first, audioResourceId.get(audioIndex).second);
+                        } else {
+                            changePausePlay();
+                            updateText();
                         }
                     }
                 }
@@ -83,7 +109,8 @@ public class PlayListAdapter extends BaseAdapter {
 
     @Override
     public View getView(int i, View view, ViewGroup viewGroup) {
-        final Track track = null;
+        final Track track = (Track) getItem(i);
+        Log.d("track name flashback", track.getTrackName());
         // inflate the view
         if (view == null) {
             LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -103,8 +130,7 @@ public class PlayListAdapter extends BaseAdapter {
             @Override
             public void onClick(View view) {
                 track.updateStatus();
-                SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.putStringSet(track.getTrackName(), track.getInfo());
+                updateSongInfo();
                 changeButton(track, status_button);
                 //for (Track t : trackArray)
             }
@@ -112,7 +138,7 @@ public class PlayListAdapter extends BaseAdapter {
         return view;
     }
 
-    public void changeButton(Track track, Button button) {
+    private void changeButton(Track track, Button button) {
         int stat = track.getStatus();
         if (stat == 0) {
             Drawable neutral = context.getResources().getDrawable(R.drawable.neutral);
@@ -126,6 +152,11 @@ public class PlayListAdapter extends BaseAdapter {
         }
     }
 
+    private void changePausePlay() {
+        Button mainPauseButton = (Button) ((Activity) context).findViewById(R.id.playButton);
+        Drawable play = context.getResources().getDrawable(R.drawable.ic_play_arrow_actuallyblack_24dp);
+        mainPauseButton.setCompoundDrawablesWithIntrinsicBounds(null, play, null, null);
+    }
 
     /**
      * Load one media file into the player.
@@ -143,25 +174,53 @@ public class PlayListAdapter extends BaseAdapter {
             System.out.println(e.toString());
         }
 
+        updateText();
+
+        audioIndex++;
+    }
+
+    private void updateText() {
         // Update the "Now playing" text
         TextView infoView = ((Activity) context).findViewById(R.id.info);
         infoView.setText(isPlaying.getTrackName());
         // Update the "Last played" text
         TextView lastPlayedView = ((Activity) context).findViewById(R.id.lastPlayed);
-        if (isPlaying.getCalendar() == null) {
-            //lastPlayedView.setText(context.getString(R.id.never_played_info));
+        if (isPlaying.getTime() == null) {
+            lastPlayedView.setText(context.getString(R.string.never_played_info));
         } else {
+            String lastLocation = "Unknown location";
+
+            if (location != null) {
+                try {
+                    addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                lastLocation = addresses.get(0).getFeatureName();
+            }
+
             String lastPlayedInfo = String.format(
                     context.getString(R.string.last_played_info),
-                    isPlaying.getCalendar().getTime().toString(), "Dummy", "Dummy");
+                    isPlaying.getTime(), lastLocation);
             lastPlayedView.setText(lastPlayedInfo);
         }
+    }
 
-        audioIndex++;
+    /**
+     * Store the current song's info into sharedPreferences. This method does NOT update song's info.
+     */
+    private void updateSongInfo() {
+        SharedPreferences sharedPreferences = context.getSharedPreferences("user_name", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+
+        editor.putInt(isPlaying.getTrackName() + "Status", isPlaying.getScore());
+        editor.putString(isPlaying.getTrackName() + "Time", isPlaying.getTime());
+        editor.putString(isPlaying.getTrackName() + "Location", isPlaying.getLocation());
+        editor.apply();
     }
 
     /* Overridden methods */
-
     @Override
     public int getCount() {
         return playList.size();

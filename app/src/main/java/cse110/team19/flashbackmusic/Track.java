@@ -5,7 +5,7 @@ import android.location.Location;
 import java.util.*;
 
 public class Track {
-    private Calendar cal = Calendar.getInstance(); // TODO: update calendar and location
+    private Calendar cal;
     private String trackName;
     private String artist;
     private int trackNumber;
@@ -49,8 +49,7 @@ public class Track {
     /**
      * Update the last played up the song.
      */
-    public void justPlayed()
-    {
+    public void justPlayed() {
         cal = Calendar.getInstance();
 
         if(NormalMode.recentlyPlayed.contains(this))
@@ -60,60 +59,50 @@ public class Track {
         NormalMode.recentlyPlayed.addFirst(this);
     }
 
-    /**
-     * Get the date and time this song was last played.
-     */
-    public String getDateTime() {
-        int year = cal.get(Calendar.YEAR);
-        int month = cal.get(Calendar.MONTH);      // 0 to 11
-        int day = cal.get(Calendar.DAY_OF_MONTH);
-        int hour = cal.get(Calendar.HOUR_OF_DAY);
-        int minute = cal.get(Calendar.MINUTE);
-
-        String toRet = ("Last Played on: " + month + "/" + day + "/" + year + "at" +
-                            hour + ":" + minute);
-        return toRet;
-    }
-
     //Get the tracks time of day
-    public String getTimePlayed()
-    {
+    public String getTimePlayed() {
         int hour = cal.get(Calendar.HOUR_OF_DAY);
 
-        if( 5 <= hour && hour < 11)
-        {
+        if( 5 <= hour && hour < 11) {
             return "morning";
-        }
-
-        if( 11 <= hour && hour < 17 )
-        {
+        } else if( 11 <= hour && hour < 17 ) {
             return "afternoon";
-        }
-
-        else
-        {
+        } else {
             return "evening";
         }
     }
 
     //Get the tracks day of week
-    public int getDayPlayed()
-    {
+    public int getDayPlayed() {
         int day = cal.get(Calendar.DAY_OF_WEEK);
         return day;
     }
 
-    /* Getters and setters */
-    public void setScore(int score) {
-        this.score = score;
+    // Get info for flashback
+    public String getTime() {
+        if (cal == null) { // not implemented
+            return null;
+        } else {
+            return cal.getTime().toString();
+        }
     }
 
+    public String getLocation() {
+        if (location != null) {
+            return location.getLatitude() + " " + location.getLongitude();
+        } else {
+            return "Unknown location";
+        }
+    }
+
+    //Get time since last play
+    public long getTimeSinceLastPlayed() {
+        return time;
+    }
+
+    /* Getters and setters */
     public void setStatus(int status) {
         this.status = status;
-    }
-
-    public void setLocation(Location l) {
-        location = l;
     }
 
     public String getTrackName() {
@@ -136,23 +125,17 @@ public class Track {
         return status;
     }
 
-    //Get time since last play
-    public long getTimeSinceLastPlayed() { return time; }
-    //Set time since last play
-    public void setTimeSinceLastPlayed(long time) { this.time = time; }
-
-    public Calendar getCalendar() {
-        return cal;
-    }
-
     public int getResourceId() {
         return resourceId;
     }
 
-    public Location getLocation() {
-        return location;
+    public void setCalendar(Calendar calendar) {
+        cal = calendar;
     }
 
+    public void setLocation(Location location) {
+        this.location = location;
+    }
 
     //Increment to the score
     public void incrementScore(int toAdd)
@@ -161,21 +144,15 @@ public class Track {
     }
 
     //Make the score zero
-    public void makeScoreZero()
+    public void makeScoreNegative()
     {
-        this.score = 0;
+        this.score = -1;
     }
 
-    public Set<String> getInfo() {
-        LinkedHashSet<String> info = new LinkedHashSet<String>();
-        info.add(Integer.toString(status));
-        info.add(cal.toString());
-        info.add(location.toString());
-        return info;
-    }
-
-    public void updateInfo() {
+    public void updateInfo(Location location, long time) {
         cal = Calendar.getInstance();
+        this.location = location;
+        this.time = time;
     }
 }
 
