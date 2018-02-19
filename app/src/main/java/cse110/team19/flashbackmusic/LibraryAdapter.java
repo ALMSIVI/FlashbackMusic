@@ -77,10 +77,9 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
                 new MediaPlayer.OnCompletionListener() {
                     @Override
                     public void onCompletion(MediaPlayer mediaPlayer) {
-                        location = gpstracker.getLocation();
-
                         // If we have not started loading any media
                         if (isPlaying != null) {
+                            location = gpstracker.getLocation();
                             isPlaying.updateInfo(location, time.getTime());
 
                             saveTrackInfo(true, isPlaying);
@@ -107,19 +106,6 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
     public Track getIsPlaying() {
         return isPlaying;
     }
-
-    private void changePlayPause() {
-        Button mainPlayButton = (Button) ((Activity) context).findViewById(R.id.playButton);
-        Drawable pause = context.getResources().getDrawable(R.drawable.ic_pause_actuallyblack_24dp);
-        mainPlayButton.setCompoundDrawablesWithIntrinsicBounds(null, pause, null, null);
-    }
-
-    private void changePausePlay() {
-        Button mainPauseButton = (Button) ((Activity) context).findViewById(R.id.playButton);
-        Drawable play = context.getResources().getDrawable(R.drawable.ic_play_arrow_actuallyblack_24dp);
-        mainPauseButton.setCompoundDrawablesWithIntrinsicBounds(null, play, null, null);
-    }
-
 
     @Override
     public View getGroupView(int i, boolean b, View view, ViewGroup viewGroup) {
@@ -208,19 +194,16 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
             }
         });
 
-        // TODO set TypeFace here, low priority, just to make things pretty
 
         // When we click on the button, set the status
         final Button status_button = (Button) view.findViewById(R.id.set_status);
-        final SharedPreferences sharedPreferences = context.getSharedPreferences("track_info", MODE_PRIVATE);
         changeButton(track, status_button);
 
         status_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                boolean all = false;
                 track.updateStatus();
-                saveTrackInfo(all, track);
+                saveTrackInfo(false, track);
                 changeButton(track, status_button);
 
                 if (track.getStatus() == -1 && mediaPlayer.isPlaying() && isPlaying == track) {
@@ -235,19 +218,7 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
     }
 
 
-    public void changeButton(Track track, Button button) {
-        int stat = track.getStatus();
-        if (stat == 0) {
-            Drawable neutral = context.getResources().getDrawable(R.drawable.neutral);
-            button.setCompoundDrawablesWithIntrinsicBounds(null, neutral, null, null);
-        } else if (stat == 1) {
-            Drawable liked = context.getResources().getDrawable(R.drawable.favorite);
-            button.setCompoundDrawablesWithIntrinsicBounds(null, liked, null, null);
-        } else if (stat == -1) {
-            Drawable disliked = context.getResources().getDrawable(R.drawable.dislike);
-            button.setCompoundDrawablesWithIntrinsicBounds(null, disliked, null, null);
-        }
-    }
+
 
     /**
      * Load one media file into the player.
@@ -267,10 +238,34 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
         }
 
         updateText();
-
         audioIndex++;
     }
 
+    public void changeButton(Track track, Button button) {
+        int stat = track.getStatus();
+        if (stat == 0) {
+            Drawable neutral = context.getResources().getDrawable(R.drawable.neutral);
+            button.setCompoundDrawablesWithIntrinsicBounds(null, neutral, null, null);
+        } else if (stat == 1) {
+            Drawable liked = context.getResources().getDrawable(R.drawable.favorite);
+            button.setCompoundDrawablesWithIntrinsicBounds(null, liked, null, null);
+        } else if (stat == -1) {
+            Drawable disliked = context.getResources().getDrawable(R.drawable.dislike);
+            button.setCompoundDrawablesWithIntrinsicBounds(null, disliked, null, null);
+        }
+    }
+
+    private void changePlayPause() {
+        Button mainPlayButton = (Button) ((Activity) context).findViewById(R.id.playButton);
+        Drawable pause = context.getResources().getDrawable(R.drawable.ic_pause_actuallyblack_24dp);
+        mainPlayButton.setCompoundDrawablesWithIntrinsicBounds(null, pause, null, null);
+    }
+
+    private void changePausePlay() {
+        Button mainPauseButton = (Button) ((Activity) context).findViewById(R.id.playButton);
+        Drawable play = context.getResources().getDrawable(R.drawable.ic_play_arrow_actuallyblack_24dp);
+        mainPauseButton.setCompoundDrawablesWithIntrinsicBounds(null, play, null, null);
+    }
 
     private void updateText() {
         // Update the "Now playing" text
@@ -309,7 +304,7 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
 
         editor.putInt(track.getTrackName() + "Status", track.getStatus());
 
-        if(all) {
+        if (all) {
             editor.putString(track.getTrackName() + "Time", track.getTime());
             editor.putString(track.getTrackName() + "Location", track.getLocation());
         }

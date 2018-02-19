@@ -54,7 +54,7 @@ public class PlayListAdapter extends BaseAdapter {
     /**
      * Constructor.
      *
-     * @param c
+     * @param c FlashbackMode
      * @param l playlist
      * @param m media player
      */
@@ -68,16 +68,36 @@ public class PlayListAdapter extends BaseAdapter {
         gpstracker = new GPSTracker(context);
         location = gpstracker.getLocation();
         time = new Date();
+
+        mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mediaPlayer) {
+                if (isPlaying != null) {
+                    location = gpstracker.getLocation();
+                    isPlaying.updateInfo(location, time.getTime());
+
+                    saveTrackInfo(true, isPlaying);
+                    if (audioResourceId.size() > audioIndex) {
+                        loadMedia(audioResourceId.get(audioIndex).first,
+                                audioResourceId.get(audioIndex).second);
+                    } else {
+                        changePausePlay();
+                        updateText();
+                    }
+                }
+            }
+        });
+
+        mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+            @Override
+            public void onPrepared(MediaPlayer mediaPlayer) {
+                mediaPlayer.start();
+            }
+        });
     }
 
     public Track getIsPlaying() {
         return isPlaying;
-    }
-
-    public void changePlayPause(View view) {
-        Button mainPlayButton = (Button) ((Activity) context).findViewById(R.id.playButton);
-        Drawable pause = context.getResources().getDrawable(R.drawable.ic_pause_actuallyblack_24dp);
-        mainPlayButton.setCompoundDrawablesWithIntrinsicBounds(null, pause, null, null);
     }
 
     @Override
@@ -93,21 +113,42 @@ public class PlayListAdapter extends BaseAdapter {
         TextView track_name = (TextView) view.findViewById(R.id.track_name);
         track_name.setText(track.getTrackName());
 
-        // TODO set TypeFace here, low priority, just to make things pretty
 
         final Button status_button = (Button) view.findViewById(R.id.set_status);
-        final SharedPreferences sharedPreferences = context.getSharedPreferences("track_info", MODE_PRIVATE);
         changeButton(track, status_button);
 
         status_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                saveStatus(track);
+                track.updateStatus();
+                saveTrackInfo(false, track);
                 changeButton(track, status_button);
-                //for (Track t : trackArray)
+
+                if (track.getStatus() == -1 && mediaPlayer.isPlaying() && isPlaying == track) {
+                    mediaPlayer.stop();
+                    if (audioResourceId.size() > audioIndex) {
+                        loadMedia(audioResourceId.get(audioIndex).first, audioResourceId.get(audioIndex).second);
+                    }
+                }
             }
         });
         return view;
+    }
+
+    public void loadMedia(int resourceId, Track track) {
+        isPlaying = track;
+        changePlayPause();
+        mediaPlayer.reset();
+        AssetFileDescriptor assetFileDescriptor = context.getResources().openRawResourceFd(resourceId);
+        try {
+            mediaPlayer.setDataSource(assetFileDescriptor);
+            mediaPlayer.prepareAsync();
+        } catch (Exception e) {
+            System.out.println(e.toString());
+        }
+
+        updateText();
+        audioIndex++;
     }
 
     private void changeButton(Track track, Button button) {
@@ -122,6 +163,18 @@ public class PlayListAdapter extends BaseAdapter {
             Drawable disliked = context.getResources().getDrawable(R.drawable.dislike);
             button.setCompoundDrawablesWithIntrinsicBounds(null, disliked, null, null);
         }
+    }
+
+    private void changePausePlay() {
+        Button mainPauseButton = (Button) ((Activity) context).findViewById(R.id.playButton);
+        Drawable play = context.getResources().getDrawable(R.drawable.ic_play_arrow_actuallyblack_24dp);
+        mainPauseButton.setCompoundDrawablesWithIntrinsicBounds(null, play, null, null);
+    }
+
+    private void changePlayPause() {
+        Button mainPlayButton = (Button) ((Activity) context).findViewById(R.id.playButton);
+        Drawable pause = context.getResources().getDrawable(R.drawable.ic_pause_actuallyblack_24dp);
+        mainPlayButton.setCompoundDrawablesWithIntrinsicBounds(null, pause, null, null);
     }
 
     private void updateText() {
@@ -153,18 +206,20 @@ public class PlayListAdapter extends BaseAdapter {
     }
 
     /**
-     * Updates the song's status and store the current song's status into sharedPreferences.
+     * Stores the current song's status into sharedPreferences. This method does NOT update the info.
      */
-    private void saveStatus(Track track) {
-        track.updateStatus();
+    private void saveTrackInfo(boolean all, Track track) {
         SharedPreferences sharedPreferences = context.getSharedPreferences("track_info", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
 
         editor.putInt(track.getTrackName() + "Status", track.getStatus());
 
+        if (all) {
+            editor.putString(track.getTrackName() + "Time", track.getTime());
+            editor.putString(track.getTrackName() + "Location", track.getLocation());
+        }
         editor.apply();
     }
-
 
     /* Overridden methods */
     @Override
