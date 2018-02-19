@@ -66,7 +66,6 @@ public class FlashbackMode extends AppCompatActivity {
         loadSongs();
         //TODO: add this line - createFlashback(album_to_tracks);
         createFlashback(album_to_tracks);
-        Log.d("list size", list.size() + "");
         mediaPlayer = new MediaPlayer();
         ListView playList = findViewById(R.id.playList);
         playList.setAdapter(new PlayListAdapter(this, list, mediaPlayer));
@@ -100,7 +99,6 @@ public class FlashbackMode extends AppCompatActivity {
 
             //For each track
             for (Track track : currentList) {
-                Log.d("track name woo", track.getTrackName());
                 //TODO: MAKE SURE THIS CODE IS UNCOMMENTED AND WORKS!!! Check time of day
                 //TODO: This was causing a null pointer exception :)
                 /*if(track.getTimePlayed() != null && track.getTimePlayed().equals(timeOfDay)) {
@@ -219,7 +217,6 @@ public class FlashbackMode extends AppCompatActivity {
 
             // Create the track
             Track t = new Track(trackName, trackNo, artist, resourceID);
-            Log.d("album name", albumName);
             if (!album_data.containsKey(albumName)) {
                 Album newAlbum = new Album(albumName, artist, numTracks);
                 album_data.put(albumName, newAlbum);
@@ -237,6 +234,7 @@ public class FlashbackMode extends AppCompatActivity {
             // Retrieve data from sharedPreferences
             SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
             Set<String> info = sharedPreferences.getStringSet(t.getTrackName(), null);
+
             if (info != null) {
                 Iterator<String> iterator = info.iterator();
                 // status

@@ -113,7 +113,7 @@ public class PlayListAdapter extends BaseAdapter {
     @Override
     public View getView(int i, View view, ViewGroup viewGroup) {
         final Track track = (Track) getItem(i);
-        Log.d("track name flashback", track.getTrackName());
+
         // inflate the view
         if (view == null) {
             LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
