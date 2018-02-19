@@ -276,7 +276,6 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
         if (isPlaying.getCalendar() == null) {
             lastPlayedView.setText(context.getString(R.string.never_played_info));
         } else {
-            // TODO get location using geocoder
             String lastLocation = "Unknown location";
 
             if (location != null) {
