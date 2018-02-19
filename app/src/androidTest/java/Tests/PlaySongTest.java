@@ -32,9 +32,10 @@ public class PlaySongTest {
 
     @Test
     public void test1() {
-        //String albumName = elv.getT
-        tv = (TextView) normal.getActivity().findViewById(R.id.track_name);
+        tv = normal.getActivity().findViewById(R.id.album_name);
+        //tv = (TextView) normal.getActivity().findViewById(R.id.track_name);
         String blood = tv.getText().toString();
-        assertEquals("Blood On Your Bootheels", blood);
+
+        assertEquals("I Will Not Be Afraid (A Sampler)", blood);
     }
 }
