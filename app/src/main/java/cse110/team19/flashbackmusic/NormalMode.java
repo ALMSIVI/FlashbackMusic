@@ -53,8 +53,8 @@ import java.util.concurrent.TimeUnit;
 public class NormalMode extends AppCompatActivity {
     /* Members */
     // player
-    private MediaPlayer mediaPlayer;
-    private ArrayList<Integer> audioResourceId = new ArrayList<Integer>();
+    private MusicPlayer musicPlayer;
+    //private ArrayList<Integer> audioResourceId = new ArrayList<Integer>();
     static LinkedList<Track> recentlyPlayed;
 
     // for the LibraryAdaptor
@@ -78,15 +78,15 @@ public class NormalMode extends AppCompatActivity {
 
 
         // Initialize the media player and load songs
-        if (mediaPlayer == null) {
-            mediaPlayer = new MediaPlayer();
+        if (musicPlayer == null) {
+            musicPlayer = new MusicPlayer(this, new MediaPlayer());
         }
 
-        loadSongs();
+        musicPlayer.loadSongs();
 
         // Initialize the library list
         ExpandableListView expandableListView = findViewById(R.id.expandableListView);
-        expandableListView.setAdapter(new LibraryAdapter(this, album_list, album_to_tracks, mediaPlayer));
+        expandableListView.setAdapter(new LibraryAdapter(this, musicPlayer.getAlbumList(), musicPlayer.getAlbumToTrackMap(), musicPlayer));
 
         expandableListView.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
             @Override
@@ -108,7 +108,7 @@ public class NormalMode extends AppCompatActivity {
     @Override
     public void onStop() {
         super.onStop();
-        if (isChangingConfigurations() && mediaPlayer.isPlaying()) {
+        if (isChangingConfigurations() && musicPlayer.isPlaying()) {
             ; //"do nothing"
         }
     }
@@ -123,14 +123,14 @@ public class NormalMode extends AppCompatActivity {
     public void playMusic(View view) {
         Button playButton = (Button) findViewById(R.id.playButton);
         //Check if something is already playing
-        if (mediaPlayer != null && mediaPlayer.isPlaying()) {
-            mediaPlayer.pause();
+        if (musicPlayer != null && musicPlayer.isPlaying()) {
+            musicPlayer.pause();
             Drawable play = getResources().getDrawable(R.drawable.ic_play_arrow_actuallyblack_24dp);
             playButton.setCompoundDrawablesWithIntrinsicBounds(null, play, null, null);
         } else {
             //Since there is already a song loaded, just resume the song
-            if (mediaPlayer != null) {
-                mediaPlayer.start();
+            if (musicPlayer != null) {
+                musicPlayer.start();
             }
 
             Drawable pause = getResources().getDrawable(R.drawable.ic_pause_actuallyblack_24dp);
@@ -139,113 +139,12 @@ public class NormalMode extends AppCompatActivity {
     }
 
     /**
-     * Reset music
-     *
-     * @param view
-     */
-    public void resetMusic(View view) {
-        mediaPlayer.seekTo(0);
-    }
-
-    /**
-     * Load the songs.
-     */
-    public void loadSongs() {
-        Map<String, Album> album_data = new LinkedHashMap<String, Album>();
-        final Field[] fields = R.raw.class.getFields(); //Gets the all the files (tracks) in raw folder
-        for (int count = 0; count < fields.length; count++) { //Goes through each track
-            String name = fields[count].getName();
-
-            //Gets id to play the track (used in LoadMedia())
-            int resourceID = getResources().getIdentifier(name, "raw", getPackageName());
-            audioResourceId.add(resourceID);
-
-            //Gets the metadata of the track (album, artist, track number in album, track name)
-            MediaMetadataRetriever mmr = new MediaMetadataRetriever();
-            Resources res = getResources();
-            AssetFileDescriptor afd = res.openRawResourceFd(resourceID);
-            mmr.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
-            String albumName = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM);
-            String artist = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
-            String trackNumber = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_CD_TRACK_NUMBER);
-            String trackName = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
-
-            // Parse the metadata
-            if (albumName == null || albumName.equals("")) {
-                albumName = "Unknown album";
-            }
-            if (artist == null || artist.equals("")) {
-                artist = "Unknown artist";
-            }
-            int trackNo = 0;
-            int numTracks = 0;
-            if (trackNumber != null) {
-                String[] numbers = trackNumber.split("/");
-                trackNo = Integer.parseInt(numbers[0]);
-                numTracks = Integer.parseInt(numbers[1]);
-            }
-            if (trackName == null || trackName.equals("")) {
-                trackName = "Unknown track";
-            }
-
-            // Create the track
-            Track t = new Track(trackName, trackNo, artist, resourceID);
-            Log.d("album name", albumName);
-            if (!album_data.containsKey(albumName)) {
-                Album newAlbum = new Album(albumName, artist, numTracks);
-                album_data.put(albumName, newAlbum);
-                album_list.add(newAlbum);
-                newAlbum.addTrack(t);
-
-                // update data to be sent to adaptor
-                List<Track> tracks = new LinkedList<Track>();
-                tracks.add(t);
-                album_to_tracks.put(newAlbum, tracks);
-            } else {
-                album_data.get(albumName).addTrack(t);
-                album_to_tracks.get(album_data.get(albumName)).add(t);
-            }
-
-            // Retrieve data from sharedPreferences
-            SharedPreferences sharedPreferences = getSharedPreferences("track_info", MODE_PRIVATE);
-            int status = sharedPreferences.getInt(t.getTrackName() + "Status", 0);
-            t.setStatus(status);
-
-            // calendar
-            String cal = sharedPreferences.getString(t.getTrackName() + "Time", null);
-            if (cal != null) {
-                try {
-                    Calendar calendar = Calendar.getInstance();
-                    SimpleDateFormat format = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.ENGLISH);
-                    calendar.setTime(format.parse(cal));
-                    t.setCalendar(calendar);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-
-            // location
-            String loc = sharedPreferences.getString(t.getTrackName() + "Location", "Unknown Location");
-            if (!loc.equals("Unknown Location")) {
-                String[] locationValue = loc.split("");
-                double latitude = Double.parseDouble(locationValue[0]);
-                double longitude = Double.parseDouble(locationValue[1]);
-                Location location = new Location("");
-                location.setLatitude(latitude);
-                location.setLongitude(longitude);
-                t.setLocation(location);
-            }
-        }
-    }
-
-    /**
      * Switch to Flashback mode.
-     *
      * @param
      */
     public void switchFlashback(View view) {
-        if(mediaPlayer != null && mediaPlayer.isPlaying()) {
-            mediaPlayer.stop();
+        if(musicPlayer != null && musicPlayer.isPlaying()) {
+            musicPlayer.stop();
         }
         // Change the mode in sharedpreferences
         SharedPreferences sharedPreferences = getSharedPreferences("mode", MODE_PRIVATE);
@@ -257,4 +156,6 @@ public class NormalMode extends AppCompatActivity {
         Intent intent = new Intent(this, FlashbackMode.class);
         startActivity(intent);
     }
+
+
 }

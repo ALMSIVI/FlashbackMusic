@@ -62,11 +62,11 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
      * @param h albums and their tracks
      * @param m media player
      */
-    public LibraryAdapter(Context c, List<Album> l, Map<Album, List<Track>> h, MediaPlayer m) {
+    public LibraryAdapter(Context c, List<Album> l, Map<Album, List<Track>> h, MusicPlayer m) {
         context = c;
         albumData = l;
         trackData = h;
-        mediaPlayer = m;
+        mediaPlayer = m.getPlayer();
         // Initialize the locations
         geocoder = new Geocoder(context, Locale.getDefault());
         gpstracker = new GPSTracker(context);
