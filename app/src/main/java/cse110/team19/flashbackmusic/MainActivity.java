@@ -26,14 +26,10 @@ import java.util.Map;
  */
 
 public class MainActivity extends AppCompatActivity {
-    private Boolean normalMode = true;
+    private boolean normalMode = true;
 
     private MusicPlayer musicPlayer;
     static LinkedList<Track> recentlyPlayed;
-
-    // for the LibraryAdaptor
-    private List<Album> album_list = new ArrayList<Album>();
-    private Map<Album, List<Track>> album_to_tracks = new LinkedHashMap<Album, List<Track>>();
 
     // for recording location at onset of flashback mode
     GPSTracker gpsTracker;
@@ -73,6 +69,7 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+
         gpsTracker = new GPSTracker(this);
         startingLocation = gpsTracker.getLocation();
 
@@ -82,14 +79,26 @@ public class MainActivity extends AppCompatActivity {
 
         musicPlayer.loadSongs();
 
+        // Initialize the library list
+        ListView listView = findViewById(R.id.listView);
+        listView.setAdapter(new PlayListAdapter(this, musicPlayer.getTrackList(), musicPlayer);
+
         if (!normalMode) {
             musicPlayer.createFlashback();
         }
 
-        ListView playList = findViewById(R.id.playList);
-        playList.setAdapter(new PlayListAdapter(this, musicPlayer.getTrackList(), musicPlayer.getPlayer()));
-
         registerReceiver(m_timeChangedReceiver, s_intentFilter);
+    }
+
+    /**
+     * onStop
+     */
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (isChangingConfigurations() && musicPlayer.isPlaying()) {
+            ; //"do nothing"
+        }
     }
 
     public void playMusic(View view) {
@@ -110,16 +119,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void switchNormal(View view) {
-        // update sharedPreferences
-        musicPlayer.stop();
-        SharedPreferences sharedPreferences = getSharedPreferences("mode", MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString("mode", "Normal");
-        editor.apply();
-        // Finish the task
-        finish();
-    }
 
     /**
      * Switch modes (Normal to Vibe or Vibe to Normal)
@@ -137,22 +136,20 @@ public class MainActivity extends AppCompatActivity {
         if (mode != null) {
             SharedPreferences.Editor editor = sharedPreferences.edit();
 
-            if (mode.equals("Normal")) {
-                editor.putString("mode", "Vibe");
+            if (mode.equals(getResources().getString(R.string.mode_normal))) {
+                editor.putString("mode", getResources().getString(R.string.mode_alt));
                 Button modeSwitch = (Button) findViewById(R.id.flashbackButton);
                 modeSwitch.setText("V");
             }
 
-            else if (mode.equals("Vibe")) {
-                editor.putString("mode", "Normal");
+            else if (mode.equals(getResources().getString(R.string.mode_alt))) {
+                editor.putString("mode", getResources().getString(R.string.mode_normal));
                 Button modeSwitch = (Button) findViewById(R.id.flashbackButton);
                 modeSwitch.setText("N");
             }
 
             editor.apply();
         }
-
-
     }
 
     @Override
