@@ -83,10 +83,8 @@ public class MusicPlayer {
 
     /**
      * Reset music.
-     *
-     * @param view
      */
-    public void resetMusic(View view) {
+    public void resetMusic() {
         mediaPlayer.seekTo(0);
     }
 

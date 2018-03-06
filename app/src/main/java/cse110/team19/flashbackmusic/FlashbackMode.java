@@ -31,10 +31,6 @@ import java.util.*;
 
 public class FlashbackMode extends AppCompatActivity {
     private MusicPlayer musicPlayer;
-    //private List<Track> list = new ArrayList<Track>();
-
-
-    //private ArrayList<Integer> audioResourceId = new ArrayList<Integer>();
     static LinkedList<Track> recentlyPlayed;
 
     // for the LibraryAdaptor
@@ -94,8 +90,6 @@ public class FlashbackMode extends AppCompatActivity {
 
         registerReceiver(m_timeChangedReceiver, s_intentFilter);
     }
-
-
 
     public void playMusic(View view) {
         Button playButton = (Button) findViewById(R.id.playButton);
