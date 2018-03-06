@@ -60,10 +60,10 @@ public class Track {
     public void justPlayed() {
         cal = Calendar.getInstance();
 
-        if(MainActivity.recentlyPlayed.contains(this)) {
-            MainActivity.recentlyPlayed.remove(this);
+        if(NormalMode.recentlyPlayed.contains(this)) {
+            NormalMode.recentlyPlayed.remove(this);
         }
-        MainActivity.recentlyPlayed.addFirst(this);
+        NormalMode.recentlyPlayed.addFirst(this);
     }
 
     // Get info for flashback

@@ -16,7 +16,7 @@ import java.util.*;
 /**
  * This is the normal mode window.
  */
-public class MainActivity extends AppCompatActivity {
+public class NormalMode extends AppCompatActivity {
     /* Members */
     // player
     private MusicPlayer musicPlayer;
