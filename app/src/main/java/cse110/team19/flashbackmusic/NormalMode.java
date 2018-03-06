@@ -244,7 +244,7 @@ public class NormalMode extends AppCompatActivity {
      * @param
      */
     public void switchFlashback(View view) {
-        if(mediaPlayer != null) {
+        if(mediaPlayer != null && mediaPlayer.isPlaying()) {
             mediaPlayer.stop();
         }
         // Change the mode in sharedpreferences
