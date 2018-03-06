@@ -74,7 +74,7 @@ public class MusicPlayer {
      * @return true - playing
      *         false - not playing
      */
-    public Boolean isPlaying() {
+    public boolean isPlaying() {
         return mediaPlayer.isPlaying();
     }
 
