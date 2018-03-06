@@ -23,10 +23,6 @@ public class MainActivity extends AppCompatActivity {
     //private ArrayList<Integer> audioResourceId = new ArrayList<Integer>();
     static LinkedList<Track> recentlyPlayed;
 
-    // for the LibraryAdaptor
-    private List<Album> album_list = new ArrayList<Album>();
-    private Map<Album, List<Track>> album_to_tracks = new LinkedHashMap<Album, List<Track>>();
-
     /* Methods */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences sharedPreferences = getSharedPreferences("mode", MODE_PRIVATE);
 
         String mode = sharedPreferences.getString("mode", "");
-        if (mode.equals("Flashback")) {
+        if (mode.equals(getResources().getString(R.string.mode_alt))) {
             switchFlashback(null);
         }
 
@@ -51,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
         musicPlayer.loadSongs();
 
         // Initialize the library list
-        ListView listView = findViewById(R.id.expandableListView);
+        ListView listView = findViewById(R.id.listView);
         listView.setAdapter(new PlayListAdapter(this, musicPlayer.getTrackList(), musicPlayer);
     }
 
@@ -102,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
         // Change the mode in sharedpreferences
         SharedPreferences sharedPreferences = getSharedPreferences("mode", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString("mode", "Flashback");
+        editor.putString("mode", getResources().getString(R.string.mode_alt));
         editor.apply();
 
         // Create the intent and switch activity
