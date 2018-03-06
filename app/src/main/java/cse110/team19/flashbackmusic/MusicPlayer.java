@@ -22,6 +22,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.TreeMap;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -35,6 +36,7 @@ public class MusicPlayer {
     private ArrayList<Integer> audioResourceId = new ArrayList<Integer>();
     private List<Album> album_list = new ArrayList<Album>();
     private Map<Album, List<Track>> album_to_tracks = new LinkedHashMap<Album, List<Track>>();
+    private List<Track> trackList = new ArrayList<Track>();
 
     /**
      * Constructor
@@ -99,6 +101,14 @@ public class MusicPlayer {
      */
     public Map<Album, List<Track>> getAlbumToTrackMap() {
         return album_to_tracks;
+    }
+
+    /**
+     * Get track list for Flashback Mode
+     * @return trackList
+     */
+    public List<Track> getTrackList() {
+        return trackList;
     }
 
     /**
@@ -197,6 +207,76 @@ public class MusicPlayer {
                 location.setLongitude(longitude);
                 t.setLocation(location);
             }
+        }
+    }
+
+    public void createFlashback() {
+        final Map<Integer, Track> tempMap = new TreeMap<>();
+
+        Calendar calender;
+        calender = Calendar.getInstance();
+        int currentHour = calender.get(Calendar.HOUR_OF_DAY);
+        int currentDay = calender.get(Calendar.DAY_OF_WEEK);
+        String timeOfDay = currentTime(currentHour);
+
+        for (Map.Entry<Album, List<Track>> entry : album_to_tracks.entrySet()) {
+            //This is the list of tracks
+            List<Track> currentList = entry.getValue();
+
+            //For each track
+            for (Track track : currentList) {
+                // Check time of day
+                if (track.getTimePlayed() != null && track.getTimePlayed().equals(timeOfDay)) {
+                    track.incrementScore(500);
+                }
+
+                //Check day of week
+                if (track.getDayPlayed() > -1 && track.getDayPlayed() == (currentDay)) {
+                    track.incrementScore(500);
+                }
+
+                //Get status
+                int status = track.getStatus();
+
+                if (status == 1) {
+                    track.incrementScore(100);
+                } else if (status == -1) {
+                    track.makeScoreNegative();
+                }
+
+                //To insert into the tree map
+                if(track.getScore() > -1)
+                {
+                    //Check if there is a tie
+                    while(tempMap.containsKey(track.getScore()))
+                    {
+                        Track temp = tempMap.get(track.getScore());
+                        if(track.getTimeSinceLastPlayed() > temp.getTimeSinceLastPlayed())
+                        {
+                            track.incrementScore(1);
+                        }
+                    }
+
+                    tempMap.put(track.getScore(), track);
+                }
+            }
+        }
+
+        for(Map.Entry<Integer, Track> entry : tempMap.entrySet()){
+            Track toInsert = entry.getValue();
+            trackList.add(toInsert);
+        }
+    }
+
+    public String currentTime(int hour) {
+        if (5 <= hour && hour < 11) {
+            return "morning";
+        }
+
+        if (11 <= hour && hour < 17) {
+            return "afternoon";
+        } else {
+            return "evening";
         }
     }
 }

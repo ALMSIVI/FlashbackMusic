@@ -30,11 +30,11 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class FlashbackMode extends AppCompatActivity {
-    private MediaPlayer mediaPlayer;
-    private List<Track> list = new ArrayList<Track>();
+    private MusicPlayer musicPlayer;
+    //private List<Track> list = new ArrayList<Track>();
 
 
-    private ArrayList<Integer> audioResourceId = new ArrayList<Integer>();
+    //private ArrayList<Integer> audioResourceId = new ArrayList<Integer>();
     static LinkedList<Track> recentlyPlayed;
 
     // for the LibraryAdaptor
@@ -82,104 +82,32 @@ public class FlashbackMode extends AppCompatActivity {
         gpsTracker = new GPSTracker(this);
         startingLocation = gpsTracker.getLocation();
 
-        if (mediaPlayer == null) {
-            mediaPlayer = new MediaPlayer();
+        if (musicPlayer == null) {
+            musicPlayer = new MusicPlayer(this, new MediaPlayer());
         }
 
-        loadSongs();
-        createFlashback(album_to_tracks);
+        musicPlayer.loadSongs();
+        musicPlayer.createFlashback();
 
         ListView playList = findViewById(R.id.playList);
-        playList.setAdapter(new PlayListAdapter(this, list, mediaPlayer));
+        playList.setAdapter(new PlayListAdapter(this, musicPlayer.getTrackList(), musicPlayer.getPlayer()));
 
         registerReceiver(m_timeChangedReceiver, s_intentFilter);
     }
 
-    public void createFlashback(Map<Album, List<Track>> input) {
-        final Map<Integer, Track> tempMap = new TreeMap<>();
 
-        Calendar calender;
-        calender = Calendar.getInstance();
-        int currentHour = calender.get(Calendar.HOUR_OF_DAY);
-        int currentDay = calender.get(Calendar.DAY_OF_WEEK);
-        String timeOfDay = currentTime(currentHour);
-
-        for (Map.Entry<Album, List<Track>> entry : input.entrySet()) {
-            //This is the list of tracks
-            List<Track> currentList = entry.getValue();
-
-            //For each track
-            for (Track track : currentList) {
-                // Check time of day
-                if (track.getTimePlayed() != null && track.getTimePlayed().equals(timeOfDay)) {
-                    track.incrementScore(500);
-                }
-
-                //Check day of week
-                if (track.getDayPlayed() > -1 && track.getDayPlayed() == (currentDay)) {
-                    track.incrementScore(500);
-                }
-
-                //Get status
-                int status = track.getStatus();
-
-                if (status == 1) {
-                    track.incrementScore(100);
-                } else if (status == -1) {
-                    track.makeScoreNegative();
-                }
-
-                //To insert into the tree map
-                if(track.getScore() > -1)
-                {
-                    //Check if there is a tie
-                    while(tempMap.containsKey(track.getScore()))
-                    {
-                        Track temp = tempMap.get(track.getScore());
-                        if(track.getTimeSinceLastPlayed() > temp.getTimeSinceLastPlayed())
-                        {
-                            track.incrementScore(1);
-                        }
-                    }
-
-                    tempMap.put(track.getScore(), track);
-                }
-            }
-        }
-
-        for(Map.Entry<Integer, Track> entry : tempMap.entrySet()){
-            Track toInsert = entry.getValue();
-            list.add(toInsert);
-        }
-    }
-
-    public String currentTime(int hour) {
-        if (5 <= hour && hour < 11) {
-            return "morning";
-        }
-
-        if (11 <= hour && hour < 17) {
-            return "afternoon";
-        } else {
-            return "evening";
-        }
-    }
-
-    public void resetMusic(View view) {
-        mediaPlayer.seekTo(0);
-    }
 
     public void playMusic(View view) {
         Button playButton = (Button) findViewById(R.id.playButton);
         //Check if something is already playing
-        if (mediaPlayer != null && mediaPlayer.isPlaying()) {
-            mediaPlayer.pause();
+        if (musicPlayer != null && musicPlayer.isPlaying()) {
+            musicPlayer.pause();
             Drawable play = getResources().getDrawable(R.drawable.ic_play_arrow_actuallyblack_24dp);
             playButton.setCompoundDrawablesWithIntrinsicBounds(null, play, null, null);
         } else {
             //Since there is already a song loaded, just resume the song
-            if (mediaPlayer != null) {
-                mediaPlayer.start();
+            if (musicPlayer != null) {
+                musicPlayer.start();
             }
 
             Drawable pause = getResources().getDrawable(R.drawable.ic_pause_actuallyblack_24dp);
@@ -187,99 +115,9 @@ public class FlashbackMode extends AppCompatActivity {
         }
     }
 
-    /**
-     * Load the songs.
-     */
-    public void loadSongs() {
-        Map<String, Album> album_data = new LinkedHashMap<String, Album>();
-        final Field[] fields = R.raw.class.getFields(); //Gets the all the files (tracks) in raw folder
-        for (int count = 0; count < fields.length; count++) { //Goes through each track
-            String name = fields[count].getName();
-
-            //Gets id to play the track (used in LoadMedia())
-            int resourceID = getResources().getIdentifier(name, "raw", getPackageName());
-            audioResourceId.add(resourceID);
-
-            //Gets the metadata of the track (album, artist, track number in album, track name)
-            MediaMetadataRetriever mmr = new MediaMetadataRetriever();
-            Resources res = getResources();
-            AssetFileDescriptor afd = res.openRawResourceFd(resourceID);
-            mmr.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
-            String albumName = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM);
-            String artist = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
-            String trackNumber = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_CD_TRACK_NUMBER);
-            String trackName = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
-
-            // Parse the metadata
-            if (albumName == null || albumName.equals("")) {
-                albumName = "Unknown album";
-            }
-            if (artist == null || artist.equals("")) {
-                artist = "Unknown artist";
-            }
-            int trackNo = 0;
-            int numTracks = 0;
-            if (trackNumber != null) {
-                String[] numbers = trackNumber.split("/");
-                trackNo = Integer.parseInt(numbers[0]);
-                numTracks = Integer.parseInt(numbers[1]);
-            }
-            if (trackName == null || trackName.equals("")) {
-                trackName = "Unknown track";
-            }
-
-            // Create the track
-            Track t = new Track(trackName, trackNo, artist, resourceID);
-            if (!album_data.containsKey(albumName)) {
-                Album newAlbum = new Album(albumName, artist, numTracks);
-                album_data.put(albumName, newAlbum);
-                album_list.add(newAlbum);
-                newAlbum.addTrack(t);
-
-                // update data to be sent to adaptor
-                List<Track> tracks = new LinkedList<Track>();
-                tracks.add(t);
-                album_to_tracks.put(newAlbum, tracks);
-            } else {
-                album_data.get(albumName).addTrack(t);
-                album_to_tracks.get(album_data.get(albumName)).add(t);
-            }
-
-            // Retrieve data from sharedPreferences
-            SharedPreferences sharedPreferences = getSharedPreferences("track_info", MODE_PRIVATE);
-            int status = sharedPreferences.getInt(t.getTrackName() + "Status", 0);
-            t.setStatus(status);
-
-            // calendar
-            String cal = sharedPreferences.getString(t.getTrackName() + "Time", null);
-            if (cal != null) {
-                try {
-                    Calendar calendar = Calendar.getInstance();
-                    SimpleDateFormat format = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.ENGLISH);
-                    calendar.setTime(format.parse(cal));
-                    t.setCalendar(calendar);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-
-            // location
-            String loc = sharedPreferences.getString(t.getTrackName() + "Location", "Unknown Location");
-            if (!loc.equals("Unknown Location")) {
-                String[] locationValue = loc.split("");
-                double latitude = Double.parseDouble(locationValue[0]);
-                double longitude = Double.parseDouble(locationValue[1]);
-                Location location = new Location("");
-                location.setLatitude(latitude);
-                location.setLongitude(longitude);
-                t.setLocation(location);
-            }
-        }
-    }
-
     public void switchNormal(View view) {
         // update sharedPreferences
-        mediaPlayer.stop();
+        musicPlayer.stop();
         SharedPreferences sharedPreferences = getSharedPreferences("mode", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("mode", "Normal");
