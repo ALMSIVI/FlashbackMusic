@@ -1,56 +1,22 @@
 package cse110.team19.flashbackmusic;
 
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentSender;
 import android.content.SharedPreferences;
-import android.content.res.*;
 import android.graphics.drawable.Drawable;
-import android.location.Location;
-import android.location.LocationManager;
 import android.media.*;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.ResultReceiver;
-import android.support.annotation.NonNull;
-import android.support.v4.app.FragmentActivity;
-import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.*;
 import android.widget.*;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.Api;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.PendingResult;
-import com.google.android.gms.common.api.ResolvableApiException;
-import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.common.api.Status;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.LocationSettingsRequest;
-import com.google.android.gms.location.LocationSettingsResponse;
-import com.google.android.gms.location.LocationSettingsResult;
-import com.google.android.gms.location.LocationSettingsStatusCodes;
-import com.google.android.gms.location.SettingsClient;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-
-import java.io.FileDescriptor;
-import java.io.PrintWriter;
-import java.lang.reflect.Field;
-import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
 
 /**
  * This is the normal mode window.
  */
-public class NormalMode extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity {
     /* Members */
     // player
     private MusicPlayer musicPlayer;
@@ -65,7 +31,7 @@ public class NormalMode extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_normal_mode);
+        setContentView(R.layout.activity_main_activity);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -85,21 +51,8 @@ public class NormalMode extends AppCompatActivity {
         musicPlayer.loadSongs();
 
         // Initialize the library list
-        ExpandableListView expandableListView = findViewById(R.id.expandableListView);
-        expandableListView.setAdapter(new LibraryAdapter(this, musicPlayer.getAlbumList(), musicPlayer.getAlbumToTrackMap(), musicPlayer));
-
-        expandableListView.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
-            @Override
-            public boolean onGroupClick(ExpandableListView expandableListView, View view, int i, long l) {
-                if (expandableListView.isGroupExpanded(i)) {
-                    expandableListView.collapseGroup(i);
-                    return false;
-                } else {
-                    expandableListView.expandGroup(i);
-                    return true;
-                }
-            }
-        });
+        ListView listView = findViewById(R.id.expandableListView);
+        listView.setAdapter(new PlayListAdapter(this, musicPlayer.getTrackList(), musicPlayer);
     }
 
     /**
@@ -156,6 +109,4 @@ public class NormalMode extends AppCompatActivity {
         Intent intent = new Intent(this, FlashbackMode.class);
         startActivity(intent);
     }
-
-
 }

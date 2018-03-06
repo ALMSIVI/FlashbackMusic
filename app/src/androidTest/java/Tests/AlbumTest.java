@@ -3,7 +3,6 @@ package Tests;
 import org.junit.Before;
 import org.junit.Test;
 
-import cse110.team19.flashbackmusic.Album;
 import cse110.team19.flashbackmusic.Track;
 
 import static junit.framework.Assert.assertEquals;

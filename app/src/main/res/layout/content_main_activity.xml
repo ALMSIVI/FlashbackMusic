@@ -5,8 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="cse110.team19.flashbackmusic.NormalMode"
-    tools:showIn="@layout/activity_normal_mode">
+    tools:context="cse110.team19.flashbackmusic.MainActivity"
+    tools:showIn="@layout/activity_main_activity">
 
     <TextView
         android:id="@+id/libraryText"
@@ -20,7 +20,7 @@
         app:layout_constraintHorizontal_bias="0"
         app:layout_constraintRight_toRightOf="parent"/>
 
-    <ExpandableListView
+    <ListView
         android:id="@+id/expandableListView"
         android:layout_width="match_parent"
         android:layout_height="0dp"

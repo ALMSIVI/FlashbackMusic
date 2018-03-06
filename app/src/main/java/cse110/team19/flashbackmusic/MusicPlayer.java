@@ -4,14 +4,11 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.Resources;
-import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
-import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 
 import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
@@ -34,8 +31,6 @@ public class MusicPlayer {
     private MediaPlayer mediaPlayer;
     private Context context;
     private ArrayList<Integer> audioResourceId = new ArrayList<Integer>();
-    private List<Album> album_list = new ArrayList<Album>();
-    private Map<Album, List<Track>> album_to_tracks = new LinkedHashMap<Album, List<Track>>();
     private List<Track> trackList = new ArrayList<Track>();
 
     /**
@@ -46,6 +41,14 @@ public class MusicPlayer {
     public MusicPlayer(Context c, MediaPlayer mp) {
         context = c;
         mediaPlayer = mp;
+
+
+        mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+            @Override
+            public void onPrepared(MediaPlayer mediaPlayer) {
+                mediaPlayer.start();
+            }
+        });
     }
 
     /**
@@ -88,22 +91,6 @@ public class MusicPlayer {
     }
 
     /**
-     * Get list of albums.
-     * @return album_list
-     */
-    public List<Album> getAlbumList() {
-        return album_list;
-    }
-
-    /**
-     * Get map of albums to their lists of tracks.
-     * @return album_to_tracks
-     */
-    public Map<Album, List<Track>> getAlbumToTrackMap() {
-        return album_to_tracks;
-    }
-
-    /**
      * Get track list for Flashback Mode
      * @return trackList
      */
@@ -123,7 +110,6 @@ public class MusicPlayer {
      * Load the songs.
      */
     public void loadSongs() {
-        Map<String, Album> album_data = new LinkedHashMap<String, Album>();
         final Field[] fields = R.raw.class.getFields(); //Gets the all the files (tracks) in raw folder
         for (int count = 0; count < fields.length; count++) { //Goes through each track
             String name = fields[count].getName();
@@ -161,22 +147,7 @@ public class MusicPlayer {
             }
 
             // Create the track
-            Track t = new Track(trackName, trackNo, artist, resourceID);
-            Log.d("album name", albumName);
-            if (!album_data.containsKey(albumName)) {
-                Album newAlbum = new Album(albumName, artist, numTracks);
-                album_data.put(albumName, newAlbum);
-                album_list.add(newAlbum);
-                newAlbum.addTrack(t);
-
-                // update data to be sent to adaptor
-                List<Track> tracks = new LinkedList<Track>();
-                tracks.add(t);
-                album_to_tracks.put(newAlbum, tracks);
-            } else {
-                album_data.get(albumName).addTrack(t);
-                album_to_tracks.get(album_data.get(albumName)).add(t);
-            }
+            Track t = new Track(trackName, albumName, artist, trackNo, resourceID);
 
             // Retrieve data from sharedPreferences
             SharedPreferences sharedPreferences = context.getSharedPreferences("track_info", MODE_PRIVATE);
@@ -219,21 +190,9 @@ public class MusicPlayer {
         int currentDay = calender.get(Calendar.DAY_OF_WEEK);
         String timeOfDay = currentTime(currentHour);
 
-        for (Map.Entry<Album, List<Track>> entry : album_to_tracks.entrySet()) {
-            //This is the list of tracks
-            List<Track> currentList = entry.getValue();
-
             //For each track
-            for (Track track : currentList) {
-                // Check time of day
-                if (track.getTimePlayed() != null && track.getTimePlayed().equals(timeOfDay)) {
-                    track.incrementScore(500);
-                }
-
-                //Check day of week
-                if (track.getDayPlayed() > -1 && track.getDayPlayed() == (currentDay)) {
-                    track.incrementScore(500);
-                }
+            for (Track track : trackList) {
+                // TODO: Criterion check
 
                 //Get status
                 int status = track.getStatus();
@@ -260,7 +219,6 @@ public class MusicPlayer {
                     tempMap.put(track.getScore(), track);
                 }
             }
-        }
 
         for(Map.Entry<Integer, Track> entry : tempMap.entrySet()){
             Track toInsert = entry.getValue();

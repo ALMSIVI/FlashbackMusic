@@ -13,6 +13,7 @@ public class Track {
     private int score;
     private int status;
     private int resourceId;
+    private String website;
     private Location location;
     private long time;
 
@@ -28,10 +29,15 @@ public class Track {
         this.artistName = artist;
         this.trackNumber = trackNumber;
         this.resourceId = resourceId;
-        score = 0;
-        status = 0;
     }
 
+    public Track(String trackName, String albumName, String artist, int trackNumber, String website) {
+        this.trackName = trackName;
+        this.albumName = albumName;
+        this.artistName = artist;
+        this.trackNumber = trackNumber;
+        this.website = website;
+    }
 
     /**
      * -1: dislike
@@ -54,10 +60,10 @@ public class Track {
     public void justPlayed() {
         cal = Calendar.getInstance();
 
-        if(NormalMode.recentlyPlayed.contains(this)) {
-            NormalMode.recentlyPlayed.remove(this);
+        if(MainActivity.recentlyPlayed.contains(this)) {
+            MainActivity.recentlyPlayed.remove(this);
         }
-        NormalMode.recentlyPlayed.addFirst(this);
+        MainActivity.recentlyPlayed.addFirst(this);
     }
 
     // Get info for flashback
@@ -194,6 +200,3 @@ public class Track {
         }
     };
 }
-
-
-

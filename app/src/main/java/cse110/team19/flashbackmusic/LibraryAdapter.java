@@ -57,7 +57,7 @@ public class LibraryAdapter extends BaseExpandableListAdapter {
     /**
      * Constructor.
      *
-     * @param c NormalMode Activity
+     * @param c MainActivity Activity
      * @param l list of albums
      * @param h albums and their tracks
      * @param m media player
