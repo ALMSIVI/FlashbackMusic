@@ -22,7 +22,7 @@
                 android:layout_margin="5dp"
                 android:layout_width="40dp"
                 android:layout_height="wrap_content"
-                android:text="F"
+                android:text="V"
                 android:onClick="switchFlashback"
                 android:textSize="20dp"
                 android:background="#80000000"
