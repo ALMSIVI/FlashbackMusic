@@ -24,8 +24,8 @@ public class NormalMode extends AppCompatActivity {
     static LinkedList<Track> recentlyPlayed;
 
     // for the LibraryAdaptor
-    private List<Album> album_list = new ArrayList<Album>();
-    private Map<Album, List<Track>> album_to_tracks = new LinkedHashMap<Album, List<Track>>();
+    //private List<Album> album_list = new ArrayList<Album>();
+    //private Map<Album, List<Track>> album_to_tracks = new LinkedHashMap<Album, List<Track>>();
 
     /* Methods */
     @Override
