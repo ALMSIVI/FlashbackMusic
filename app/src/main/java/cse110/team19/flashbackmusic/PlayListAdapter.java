@@ -39,7 +39,7 @@ import static android.content.Context.MODE_PRIVATE;
  */
 public class PlayListAdapter extends BaseAdapter {
     private Context context;
-    private MediaPlayer mediaPlayer;
+    private MusicPlayer mediaPlayer;
     private List<Track> playList;
     private ArrayList<Pair<Integer, Track>> audioResourceId;
     private int audioIndex = 0;
@@ -59,7 +59,7 @@ public class PlayListAdapter extends BaseAdapter {
      * @param l playlist
      * @param m media player
      */
-    public PlayListAdapter(Context c, List<Track> l, MediaPlayer m) {
+    public PlayListAdapter(Context c, List<Track> l, MusicPlayer m) {
         context = c;
         playList = l;
         mediaPlayer = m;
@@ -89,12 +89,6 @@ public class PlayListAdapter extends BaseAdapter {
             }
         });
 
-        mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-            @Override
-            public void onPrepared(MediaPlayer mediaPlayer) {
-                mediaPlayer.start();
-            }
-        });
 
         // Load the songs to the player
         audioResourceId = new ArrayList<Pair<Integer, Track>>();
