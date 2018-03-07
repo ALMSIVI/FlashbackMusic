@@ -93,7 +93,7 @@ public class PlayListAdapter extends BaseAdapter {
         // Load the songs to the player
         audioResourceId = new ArrayList<Pair<Integer, Track>>();
         audioIndex = 0;
-        changePlayPause();
+        //changePausePlay();
         for (Track t : playList) {
             Log.d("audioIndex", audioIndex + "");
             int id = t.getResourceId();
@@ -128,9 +128,22 @@ public class PlayListAdapter extends BaseAdapter {
             view = layoutInflater.inflate(R.layout.playlist_view, null);
         }
 
-        TextView track_name = (TextView) view.findViewById(R.id.track_name);
-        track_name.setText(track.getTrackName());
+        TextView new_track = (TextView) view.findViewById(R.id.track_name);
+        new_track.setText(track.getTrackName());
 
+        new_track.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (track.getStatus() > -1) {
+                    //changePlayPause();
+                    int id = track.getResourceId();
+                    Log.d("hello id", id+"");
+                    //audioResourceId = new <Pair<Integer, Track>>ArrayList();
+                    //audioResourceId.add(new Pair<Integer, Track>(id, track));
+                    loadMedia(id, track);
+                }
+            }
+        });
 
         final Button status_button = (Button) view.findViewById(R.id.set_status);
         changeButton(track, status_button);
@@ -154,8 +167,9 @@ public class PlayListAdapter extends BaseAdapter {
     }
 
     public void loadMedia(int resourceId, Track track) {
+        mediaPlayer.stop();
         isPlaying = track;
-        changePlayPause();
+        //changePlayPause();
         mediaPlayer.seekTo(0);
         AssetFileDescriptor assetFileDescriptor = context.getResources().openRawResourceFd(resourceId);
         try {
@@ -167,6 +181,7 @@ public class PlayListAdapter extends BaseAdapter {
 
         updateText();
         audioIndex++;
+        //mediaPlayer.start();
     }
 
     private void changeButton(Track track, Button button) {
