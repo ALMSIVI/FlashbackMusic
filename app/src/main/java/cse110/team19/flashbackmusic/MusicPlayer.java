@@ -42,13 +42,15 @@ public class MusicPlayer {
         context = c;
         mediaPlayer = mp;
 
-
         mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
             @Override
             public void onPrepared(MediaPlayer mediaPlayer) {
                 mediaPlayer.start();
             }
         });
+
+
+
     }
 
     /**

@@ -110,7 +110,6 @@ public class PlayListAdapter extends BaseAdapter {
         }
 
         loadMedia(audioResourceId.get(audioIndex).first, audioResourceId.get(audioIndex).second);
-        mediaPlayer.start();
     }
 
     public Track getIsPlaying() {
@@ -155,7 +154,7 @@ public class PlayListAdapter extends BaseAdapter {
     public void loadMedia(int resourceId, Track track) {
         isPlaying = track;
         changePlayPause();
-        mediaPlayer.reset();
+        mediaPlayer.resetMusic();
         AssetFileDescriptor assetFileDescriptor = context.getResources().openRawResourceFd(resourceId);
         try {
             mediaPlayer.setDataSource(assetFileDescriptor);
