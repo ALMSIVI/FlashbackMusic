@@ -139,6 +139,10 @@ public class Track {
         this.status = status;
     }
 
+    public void setResourceId(int resourceId) {
+        this.resourceId = resourceId;
+    }
+
     public void setPersonLastPlayed(String name) {
         this.personLastPlayed = name;
     }

@@ -39,7 +39,7 @@ import static android.content.Context.MODE_PRIVATE;
  */
 public class PlayListAdapter extends BaseAdapter {
     private Context context;
-    private MusicPlayer mediaPlayer;
+    private MediaPlayer mediaPlayer;
     private List<Track> playList;
     private ArrayList<Pair<Integer, Track>> audioResourceId;
     private int audioIndex = 0;
@@ -62,7 +62,7 @@ public class PlayListAdapter extends BaseAdapter {
     public PlayListAdapter(Context c, List<Track> l, MusicPlayer m) {
         context = c;
         playList = l;
-        mediaPlayer = m;
+        mediaPlayer = m.getPlayer();
 
         // Initialize the locations
         geocoder = new Geocoder(context, Locale.getDefault());
@@ -109,8 +109,9 @@ public class PlayListAdapter extends BaseAdapter {
             }
         }
 
-        loadMedia(audioResourceId.get(audioIndex).first, audioResourceId.get(audioIndex).second);
-        mediaPlayer.start();
+        if (audioResourceId.size() > audioIndex) {
+            loadMedia(audioResourceId.get(audioIndex).first, audioResourceId.get(audioIndex).second);
+        }
     }
 
     public Track getIsPlaying() {
@@ -155,7 +156,7 @@ public class PlayListAdapter extends BaseAdapter {
     public void loadMedia(int resourceId, Track track) {
         isPlaying = track;
         changePlayPause();
-        mediaPlayer.reset();
+        mediaPlayer.seekTo(0);
         AssetFileDescriptor assetFileDescriptor = context.getResources().openRawResourceFd(resourceId);
         try {
             mediaPlayer.setDataSource(assetFileDescriptor);
@@ -232,7 +233,9 @@ public class PlayListAdapter extends BaseAdapter {
         editor.putInt(track.getTrackName() + "Status", track.getStatus());
 
         if (all) {
-            editor.putString(track.getTrackName() + "Time", track.getTime());
+            editor.putString(track.getTrackName() + "Time", track.getTime() != null ?
+                    track.getTime().toString() :
+                    "null");
             editor.putString(track.getTrackName() + "Location", track.getLocation());
         }
         editor.apply();

@@ -72,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         //This needs to go before the button
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_flashback_mode);
+        setContentView(R.layout.activity_main_activity);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -86,6 +86,18 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
 
         musicPlayer.loadSongs();
+
+        //Get mode
+        SharedPreferences sharedPreferences = this.getSharedPreferences("mode", MODE_PRIVATE);
+        String mode = sharedPreferences.getString("mode", null);
+
+        if (mode == null) {
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putString("mode", getResources().getString(R.string.mode_normal));
+            Button modeSwitch = (Button) findViewById(R.id.flashbackButton);
+            modeSwitch.setText("N");
+            editor.apply();
+        }
 
         gpsTracker = new GPSTracker(this);
         startingLocation = gpsTracker.getLocation();
@@ -134,6 +146,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public void resetMusic(View view) {
+        musicPlayer.resetMusic();
+    }
+
 
     /**
      * Switch modes (Normal to Vibe or Vibe to Normal)
@@ -152,12 +168,12 @@ public class MainActivity extends AppCompatActivity {
             SharedPreferences.Editor editor = sharedPreferences.edit();
 
             if (mode.equals(getResources().getString(R.string.mode_normal))) {
-                editor.putString("mode", getResources().getString(R.string.mode_alt));
+                editor.putString("mode", getResources().getString(R.string.mode_vibe));
                 Button modeSwitch = (Button) findViewById(R.id.flashbackButton);
                 modeSwitch.setText("V");
             }
 
-            else if (mode.equals(getResources().getString(R.string.mode_alt))) {
+            else if (mode.equals(getResources().getString(R.string.mode_vibe))) {
                 editor.putString("mode", getResources().getString(R.string.mode_normal));
                 Button modeSwitch = (Button) findViewById(R.id.flashbackButton);
                 modeSwitch.setText("N");

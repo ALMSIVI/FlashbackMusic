@@ -8,6 +8,7 @@ import android.location.Location;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.util.Log;
+import android.util.Pair;
 import android.view.View;
 
 import java.lang.reflect.Field;
@@ -42,13 +43,13 @@ public class MusicPlayer {
         context = c;
         mediaPlayer = mp;
 
-
         mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
             @Override
             public void onPrepared(MediaPlayer mediaPlayer) {
                 mediaPlayer.start();
             }
         });
+
     }
 
     /**
@@ -146,6 +147,7 @@ public class MusicPlayer {
 
             // Create the track
             Track t = new Track(trackName, albumName, artist, trackNo, resourceID);
+            trackList.add(t);
 
             // Retrieve data from sharedPreferences
             SharedPreferences sharedPreferences = context.getSharedPreferences("track_info", MODE_PRIVATE);
@@ -167,7 +169,7 @@ public class MusicPlayer {
 
             // location
             String loc = sharedPreferences.getString(t.getTrackName() + "Location", "Unknown Location");
-            if (!loc.equals("Unknown Location")) {
+            /*if (!loc.equals("Unknown Location")) {
                 String[] locationValue = loc.split("");
                 double latitude = Double.parseDouble(locationValue[0]);
                 double longitude = Double.parseDouble(locationValue[1]);
@@ -175,12 +177,13 @@ public class MusicPlayer {
                 location.setLatitude(latitude);
                 location.setLongitude(longitude);
                 t.setLocation(location);
-            }
+            }*/
         }
     }
 
     public void createFlashback() {
         final Map<Integer, Track> tempMap = new TreeMap<>();
+        trackList = new ArrayList<Track>();
 
         Calendar calender;
         calender = Calendar.getInstance();
