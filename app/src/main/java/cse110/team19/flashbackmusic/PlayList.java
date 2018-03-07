@@ -38,4 +38,12 @@ public class PlayList {
         // TODO: Retrieve music from website, calculate scores, update playlist
         Collections.sort(playList, Track.scoreComparator);
     }
+
+    public int getCount() {
+        return playList.size();
+    }
+
+    public List<Track> getPlayList() {
+        return playList;
+    }
 }

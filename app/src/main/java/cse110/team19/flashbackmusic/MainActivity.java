@@ -10,6 +10,9 @@ import android.location.Location;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Button;
@@ -29,7 +32,11 @@ public class MainActivity extends AppCompatActivity {
     private boolean normalMode = true;
 
     private MusicPlayer musicPlayer;
+    private PlayList playList;
     static LinkedList<Track> recentlyPlayed;
+
+    private RecyclerView recyclerView;
+    private Adapter adapter;
 
     // for recording location at onset of flashback mode
     GPSTracker gpsTracker;
@@ -69,6 +76,16 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        // set up recycler view
+        recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
+        adapter = new Adapter(playList);
+
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        recyclerView.setAdapter(adapter);
+
+        musicPlayer.loadSongs();
 
         gpsTracker = new GPSTracker(this);
         startingLocation = gpsTracker.getLocation();
@@ -77,11 +94,9 @@ public class MainActivity extends AppCompatActivity {
             musicPlayer = new MusicPlayer(this, new MediaPlayer());
         }
 
-        musicPlayer.loadSongs();
-
         // Initialize the library list
         ListView listView = findViewById(R.id.listView);
-        listView.setAdapter(new PlayListAdapter(this, musicPlayer.getTrackList(), musicPlayer);
+        listView.setAdapter(new PlayListAdapter(this, musicPlayer.getTrackList(), musicPlayer));
 
         if (!normalMode) {
             musicPlayer.createFlashback();
