@@ -69,6 +69,17 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        //Get mode
+        SharedPreferences sharedPreferences = this.getSharedPreferences("mode", MODE_PRIVATE);
+        String mode = sharedPreferences.getString("mode", null);
+
+        if (mode == null) {
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putString("mode", getResources().getString(R.string.mode_normal));
+            Button modeSwitch = (Button) findViewById(R.id.flashbackButton);
+            modeSwitch.setText("N");
+            editor.apply();
+        }
 
         gpsTracker = new GPSTracker(this);
         startingLocation = gpsTracker.getLocation();
@@ -137,23 +148,23 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences sharedPreferences = this.getSharedPreferences("mode", MODE_PRIVATE);
         String mode = sharedPreferences.getString("mode", null);
 
-        //if (mode != null) {
+        if (mode != null) {
             SharedPreferences.Editor editor = sharedPreferences.edit();
 
-            if (mode != null && mode.equals(getResources().getString(R.string.mode_normal))) {
-                editor.putString("mode", getResources().getString(R.string.mode_alt));
+            if (mode.equals(getResources().getString(R.string.mode_normal))) {
+                editor.putString("mode", getResources().getString(R.string.mode_vibe));
                 Button modeSwitch = (Button) findViewById(R.id.flashbackButton);
                 modeSwitch.setText("V");
             }
 
-            else if (mode == null || mode.equals(getResources().getString(R.string.mode_alt))) {
+            else if (mode.equals(getResources().getString(R.string.mode_vibe))) {
                 editor.putString("mode", getResources().getString(R.string.mode_normal));
                 Button modeSwitch = (Button) findViewById(R.id.flashbackButton);
                 modeSwitch.setText("N");
             }
 
             editor.apply();
-        //}
+        }
     }
 
     @Override
