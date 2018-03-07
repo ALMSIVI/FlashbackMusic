@@ -169,7 +169,7 @@ public class MusicPlayer {
 
             // location
             String loc = sharedPreferences.getString(t.getTrackName() + "Location", "Unknown Location");
-            if (!loc.equals("Unknown Location")) {
+            /*if (!loc.equals("Unknown Location")) {
                 String[] locationValue = loc.split("");
                 double latitude = Double.parseDouble(locationValue[0]);
                 double longitude = Double.parseDouble(locationValue[1]);
@@ -177,7 +177,7 @@ public class MusicPlayer {
                 location.setLatitude(latitude);
                 location.setLongitude(longitude);
                 t.setLocation(location);
-            }
+            }*/
         }
     }
 

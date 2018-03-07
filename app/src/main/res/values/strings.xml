@@ -10,5 +10,5 @@
     <string name="last_played_info">You last played this song at %1s in %2s.</string>
     <string name="never_played_info">This is the first time you played this song!</string>
     <string name="mode_normal">Normal</string>
-    <string name="mode_alt">Vibe</string>
+    <string name="mode_vibe">Vibe</string>
 </resources>
