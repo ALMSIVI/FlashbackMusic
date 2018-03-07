@@ -81,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Initialize the library list
         ListView listView = findViewById(R.id.listView);
-        listView.setAdapter(new PlayListAdapter(this, musicPlayer.getTrackList(), musicPlayer);
+        listView.setAdapter(new PlayListAdapter(this, musicPlayer.getTrackList(), musicPlayer));
 
         if (!normalMode) {
             musicPlayer.createFlashback();

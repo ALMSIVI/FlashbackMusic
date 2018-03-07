@@ -39,7 +39,7 @@ import static android.content.Context.MODE_PRIVATE;
  */
 public class PlayListAdapter extends BaseAdapter {
     private Context context;
-    private MusicPlayer mediaPlayer;
+    private MediaPlayer mediaPlayer;
     private List<Track> playList;
     private ArrayList<Pair<Integer, Track>> audioResourceId;
     private int audioIndex = 0;
@@ -62,7 +62,7 @@ public class PlayListAdapter extends BaseAdapter {
     public PlayListAdapter(Context c, List<Track> l, MusicPlayer m) {
         context = c;
         playList = l;
-        mediaPlayer = m;
+        mediaPlayer = m.getPlayer();
 
         // Initialize the locations
         geocoder = new Geocoder(context, Locale.getDefault());
