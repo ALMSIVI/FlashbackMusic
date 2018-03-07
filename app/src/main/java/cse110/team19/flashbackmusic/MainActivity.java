@@ -77,6 +77,7 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         // set up recycler view
+        playList = new PlayList(recentlyPlayed);
         recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
         adapter = new Adapter(playList);
 
@@ -85,6 +86,8 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(adapter);
 
+        MediaPlayer mediaPlayer = new MediaPlayer();
+        musicPlayer = new MusicPlayer(this, mediaPlayer);
         musicPlayer.loadSongs();
 
         //Get mode
@@ -107,8 +110,8 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // Initialize the library list
-        ListView listView = findViewById(R.id.listView);
-        listView.setAdapter(new PlayListAdapter(this, musicPlayer.getTrackList(), musicPlayer));
+        // ListView listView = findViewById(R.id.recyclerView);
+        // listView.setAdapter(new PlayListAdapter(this, musicPlayer.getTrackList(), musicPlayer));
 
         if (!normalMode) {
             musicPlayer.createFlashback();
