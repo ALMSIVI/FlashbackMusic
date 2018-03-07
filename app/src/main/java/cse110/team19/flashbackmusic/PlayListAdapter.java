@@ -232,7 +232,9 @@ public class PlayListAdapter extends BaseAdapter {
         editor.putInt(track.getTrackName() + "Status", track.getStatus());
 
         if (all) {
-            editor.putString(track.getTrackName() + "Time", track.getTime());
+            editor.putString(track.getTrackName() + "Time", track.getTime() != null ?
+                    track.getTime().toString() :
+                    "null");
             editor.putString(track.getTrackName() + "Location", track.getLocation());
         }
         editor.apply();
