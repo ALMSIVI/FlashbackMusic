@@ -65,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         //This needs to go before the button
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_flashback_mode);
+        setContentView(R.layout.activity_main_activity);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
