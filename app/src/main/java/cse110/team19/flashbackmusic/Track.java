@@ -16,6 +16,7 @@ public class Track {
     private String website;
     private Location location;
     private long time;
+    private String personLastPlayed;
 
     /**
      * Constructor.
@@ -60,10 +61,10 @@ public class Track {
     public void justPlayed() {
         cal = Calendar.getInstance();
 
-        if(NormalMode.recentlyPlayed.contains(this)) {
-            NormalMode.recentlyPlayed.remove(this);
+        if(MainActivity.recentlyPlayed.contains(this)) {
+            MainActivity.recentlyPlayed.remove(this);
         }
-        NormalMode.recentlyPlayed.addFirst(this);
+        MainActivity.recentlyPlayed.addFirst(this);
     }
 
     // Get info for flashback
@@ -88,11 +89,7 @@ public class Track {
         return time;
     }
 
-    /* Getters and setters */
-    public void setStatus(int status) {
-        this.status = status;
-    }
-
+    /* Getters */
     public String getTrackName() {
         return trackName;
     }
@@ -121,12 +118,33 @@ public class Track {
         return resourceId;
     }
 
+    public String getPersonLastPlayed() {
+        return personLastPlayed;
+    }
+
+    public String getWebsite() {
+        return website;
+    }
+
+    /* Setters */
     public void setCalendar(Calendar calendar) {
         cal = calendar;
     }
 
     public void setLocation(Location location) {
         this.location = location;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
+    public void setPersonLastPlayed(String name) {
+        this.personLastPlayed = name;
+    }
+
+    public void setWebsite(String site) {
+        this.website = site;
     }
 
     //Increment to the score
