@@ -7,10 +7,12 @@ import android.content.res.Resources;
 import android.location.Location;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
+import android.os.Environment;
 import android.util.Log;
 import android.util.Pair;
 import android.view.View;
 
+import java.io.File;
 import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -23,6 +25,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import static android.content.Context.MODE_PRIVATE;
+import static android.os.Environment.DIRECTORY_DOWNLOADS;
 
 /**
  * Created by Meeta on 3/6/18.
@@ -109,7 +112,17 @@ public class MusicPlayer {
      * Load the songs.
      */
     public void loadSongs() {
-        final Field[] fields = R.raw.class.getFields(); //Gets the all the files (tracks) in raw folder
+        // getting songs out of Downloads folder
+        String path = Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS).toString()+"/";
+        Log.d("Files", "Path: " + path);
+        File directory = new File(path);
+        File[] fields = directory.listFiles();
+        Log.d("Files", "Size: " + fields.length);
+        for (int i = 0; i < fields.length; i++) {
+            Log.d("Files", "FileName:" + fields[i].getName());
+        }
+
+        //final Field[] fields = R.raw.class.getFields(); //Gets the all the files (tracks) in raw folder
         for (int count = 0; count < fields.length; count++) { //Goes through each track
             String name = fields[count].getName();
 
