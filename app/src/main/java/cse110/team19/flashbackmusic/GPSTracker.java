@@ -4,7 +4,10 @@ package cse110.team19.flashbackmusic;
  * Created by sarahji on 2/18/18.
  * https://www.androidhive.info/2012/07/android-gps-location-manager-tutorial/
  */
+import android.Manifest;
+import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Service;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -14,11 +17,14 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.provider.Settings;
+import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
-public final class GPSTracker implements LocationListener {
+public final class GPSTracker extends Service implements LocationListener {
 
     private final Context mContext;
 
@@ -36,10 +42,12 @@ public final class GPSTracker implements LocationListener {
     double longitude; // longitude
 
     // The minimum distance to change Updates in meters
-    private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 1; // 10 meters
+    // Want to update constantly
+    private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 0; // 0 meters
 
     // The minimum time between updates in milliseconds
-    private static final long MIN_TIME_BW_UPDATES = 1; // 1 minute
+    // Want to update constantly
+    private static final long MIN_TIME_BW_UPDATES = 0; // 1 minute
 
     // Declaring a Location Manager
     protected LocationManager locationManager;
@@ -56,6 +64,16 @@ public final class GPSTracker implements LocationListener {
      */
     public Location getLocation() {
         try {
+
+            // request permissions
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
+                ActivityCompat.requestPermissions((Activity)mContext,
+                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                        100);
+            }
+
+            // get location manager
             locationManager = (LocationManager) mContext
                     .getSystemService(Context.LOCATION_SERVICE);
 
@@ -73,7 +91,8 @@ public final class GPSTracker implements LocationListener {
 
             if (isGPSEnabled == false && isNetworkEnabled == false) {
                 // no network provider is enabled
-            } else {
+            }
+            else {
                 this.canGetLocation = true;
                 if (isNetworkEnabled) {
                     location=null;
@@ -91,6 +110,7 @@ public final class GPSTracker implements LocationListener {
                         }
                     }
                 }
+
                 // if GPS Enabled get lat/long using GPS Services
                 if (isGPSEnabled) {
                     location=null;
@@ -170,14 +190,14 @@ public final class GPSTracker implements LocationListener {
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(mContext);
 
         // Setting Dialog Title
-        alertDialog.setTitle("GPS is settings");
+        alertDialog.setTitle("Flashback Music requires location services");
 
         // Setting Dialog Message
         alertDialog
-                .setMessage("GPS is not enabled. Do you want to go to settings menu?");
+                .setMessage("Enable GPS");
 
         // On pressing Settings button
-        alertDialog.setPositiveButton("Settings",
+        alertDialog.setPositiveButton("Accept",
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         Intent intent = new Intent(
@@ -187,15 +207,20 @@ public final class GPSTracker implements LocationListener {
                 });
 
         // on pressing cancel button
-        alertDialog.setNegativeButton("Cancel",
+        alertDialog.setNegativeButton("Decline",
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
+                        // TODO WHAT IS THIS?
+                        //status.setStatus(false);
+                        //status.setErrorcode(408);
+                        //status.setErrormsg("Permission Denied");
                         dialog.cancel();
                     }
                 });
 
         // Showing Alert Message
         alertDialog.show();
+        //return status;
     }
 
     @Override
@@ -209,10 +234,33 @@ public final class GPSTracker implements LocationListener {
 
     @Override
     public void onProviderEnabled(String provider) {
+        getLocation();
     }
 
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
+        getLocation();
     }
 
+    // Service class methods
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        return super.onStartCommand(intent, flags, startId);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+    }
 }

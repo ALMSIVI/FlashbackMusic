@@ -18,6 +18,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -41,6 +44,8 @@ public class MainActivity extends AppCompatActivity {
     // for recording location at onset of flashback mode
     GPSTracker gpsTracker;
     Location startingLocation;
+    private FusedLocationProviderClient mFusedLocationClient;
+
 
     // Monitors time change
     private static IntentFilter s_intentFilter;
@@ -76,6 +81,9 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        MediaPlayer mediaPlayer = new MediaPlayer();
+        musicPlayer = new MusicPlayer(this, mediaPlayer);
+
         // set up recycler view
         playList = new PlayList(recentlyPlayed);
         recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
@@ -86,9 +94,9 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(adapter);
 
-        MediaPlayer mediaPlayer = new MediaPlayer();
-        musicPlayer = new MusicPlayer(this, mediaPlayer);
         musicPlayer.loadSongs();
+
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
         //Get mode
         SharedPreferences sharedPreferences = this.getSharedPreferences("mode", MODE_PRIVATE);
