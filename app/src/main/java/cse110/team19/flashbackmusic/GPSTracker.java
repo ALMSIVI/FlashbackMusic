@@ -3,6 +3,7 @@ package cse110.team19.flashbackmusic;
 /**
  * Created by sarahji on 2/18/18.
  * https://www.androidhive.info/2012/07/android-gps-location-manager-tutorial/
+ * https://stackoverflow.com/questions/28535703/best-way-to-get-user-gps-location-in-background-in-android
  */
 import android.Manifest;
 import android.app.Activity;
@@ -19,14 +20,26 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.Settings;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
-public final class GPSTracker extends Service implements LocationListener {
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.FusedLocationProviderApi;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
 
+import static android.content.ContentValues.TAG;
+
+public final class GPSTracker extends Service implements LocationListener,
+        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+    //region Variables
     private final Context mContext;
+    private GoogleApiClient mLocationClient;
+    private LocationRequest mLocationRequest;
 
     // flag for GPS status
     public boolean isGPSEnabled = false;
@@ -51,7 +64,7 @@ public final class GPSTracker extends Service implements LocationListener {
 
     // Declaring a Location Manager
     protected LocationManager locationManager;
-
+    //endregion
     public GPSTracker(Context context) {
         this.mContext = context;
         getLocation();
@@ -64,14 +77,6 @@ public final class GPSTracker extends Service implements LocationListener {
      */
     public Location getLocation() {
         try {
-
-            // request permissions
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-
-                ActivityCompat.requestPermissions((Activity)mContext,
-                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                        100);
-            }
 
             // get location manager
             locationManager = (LocationManager) mContext
@@ -225,12 +230,15 @@ public final class GPSTracker extends Service implements LocationListener {
 
     @Override
     public void onLocationChanged(Location location) {
-        getLocation();
+        Log.d(TAG, "Location changed");
+            if (location != null) {
+                mLocationClient.
+                getLocation();
+            }
     }
 
     @Override
-    public void onProviderDisabled(String provider) {
-    }
+    public void onProviderDisabled(String provider) { }
 
     @Override
     public void onProviderEnabled(String provider) {
@@ -256,11 +264,66 @@ public final class GPSTracker extends Service implements LocationListener {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        return super.onStartCommand(intent, flags, startId);
+        mLocationClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
+
+        mLocationRequest.setInterval(1000); //1 sec
+        mLocationRequest.setFastestInterval(1000); //1 sec
+
+        int priority = LocationRequest.PRIORITY_HIGH_ACCURACY; //by default
+        //PRIORITY_BALANCED_POWER_ACCURACY, PRIORITY_LOW_POWER, PRIORITY_NO_POWER are the other priority modes
+
+        mLocationRequest.setPriority(priority);
+        mLocationClient.connect();
+
+        //Make it stick to the notification panel so it is less prone to get cancelled by the Operating System.
+        return START_STICKY;
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
+    }
+
+    // implement GoogleApi
+    /*
+     * LOCATION CALLBACKS
+     */
+    @Override
+    public void onConnected(Bundle dataBundle) {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // request permissions
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
+                ActivityCompat.requestPermissions((Activity)mContext,
+                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                        100);
+            }
+
+            Log.d(TAG, "== Error On onConnected() Permission not granted");
+            //Permission not granted by user so cancel the further execution.
+            return;
+        }
+        LocationServices.FusedLocationApi.requestLocationUpdates(mLocationClient, mLocationRequest, this);
+
+        Log.d(TAG, "Connected to Google API");
+    }
+
+
+    /*
+     * Called by Location Services if the connection to the
+     * location client drops because of an error.
+     */
+    @Override
+    public void onConnectionSuspended(int i) {
+        Log.d(TAG, "Connection suspended");
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+        Log.d(TAG, "Failed to connect to Google API");
     }
 }
