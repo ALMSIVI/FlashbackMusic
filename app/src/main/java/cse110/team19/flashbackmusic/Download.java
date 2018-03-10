@@ -10,6 +10,7 @@ import android.view.View;
 import java.io.File;
 
 import static android.content.Context.DOWNLOAD_SERVICE;
+import static android.os.Environment.DIRECTORY_DOWNLOADS;
 
 /**
  * Created by sarahji on 3/8/18.
@@ -44,8 +45,14 @@ public class Download {
         request.setDescription("Android Data download using DownloadManager.");
 
         //Set the local destination for the downloaded file to a path within the application's external files directory
-        String path = Environment.DIRECTORY_DOWNLOADS;
-        request.setDestinationInExternalFilesDir(context, path, "hi.mp3");
+        String path = Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS).toString() + "/DownloadedSongs";
+        Log.d("path name", path);
+        File directory = new File(path);
+        if (!directory.isDirectory()) {
+            directory.mkdirs();
+            Log.d("hi", "woo");
+        }
+        request.setDestinationInExternalFilesDir(context, path + "/", "hi.mp3");
 
         //Enqueue download and save into referenceId
         downloadReference = dm.enqueue(request);
