@@ -39,7 +39,7 @@ import java.util.Map;
  */
 
 public class MainActivity extends AppCompatActivity {
-    private boolean normalMode = true;
+    private boolean normalMode;
 
     private MusicPlayer musicPlayer;
     private PlayList playList;
@@ -53,7 +53,6 @@ public class MainActivity extends AppCompatActivity {
     GPSTracker gpsTracker;
     Location startingLocation;
     private FusedLocationProviderClient mFusedLocationClient;
-
 
     // Monitors time change
     private static IntentFilter s_intentFilter;
@@ -107,17 +106,8 @@ public class MainActivity extends AppCompatActivity {
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
-        //Get mode
-        SharedPreferences sharedPreferences = this.getSharedPreferences("mode", MODE_PRIVATE);
-        String mode = sharedPreferences.getString("mode", null);
-
-        if (mode == null) {
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putString("mode", getResources().getString(R.string.mode_normal));
-            Button modeSwitch = (Button) findViewById(R.id.flashbackButton);
-            modeSwitch.setText("N");
-            editor.apply();
-        }
+        // Check mode and switch
+        switchModes(null);
 
         // music url
         Uri music_uri = Uri.parse("https://www.androidtutorialpoint.com/wp-content/uploads/2016/09/AndroidDownloadManager.mp3");
@@ -125,12 +115,7 @@ public class MainActivity extends AppCompatActivity {
         download = new Download(dm, this);
         download.downloadData(music_uri);
 
-        gpsTracker = new GPSTracker(this);
-        startingLocation = gpsTracker.getLocation();
-
-        if (musicPlayer == null) {
-            musicPlayer = new MusicPlayer(this, new MediaPlayer());
-        }
+        musicPlayer = new MusicPlayer(this, new MediaPlayer());
 
         // Initialize the library list
         // ListView listView = findViewById(R.id.recyclerView);
@@ -195,24 +180,22 @@ public class MainActivity extends AppCompatActivity {
         //Get mode
         SharedPreferences sharedPreferences = this.getSharedPreferences("mode", MODE_PRIVATE);
         String mode = sharedPreferences.getString("mode", null);
-
-        if (mode != null) {
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-
-            if (mode.equals(getResources().getString(R.string.mode_normal))) {
-                editor.putString("mode", getResources().getString(R.string.mode_vibe));
-                Button modeSwitch = (Button) findViewById(R.id.flashbackButton);
-                modeSwitch.setText("V");
-            }
-
-            else if (mode.equals(getResources().getString(R.string.mode_vibe))) {
-                editor.putString("mode", getResources().getString(R.string.mode_normal));
-                Button modeSwitch = (Button) findViewById(R.id.flashbackButton);
-                modeSwitch.setText("N");
-            }
-
-            editor.apply();
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        if (mode == null || mode.equals(getResources().getString(R.string.mode_normal))) {
+            editor.putString("mode", getResources().getString(R.string.mode_vibe));
+            Button modeSwitch = (Button) findViewById(R.id.flashbackButton);
+            modeSwitch.setText("V");
+            normalMode = true;
+            setTitle(getResources().getString(R.string.normal_text));
+        } else if (mode.equals(getResources().getString(R.string.mode_vibe))) {
+            editor.putString("mode", getResources().getString(R.string.mode_normal));
+            Button modeSwitch = (Button) findViewById(R.id.flashbackButton);
+            modeSwitch.setText("N");
+            normalMode = false;
+            setTitle(getResources().getString(R.string.vibe_text));
         }
+
+        editor.apply();
     }
 
     @Override
@@ -243,7 +226,7 @@ public class MainActivity extends AppCompatActivity {
             case 123: {
 
                 if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED)     {
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     musicPlayer.loadSongs();
                 } else {
 
