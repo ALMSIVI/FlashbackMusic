@@ -38,84 +38,25 @@ import static android.content.Context.MODE_PRIVATE;
  * Created by YueWu on 2/12/2018.
  */
 public class PlayListAdapter extends BaseAdapter {
-    private Context context;
-    private MediaPlayer mediaPlayer;
-    private List<Track> playList;
-    private ArrayList<Pair<Integer, Track>> audioResourceId;
-    private int audioIndex = 0;
-    private Track isPlaying;
-    private Date time;
+    // MVC
+    private MusicController controller;
 
-    // for recording location of song
-    Geocoder geocoder;
-    List<Address> addresses;
-    GPSTracker gpstracker;
-    Location location;
+    private Context context;
+    private List<Track> playList;
 
     /**
      * Constructor.
      *
-     * @param c FlashbackMode
      * @param l playlist
-     * @param m media player
      */
-    public PlayListAdapter(Context c, List<Track> l, MusicPlayer m) {
-        context = c;
+    public PlayListAdapter(Context context, List<Track> l) {
+        this.context = context;
         playList = l;
-        mediaPlayer = m.getPlayer();
-
-        // Initialize the locations
-        geocoder = new Geocoder(context, Locale.getDefault());
-        gpstracker = new GPSTracker(context);
-        location = gpstracker.getLocation();
-        time = new Date();
-
-        mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-            @Override
-            public void onCompletion(MediaPlayer mediaPlayer) {
-                if (isPlaying != null) {
-                    location = gpstracker.getLocation();
-                    isPlaying.updateInfo(location, time.getTime());
-
-                    saveTrackInfo(true, isPlaying);
-                    if (audioResourceId.size() > audioIndex) {
-                        loadMedia(audioResourceId.get(audioIndex).first,
-                                audioResourceId.get(audioIndex).second);
-                    } else {
-                        changePausePlay();
-                        updateText();
-                    }
-                }
-            }
-        });
-
-
-        // Load the songs to the player
-        audioResourceId = new ArrayList<Pair<Integer, Track>>();
-        audioIndex = 0;
-        //changePausePlay();
-        for (Track t : playList) {
-            Log.d("audioIndex", audioIndex + "");
-            int id = t.getResourceId();
-            audioResourceId.add(new Pair<Integer, Track>(id, t));
-            Log.d("trackname", t.getTrackName());
-            Log.d("track number", t.getTrackNumber() + "");
-            AssetFileDescriptor assetFileDescriptor = context.getResources().openRawResourceFd(id);
-            try {
-                mediaPlayer.setDataSource(assetFileDescriptor);
-                mediaPlayer.prepareAsync();
-            } catch (Exception e) {
-                System.out.println(e.toString());
-            }
-        }
-
-        if (audioResourceId.size() > audioIndex) {
-            loadMedia(audioResourceId.get(audioIndex).first, audioResourceId.get(audioIndex).second);
-        }
     }
 
-    public Track getIsPlaying() {
-        return isPlaying;
+
+    public void setController(MusicController controller) {
+        this.controller = controller;
     }
 
     @Override
@@ -128,135 +69,29 @@ public class PlayListAdapter extends BaseAdapter {
             view = layoutInflater.inflate(R.layout.playlist_view, null);
         }
 
-        TextView new_track = (TextView) view.findViewById(R.id.track_name);
-        new_track.setText(track.getTrackName());
-
-        new_track.setOnClickListener(new View.OnClickListener() {
+        TextView newTrack = (TextView) view.findViewById(R.id.track_name);
+        newTrack.setText(track.getTrackName());
+        newTrack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (track.getStatus() > -1) {
-                    //changePlayPause();
-                    int id = track.getResourceId();
-                    Log.d("hello id", id+"");
-                    //audioResourceId = new <Pair<Integer, Track>>ArrayList();
-                    //audioResourceId.add(new Pair<Integer, Track>(id, track));
-                    loadMedia(id, track);
-                }
+                controller.playSong(track);
             }
         });
 
-        final Button status_button = (Button) view.findViewById(R.id.set_status);
-        changeButton(track, status_button);
+        final Button statusButton = (Button) view.findViewById(R.id.set_status);
+        controller.changeStatusButton(track, statusButton);
 
-        status_button.setOnClickListener(new View.OnClickListener() {
+        statusButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                track.updateStatus();
-                saveTrackInfo(false, track);
-                changeButton(track, status_button);
-
-                if (track.getStatus() == -1 && mediaPlayer.isPlaying() && isPlaying == track) {
-                    mediaPlayer.stop();
-                    if (audioResourceId.size() > audioIndex) {
-                        loadMedia(audioResourceId.get(audioIndex).first, audioResourceId.get(audioIndex).second);
-                    }
-                }
+                controller.changeStatus(track, statusButton);
             }
         });
         return view;
     }
 
-    public void loadMedia(int resourceId, Track track) {
-        mediaPlayer.stop();
-        isPlaying = track;
-        //changePlayPause();
-        mediaPlayer.seekTo(0);
-        AssetFileDescriptor assetFileDescriptor = context.getResources().openRawResourceFd(resourceId);
-        try {
-            mediaPlayer.setDataSource(assetFileDescriptor);
-            mediaPlayer.prepareAsync();
-        } catch (Exception e) {
-            System.out.println(e.toString());
-        }
 
-        updateText();
-        audioIndex++;
-        //mediaPlayer.start();
-    }
-
-    private void changeButton(Track track, Button button) {
-        int stat = track.getStatus();
-        if (stat == 0) {
-            Drawable neutral = context.getResources().getDrawable(R.drawable.neutral);
-            button.setCompoundDrawablesWithIntrinsicBounds(null, neutral, null, null);
-        } else if (stat == 1) {
-            Drawable liked = context.getResources().getDrawable(R.drawable.favorite);
-            button.setCompoundDrawablesWithIntrinsicBounds(null, liked, null, null);
-        } else if (stat == -1) {
-            Drawable disliked = context.getResources().getDrawable(R.drawable.dislike);
-            button.setCompoundDrawablesWithIntrinsicBounds(null, disliked, null, null);
-        }
-    }
-
-    private void changePausePlay() {
-        Button mainPauseButton = (Button) ((Activity) context).findViewById(R.id.playButton);
-        Drawable play = context.getResources().getDrawable(R.drawable.ic_play_arrow_actuallyblack_24dp);
-        mainPauseButton.setCompoundDrawablesWithIntrinsicBounds(null, play, null, null);
-    }
-
-    private void changePlayPause() {
-        Button mainPlayButton = (Button) ((Activity) context).findViewById(R.id.playButton);
-        Drawable pause = context.getResources().getDrawable(R.drawable.ic_pause_actuallyblack_24dp);
-        mainPlayButton.setCompoundDrawablesWithIntrinsicBounds(null, pause, null, null);
-    }
-
-    private void updateText() {
-        // Update the "Now playing" text
-        TextView infoView = ((Activity) context).findViewById(R.id.info);
-        infoView.setText(isPlaying.getTrackName());
-        // Update the "Last played" text
-        TextView lastPlayedView = ((Activity) context).findViewById(R.id.lastPlayed);
-        if (isPlaying.getTime() == null) {
-            lastPlayedView.setText(context.getString(R.string.never_played_info));
-        } else {
-            String lastLocation = "Unknown location";
-
-            if (location != null) {
-                try {
-                    addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                lastLocation = addresses.get(0).getFeatureName();
-            }
-
-            String lastPlayedInfo = String.format(
-                    context.getString(R.string.last_played_info),
-                    isPlaying.getTime(), lastLocation);
-            lastPlayedView.setText(lastPlayedInfo);
-        }
-    }
-
-    /**
-     * Stores the current song's status into sharedPreferences. This method does NOT update the info.
-     */
-    private void saveTrackInfo(boolean all, Track track) {
-        SharedPreferences sharedPreferences = context.getSharedPreferences("track_info", MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-
-        editor.putInt(track.getTrackName() + "Status", track.getStatus());
-
-        if (all) {
-            editor.putString(track.getTrackName() + "Time", track.getTime() != null ?
-                    track.getTime().toString() :
-                    "null");
-            editor.putString(track.getTrackName() + "Location", track.getLocation());
-        }
-        editor.apply();
-    }
-
-    /* Overridden methods */
+    //region Unimportant Overridden Methods
     @Override
     public int getCount() {
         return playList.size();
@@ -276,5 +111,5 @@ public class PlayListAdapter extends BaseAdapter {
     public boolean hasStableIds() {
         return false;
     }
-
+    //endregion
 }

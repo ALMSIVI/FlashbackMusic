@@ -4,25 +4,18 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.Resources;
-import android.location.Location;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.os.Environment;
 import android.util.Log;
-import android.util.Pair;
-import android.view.View;
 
 import java.io.File;
-import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
-import java.util.TreeMap;
 
 import static android.content.Context.MODE_PRIVATE;
 import static android.os.Environment.DIRECTORY_DOWNLOADS;
@@ -36,6 +29,12 @@ public class MusicPlayer {
     private Context context;
     private ArrayList<Integer> audioResourceId = new ArrayList<Integer>();
     private List<Track> trackList = new ArrayList<Track>();
+
+    // TODO: Is this useful anymore?
+    // private int audioIndex;
+
+    // MVC
+    private MusicController controller;
 
     /**
      * Constructor
@@ -53,6 +52,51 @@ public class MusicPlayer {
             }
         });
 
+        mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mediaPlayer) {
+                if (isPlaying()) {
+                    controller.updateTrackInfo();
+                    controller.saveTrackInfo(true, controller.getIsPlaying());
+                    if (audioResourceId.size() > 0 /*audioIndex */) {
+                        //TODO: fix this
+                        // loadMedia(audioResourceId.get(audioIndex).first,
+                        //        audioResourceId.get(audioIndex).second);
+                    } else {
+                        controller.changePlay();
+                        controller.updateText();
+                    }
+                }
+            }
+        });
+
+        /*
+        // Load the songs to the player
+        audioResourceId = new ArrayList<Integer>();
+        //changePlay();
+        for (Track t : trackList) {
+            Log.d("audioIndex", audioIndex + "");
+            int id = t.getResourceId();
+            audioResourceId.add(id);
+            Log.d("trackname", t.getTrackName());
+            Log.d("track number", t.getTrackNumber() + "");
+            AssetFileDescriptor assetFileDescriptor = context.getResources().openRawResourceFd(id);
+            try {
+                mediaPlayer.setDataSource(assetFileDescriptor);
+                mediaPlayer.prepareAsync();
+            } catch (Exception e) {
+                System.out.println(e.toString());
+            }
+        }
+
+        if (audioResourceId.size() > audioIndex) {
+            loadMedia(audioResourceId.get(audioIndex).first, audioResourceId.get(audioIndex).second);
+        }
+        */
+    }
+
+    public void setController(MusicController controller) {
+        this.controller = controller;
     }
 
     /**
@@ -98,14 +142,6 @@ public class MusicPlayer {
      */
     public List<Track> getTrackList() {
         return trackList;
-    }
-
-    /**
-     * Get media player.
-     * @return mediaPlayer
-     */
-    public MediaPlayer getPlayer() {
-        return mediaPlayer;
     }
 
     /**
@@ -195,14 +231,10 @@ public class MusicPlayer {
     }
 
     public void createFlashback() {
-        final Map<Integer, Track> tempMap = new TreeMap<>();
         trackList = new ArrayList<Track>();
 
         Calendar calender;
         calender = Calendar.getInstance();
-        int currentHour = calender.get(Calendar.HOUR_OF_DAY);
-        int currentDay = calender.get(Calendar.DAY_OF_WEEK);
-        String timeOfDay = currentTime(currentHour);
 
             //For each track
             for (Track track : trackList) {
@@ -217,38 +249,11 @@ public class MusicPlayer {
                     track.makeScoreNegative();
                 }
 
-                //To insert into the tree map
-                if(track.getScore() > -1)
-                {
-                    //Check if there is a tie
-                    while(tempMap.containsKey(track.getScore()))
-                    {
-                        Track temp = tempMap.get(track.getScore());
-                        if(track.getTimeSinceLastPlayed() > temp.getTimeSinceLastPlayed())
-                        {
-                            track.incrementScore(1);
-                        }
-                    }
-
-                    tempMap.put(track.getScore(), track);
+                if(track.getScore() > -1) {
+                    trackList.add(track);
                 }
             }
 
-        for(Map.Entry<Integer, Track> entry : tempMap.entrySet()){
-            Track toInsert = entry.getValue();
-            trackList.add(toInsert);
-        }
-    }
-
-    public String currentTime(int hour) {
-        if (5 <= hour && hour < 11) {
-            return "morning";
-        }
-
-        if (11 <= hour && hour < 17) {
-            return "afternoon";
-        } else {
-            return "evening";
-        }
+        Collections.sort(trackList, Track.scoreComparator);
     }
 }
