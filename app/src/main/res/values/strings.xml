@@ -1,7 +1,8 @@
 <resources>
     <string name="app_name">FlashbackMusic</string>
     <string name="action_settings">Settings</string>
-    <string name="normal_mode">Normal Mode</string>
+    <string name="normal_text">Normal Mode</string>
+    <string name="vibe_text">Vibe Mode</string>
     <string name="library">Library</string>
     <string name="playlist">Vibe Playlist</string>
     <string name="title_activity_track_mode">TrackMode</string>
