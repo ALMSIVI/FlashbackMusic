@@ -4,6 +4,7 @@ import android.app.DownloadManager;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Environment;
+import android.util.Log;
 import android.view.View;
 
 import java.io.File;
@@ -43,7 +44,8 @@ public class Download {
         request.setDescription("Android Data download using DownloadManager.");
 
         //Set the local destination for the downloaded file to a path within the application's external files directory
-        request.setDestinationInExternalFilesDir(context, Environment.DIRECTORY_DOWNLOADS, "AndroidTutorialPoint.mp3");
+        String path = Environment.DIRECTORY_DOWNLOADS;
+        request.setDestinationInExternalFilesDir(context, path, "hi.mp3");
 
         //Enqueue download and save into referenceId
         downloadReference = dm.enqueue(request);

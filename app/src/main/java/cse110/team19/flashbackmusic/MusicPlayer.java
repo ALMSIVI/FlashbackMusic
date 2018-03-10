@@ -113,7 +113,7 @@ public class MusicPlayer {
      */
     public void loadSongs() {
         // getting songs out of Downloads folder
-        String path = Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS).toString()+"/";
+        String path = Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS).toString();//+"/";
         Log.d("Files", "Path: " + path);
         File directory = new File(path);
         File[] fields = directory.listFiles();

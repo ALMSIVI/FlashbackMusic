@@ -169,12 +169,14 @@ public class MainActivity extends AppCompatActivity {
                 editor.putString("mode", getResources().getString(R.string.mode_vibe));
                 Button modeSwitch = (Button) findViewById(R.id.flashbackButton);
                 modeSwitch.setText("V");
+                normalMode = false;
             }
 
             else if (mode.equals(getResources().getString(R.string.mode_vibe))) {
                 editor.putString("mode", getResources().getString(R.string.mode_normal));
                 Button modeSwitch = (Button) findViewById(R.id.flashbackButton);
                 modeSwitch.setText("N");
+                normalMode = true;
             }
 
             editor.apply();
