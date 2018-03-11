@@ -37,7 +37,7 @@ import static android.os.Environment.DIRECTORY_DOWNLOADS;
 
 public class MainActivity extends AppCompatActivity {
     //region Variables
-    private boolean normalMode;
+    private boolean normalMode = true;
     private MusicPlayer musicPlayer;
     private Download download;
     private MusicController controller;
