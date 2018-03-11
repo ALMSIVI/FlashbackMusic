@@ -32,13 +32,6 @@ public class Track {
         this.pathName = pathName;
     }
 
-    /*public Track(String trackName, String albumName, String artist, int trackNumber, String website) {
-        this.trackName = trackName;
-        this.albumName = albumName;
-        this.artistName = artist;
-        this.trackNumber = trackNumber;
-        this.website = website;
-    }*/
 
     /**
      * -1: dislike
@@ -55,18 +48,7 @@ public class Track {
         }
     }
 
-    /**
-     * Update the last played up the song.
-     */
-    public void justPlayed() {
-        cal = Calendar.getInstance();
-
-        if(MainActivity.recentlyPlayed.contains(this)) {
-            MainActivity.recentlyPlayed.remove(this);
-        }
-        MainActivity.recentlyPlayed.addFirst(this);
-    }
-
+    //region Getters
     // Get info for flashback
     public Date getTime() {
         if (cal == null) { // not implemented
@@ -122,9 +104,12 @@ public class Track {
         return website;
     }
 
-    public String getPathName() { return pathName; }
+    public String getPathName() {
+        return pathName;
+    }
+    //endregion
 
-    /* Setters */
+    //region Setters
     public void setCalendar(Calendar calendar) {
         cal = calendar;
     }
@@ -145,7 +130,10 @@ public class Track {
         this.website = site;
     }
 
-    public void setPathName(String path) { this.pathName = path; }
+    public void setPathName(String path) {
+        this.pathName = path;
+    }
+    //endregion
 
     //Increment to the score
     public void incrementScore(int toAdd)
