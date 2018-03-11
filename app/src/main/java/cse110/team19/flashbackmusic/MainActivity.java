@@ -13,10 +13,12 @@ import android.location.Location;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
@@ -27,17 +29,19 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import static android.os.Environment.DIRECTORY_DOWNLOADS;
+
 /**
  * Created by Meeta on 3/6/18.
  */
 
 public class MainActivity extends AppCompatActivity {
+    //region Variables
     private boolean normalMode;
-
     private MusicPlayer musicPlayer;
-    static LinkedList<Track> recentlyPlayed;
-
     private Download download;
+    private MusicController controller;
+    //endregion
 
     // Monitors time change
     private static IntentFilter s_intentFilter;
@@ -77,57 +81,57 @@ public class MainActivity extends AppCompatActivity {
         switchModes(null);
 
         // music url
-        Uri music_uri = Uri.parse("http://soundbible.com/grab.php?id=2191&type=zip");//Uri.parse("https://www.androidtutorialpoint.com/wp-content/uploads/2016/09/AndroidDownloadManager.mp3");
+        //Uri music_uri = Uri.parse("http://soundbible.com/grab.php?id=2191&type=zip");
+        Uri music_uri = Uri.parse("http://soundbible.com/grab.php?id=2191&type=mp3");
         DownloadManager dm = (DownloadManager)getSystemService(DOWNLOAD_SERVICE);
         download = new Download(dm, this);
         download.downloadData(music_uri);
 
-        musicPlayer = new MusicPlayer(this, new MediaPlayer());
+        musicPlayer = new MusicPlayer(new MediaPlayer());
 
-        musicPlayer.loadSongs();
+        Log.d("Download directory", Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS).getPath()
+                + getResources().getString(R.string.download_folder));
+        PlayList playList = new PlayList(this,
+                Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS).getPath()
+                        + getResources().getString(R.string.download_folder));
+        if(normalMode) {
+            playList.createNormalPlayList();
+        } else {
+            playList.createVibePlayList();
+        }
 
         // Initialize the library list
         ListView listView = findViewById(R.id.listView);
-        PlayListAdapter adapter = new PlayListAdapter(this, musicPlayer.getTrackList());
+        PlayListAdapter adapter = new PlayListAdapter(this, playList);
         listView.setAdapter(adapter);
 
-        MusicController controller = new MusicController(this, adapter, musicPlayer);
-        if (!normalMode) {
-            musicPlayer.createFlashback();
-        }
+        // Set up the MVC controller
+        controller = new MusicController(this, adapter, musicPlayer);
 
         registerReceiver(m_timeChangedReceiver, s_intentFilter);
     }
 
-    /**
-     * onStop
-     */
-    @Override
-    public void onStop() {
-        super.onStop();
-        if (isChangingConfigurations() && musicPlayer.isPlaying()) {
-            ; //"do nothing"
-        }
-    }
 
+    /**
+     * Click listener for the play button at the bottom of the activity.
+     * @param view
+     */
     public void playMusic(View view) {
-        Button playButton = (Button) findViewById(R.id.playButton);
         //Check if something is already playing
-        if (musicPlayer != null && musicPlayer.isPlaying()) {
+        if (musicPlayer.isPlaying()) {
             musicPlayer.pause();
-            Drawable play = getResources().getDrawable(R.drawable.ic_play_arrow_actuallyblack_24dp);
-            playButton.setCompoundDrawablesWithIntrinsicBounds(null, play, null, null);
+            controller.changePause();
         } else {
             //Since there is already a song loaded, just resume the song
-            if (musicPlayer != null) {
-                musicPlayer.start();
-            }
-
-            Drawable pause = getResources().getDrawable(R.drawable.ic_pause_actuallyblack_24dp);
-            playButton.setCompoundDrawablesWithIntrinsicBounds(null, pause, null, null);
+            musicPlayer.start();
+            controller.changePlay();
         }
     }
 
+    /**
+     * Click listener fo the reset button at the bottom of the activity.
+     * @param view
+     */
     public void resetMusic(View view) {
         musicPlayer.resetMusic();
     }
@@ -151,18 +155,17 @@ public class MainActivity extends AppCompatActivity {
             if (mode.equals(getResources().getString(R.string.mode_normal))) {
                 editor.putString("mode", getResources().getString(R.string.mode_vibe));
                 Button modeSwitch = (Button) findViewById(R.id.flashbackButton);
-                modeSwitch.setText("V");
+                modeSwitch.setText("N");
                 normalMode = false;
+                // TODO: automatically play vibe songs
             } else if (mode.equals(getResources().getString(R.string.mode_vibe))) {
                 editor.putString("mode", getResources().getString(R.string.mode_normal));
                 Button modeSwitch = (Button) findViewById(R.id.flashbackButton);
-                modeSwitch.setText("N");
+                modeSwitch.setText("V");
                 normalMode = true;
             }
-        }
-
-        else {
-            editor.putString("mode", getResources().getString(R.string.mode_vibe));
+        } else {
+            editor.putString("mode", getResources().getString(R.string.mode_normal));
             Button modeSwitch = (Button) findViewById(R.id.flashbackButton);
             modeSwitch.setText("V");
         }
@@ -187,8 +190,6 @@ public class MainActivity extends AppCompatActivity {
                     new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.READ_EXTERNAL_STORAGE},
                     123);
 
-        } else {
-
         }
     }
 
@@ -199,7 +200,8 @@ public class MainActivity extends AppCompatActivity {
 
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    musicPlayer.loadSongs();
+                    // TODO: is this necessary?
+                    //musicPlayer.loadSongs();
                 } else {
 
                     checkPermission();

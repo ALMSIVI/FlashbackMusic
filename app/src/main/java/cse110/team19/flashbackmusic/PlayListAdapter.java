@@ -42,14 +42,14 @@ public class PlayListAdapter extends BaseAdapter {
     private MusicController controller;
 
     private Context context;
-    private List<Track> playList;
+    private PlayList playList;
 
     /**
      * Constructor.
      *
      * @param l playlist
      */
-    public PlayListAdapter(Context context, List<Track> l) {
+    public PlayListAdapter(Context context, PlayList l) {
         this.context = context;
         playList = l;
     }

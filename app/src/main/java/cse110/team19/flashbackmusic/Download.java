@@ -39,24 +39,24 @@ public class Download {
         DownloadManager.Request request = new DownloadManager.Request(uri);
 
         //Setting title of request
-        //request.setTitle("Data Download");
+        request.setTitle("Data Download");
 
         //Setting description of request
         request.setDescription("Android Data download using DownloadManager.");
 
         //Set the local destination for the downloaded file to a path within the application's external files directory
-        String path = Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS).toString() + "/DownloadedSongs";
+        String path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getPath()
+                + context.getResources().getString(R.string.download_folder);
         Log.d("path name", path);
         File directory = new File(path);
         if (!directory.isDirectory()) {
             directory.mkdirs();
             Log.d("hi", "woo");
         }
-        request.setDestinationInExternalFilesDir(context, path + "/", "hi.mp3");
-
+        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, context.getResources().getString(R.string.download_folder) + "/hi.mp3");
         //Enqueue download and save into referenceId
         downloadReference = dm.enqueue(request);
-
         return downloadReference;
     }
 }
