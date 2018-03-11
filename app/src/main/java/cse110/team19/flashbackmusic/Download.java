@@ -33,10 +33,10 @@ public class Download {
         DownloadManager.Request request = new DownloadManager.Request(uri);
 
         //Setting title of request
-        request.setTitle("Data Download");
+        request.setTitle("Vibe Music");
 
         //Setting description of request
-        request.setDescription("Android Data download using DownloadManager.");
+        request.setDescription("Downloading music from server...");
 
         //Set the local destination for the downloaded file to a path within the application's external files directory
         String path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getPath()

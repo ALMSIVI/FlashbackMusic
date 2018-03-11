@@ -74,7 +74,9 @@ public class PlayListAdapter extends BaseAdapter {
         newTrack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                controller.playSong(track);
+                if (playList.isNormalMode()) {
+                    controller.playSong(track);
+                }
             }
         });
 

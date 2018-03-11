@@ -49,7 +49,7 @@ public class MusicPlayer {
     /**
      * Plays current song.
      */
-    public void start() {
+    public void play() {
         mediaPlayer.start();
     }
 
