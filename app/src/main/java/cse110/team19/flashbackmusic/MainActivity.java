@@ -1,6 +1,7 @@
 package cse110.team19.flashbackmusic;
 
 import android.Manifest;
+import android.app.Dialog;
 import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -13,13 +14,28 @@ import android.location.Location;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
+
+import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.auth.api.signin.GoogleSignInResult;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.common.Scopes;
+import com.google.android.gms.common.SignInButton;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.Scope;
+import com.google.api.client.googleapis.apache.GoogleApacheHttpTransport;
+import com.google.api.services.people.v1.PeopleScopes;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -27,17 +43,25 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Nonnull;
+
 /**
  * Created by Meeta on 3/6/18.
  */
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener, View.OnClickListener{
+
+
     private boolean normalMode;
 
     private MusicPlayer musicPlayer;
     static LinkedList<Track> recentlyPlayed;
 
     private Download download;
+
+    private SignInButton SignIn;
+    private static final int REQ_CODE = 9001;
+    GoogleApiClient googleApiClient;
 
     // Monitors time change
     private static IntentFilter s_intentFilter;
@@ -72,6 +96,12 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main_activity);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        SignIn = (SignInButton) findViewById(R.id.main_googlesigninbtn);
+        SignIn.setOnClickListener(this);
+        GoogleSignInOptions signInOptions = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
+        googleApiClient = new GoogleApiClient.Builder(this)
+                .enableAutoManage(this, this).addApi(Auth.GOOGLE_SIGN_IN_API,signInOptions).build();
+
 
         // Check mode and switch
         switchModes(null);
@@ -84,7 +114,7 @@ public class MainActivity extends AppCompatActivity {
 
         musicPlayer = new MusicPlayer(this, new MediaPlayer());
 
-        musicPlayer.loadSongs();
+        //musicPlayer.loadSongs();
 
         // Initialize the library list
         ListView listView = findViewById(R.id.listView);
@@ -97,6 +127,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         registerReceiver(m_timeChangedReceiver, s_intentFilter);
+
     }
 
     /**
@@ -206,6 +237,53 @@ public class MainActivity extends AppCompatActivity {
                 }
                 return;
             }
+        }
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch(view.getId())
+        {
+            case R.id.main_googlesigninbtn:
+                signIn();
+                break;
+        }
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+    }
+
+    @Override
+    public void onPointerCaptureChanged(boolean hasCapture) {
+
+    }
+
+    private void signIn(){
+        Intent intent = Auth.GoogleSignInApi.getSignInIntent(googleApiClient);
+        startActivityForResult(intent, REQ_CODE);
+    }
+
+    private void handleResult(GoogleSignInResult result)
+    {
+        if(result.isSuccess())
+        {
+            GoogleSignInAccount account = result.getSignInAccount();
+            String name = account.getDisplayName();
+            SignIn.setVisibility(View.GONE);
+        }
+
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if(requestCode == REQ_CODE)
+        {
+            GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
+            handleResult(result);
         }
     }
 }

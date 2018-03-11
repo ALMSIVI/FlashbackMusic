@@ -172,7 +172,7 @@ public class MusicPlayer {
         Log.d("Files", "Path: " + path);
         File directory = new File(path);
         File[] fields = directory.listFiles();
-        Log.d("Files", "Size: " + fields.length);
+        //Log.d("Files", "Size: " + fields.length);
         for (int i = 0; i < fields.length; i++) {
             Log.d("Files", "FileName:" + fields[i].getName());
         }
