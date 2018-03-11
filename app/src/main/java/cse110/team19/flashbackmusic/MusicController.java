@@ -6,6 +6,7 @@ import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.os.Environment;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.widget.Button;
@@ -17,6 +18,7 @@ import java.util.List;
 import java.util.Locale;
 
 import static android.content.Context.MODE_PRIVATE;
+import static android.os.Environment.DIRECTORY_DOWNLOADS;
 
 /**
  * Created by YueWu on 3/9/2018.
@@ -138,34 +140,32 @@ public class MusicController {
     public void playSong(Track track) {
         if (track.getStatus() > -1) {
             changePause();
-            int id = track.getResourceId();
-            Log.d("current id", id+"");
+
             //audioResourceId = new <Pair<Integer, Track>>ArrayList();
             //audioResourceId.add(new Pair<Integer, Track>(id, track));
-            loadMedia(id, track);
+            loadMedia(track);
             isPlaying = track;
         }
     }
 
-    public void loadMedia(int resourceId, Track track) {
+    public void loadMedia(Track track) {
         // TODO: fix this
-        /*
+
         player.stop();
         isPlaying = track;
         //changePause();
         player.resetMusic();
-        AssetFileDescriptor assetFileDescriptor = mainActivity.getResources().openRawResourceFd(resourceId);
         try {
-            mediaPlayer.setDataSource(assetFileDescriptor);
-            mediaPlayer.prepareAsync();
+            player.setDataSource(track.getPathName());
+            player.prepareAsync();
         } catch (Exception e) {
             System.out.println(e.toString());
         }
 
         updateText();
-        audioIndex++;
+        //audioIndex++;
         //mediaPlayer.start();
-        */
+
     }
     //endregion
 

@@ -12,11 +12,11 @@ public class Track {
     private int trackNumber;
     private int score;
     private int status;
-    private int resourceId;
     private String website;
     private Location location;
     private long time;
     private String personLastPlayed;
+    private String pathName;
 
     /**
      * Constructor.
@@ -24,21 +24,14 @@ public class Track {
      * @param trackNumber track number of the song
      * @param artist artistName of the song
      */
-    public Track(String trackName, String albumName, String artist, int trackNumber, int resourceId) {
+    public Track(String trackName, String albumName, String artist, int trackNumber, String pathName) {
         this.trackName = trackName;
         this.albumName = albumName;
         this.artistName = artist;
         this.trackNumber = trackNumber;
-        this.resourceId = resourceId;
+        this.pathName = pathName;
     }
 
-    public Track(String trackName, String albumName, String artist, int trackNumber, String website) {
-        this.trackName = trackName;
-        this.albumName = albumName;
-        this.artistName = artist;
-        this.trackNumber = trackNumber;
-        this.website = website;
-    }
 
     /**
      * -1: dislike
@@ -55,18 +48,7 @@ public class Track {
         }
     }
 
-    /**
-     * Update the last played up the song.
-     */
-    public void justPlayed() {
-        cal = Calendar.getInstance();
-
-        if(MainActivity.recentlyPlayed.contains(this)) {
-            MainActivity.recentlyPlayed.remove(this);
-        }
-        MainActivity.recentlyPlayed.addFirst(this);
-    }
-
+    //region Getters
     // Get info for flashback
     public Date getTime() {
         if (cal == null) { // not implemented
@@ -114,10 +96,6 @@ public class Track {
         return status;
     }
 
-    public int getResourceId() {
-        return resourceId;
-    }
-
     public String getPersonLastPlayed() {
         return personLastPlayed;
     }
@@ -126,7 +104,12 @@ public class Track {
         return website;
     }
 
-    /* Setters */
+    public String getPathName() {
+        return pathName;
+    }
+    //endregion
+
+    //region Setters
     public void setCalendar(Calendar calendar) {
         cal = calendar;
     }
@@ -139,10 +122,6 @@ public class Track {
         this.status = status;
     }
 
-    public void setResourceId(int resourceId) {
-        this.resourceId = resourceId;
-    }
-
     public void setPersonLastPlayed(String name) {
         this.personLastPlayed = name;
     }
@@ -150,6 +129,11 @@ public class Track {
     public void setWebsite(String site) {
         this.website = site;
     }
+
+    public void setPathName(String path) {
+        this.pathName = path;
+    }
+    //endregion
 
     //Increment to the score
     public void incrementScore(int toAdd)

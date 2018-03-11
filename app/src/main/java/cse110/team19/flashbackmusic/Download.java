@@ -4,11 +4,13 @@ import android.app.DownloadManager;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Environment;
+import android.util.Log;
 import android.view.View;
 
 import java.io.File;
 
 import static android.content.Context.DOWNLOAD_SERVICE;
+import static android.os.Environment.DIRECTORY_DOWNLOADS;
 
 /**
  * Created by sarahji on 3/8/18.
@@ -37,17 +39,24 @@ public class Download {
         DownloadManager.Request request = new DownloadManager.Request(uri);
 
         //Setting title of request
-        //request.setTitle("Data Download");
+        request.setTitle("Data Download");
 
         //Setting description of request
         request.setDescription("Android Data download using DownloadManager.");
 
         //Set the local destination for the downloaded file to a path within the application's external files directory
-        request.setDestinationInExternalFilesDir(context, Environment.DIRECTORY_DOWNLOADS, "AndroidTutorialPoint.mp3");
-
+        String path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getPath()
+                + context.getResources().getString(R.string.download_folder);
+        Log.d("path name", path);
+        File directory = new File(path);
+        if (!directory.isDirectory()) {
+            directory.mkdirs();
+            Log.d("hi", "woo");
+        }
+        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, context.getResources().getString(R.string.download_folder) + "/hi.mp3");
         //Enqueue download and save into referenceId
         downloadReference = dm.enqueue(request);
-
         return downloadReference;
     }
 }
