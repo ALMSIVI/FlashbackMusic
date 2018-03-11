@@ -52,7 +52,8 @@ public class MainActivity extends AppCompatActivity {
     // for recording location at onset of flashback mode
     GPSTracker gpsTracker;
     Location startingLocation;
-    private FusedLocationProviderClient mFusedLocationClient;
+    private Intent locationIntent;
+    private BroadcastReceiver broadcastReceiver;
 
     // Monitors time change
     private static IntentFilter s_intentFilter;
@@ -104,8 +105,6 @@ public class MainActivity extends AppCompatActivity {
 
         musicPlayer.loadSongs();
 
-        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-
         // Check mode and switch
         switchModes(null);
 
@@ -127,6 +126,13 @@ public class MainActivity extends AppCompatActivity {
         MusicController controller = new MusicController(this, adapter, musicPlayer);
         if (!normalMode) {
             musicPlayer.createFlashback();
+        }
+
+        // initializing location services on start up
+        gpsTracker = new GPSTracker(this);
+        if (gpsTracker.permissionRequest()) {
+            locationIntent = new Intent(getApplicationContext(), GPSTracker.class);
+            startService(locationIntent);
         }
 
         registerReceiver(m_timeChangedReceiver, s_intentFilter);
@@ -202,6 +208,12 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(m_timeChangedReceiver);
+
+        if (broadcastReceiver != null) {
+            unregisterReceiver(broadcastReceiver);
+        }
+
+        stopService(locationIntent);
     }
 
     private void checkPermission() {
@@ -224,7 +236,6 @@ public class MainActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         switch (requestCode) {
             case 123: {
-
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     musicPlayer.loadSongs();
@@ -234,6 +245,30 @@ public class MainActivity extends AppCompatActivity {
                 }
                 return;
             }
+            // for location service permissions
+            case 100: {
+                if (grantResults[0] != PackageManager.PERMISSION_GRANTED
+                        || grantResults[1] != PackageManager.PERMISSION_GRANTED) {
+                    gpsTracker.permissionRequest();
+                }
+            }
         }
+    }
+
+    // for registering and un-registering a broadcast receiver (prevents memory leads)
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (broadcastReceiver == null) {
+            broadcastReceiver = new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    // TODO: This is where we get the information from the GPSTracker
+                    // TODO: Should be constantly updating playlist
+                    //textview.append("\n" + intent.getExtras().get("Coordinates"));
+                }
+            };
+        }
+        registerReceiver(broadcastReceiver, new IntentFilter("Location Updated"));
     }
 }
