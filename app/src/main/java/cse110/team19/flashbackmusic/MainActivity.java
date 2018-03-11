@@ -8,8 +8,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.graphics.drawable.Drawable;
-import android.location.Location;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
@@ -23,11 +21,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
 
 import static android.os.Environment.DIRECTORY_DOWNLOADS;
 
@@ -84,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
         //Uri music_uri = Uri.parse("http://soundbible.com/grab.php?id=2191&type=zip");
         Uri music_uri = Uri.parse("http://soundbible.com/grab.php?id=2191&type=mp3");
         DownloadManager dm = (DownloadManager)getSystemService(DOWNLOAD_SERVICE);
-        download = new Download(dm, this);
+        download = new Download(dm, getResources().getString(R.string.download_folder));
         download.downloadData(music_uri);
 
         musicPlayer = new MusicPlayer(new MediaPlayer());
