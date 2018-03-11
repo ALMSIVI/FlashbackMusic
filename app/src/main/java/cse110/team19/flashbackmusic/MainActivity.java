@@ -77,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
         switchModes(null);
 
         // music url
-        Uri music_uri = Uri.parse("https://www.androidtutorialpoint.com/wp-content/uploads/2016/09/AndroidDownloadManager.mp3");
+        Uri music_uri = Uri.parse("http://soundbible.com/grab.php?id=2191&type=zip");//Uri.parse("https://www.androidtutorialpoint.com/wp-content/uploads/2016/09/AndroidDownloadManager.mp3");
         DownloadManager dm = (DownloadManager)getSystemService(DOWNLOAD_SERVICE);
         download = new Download(dm, this);
         download.downloadData(music_uri);

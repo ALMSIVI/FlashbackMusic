@@ -12,11 +12,11 @@ public class Track {
     private int trackNumber;
     private int score;
     private int status;
-    private int resourceId;
     private String website;
     private Location location;
     private long time;
     private String personLastPlayed;
+    private String pathName;
 
     /**
      * Constructor.
@@ -24,21 +24,21 @@ public class Track {
      * @param trackNumber track number of the song
      * @param artist artistName of the song
      */
-    public Track(String trackName, String albumName, String artist, int trackNumber, int resourceId) {
+    public Track(String trackName, String albumName, String artist, int trackNumber, String pathName) {
         this.trackName = trackName;
         this.albumName = albumName;
         this.artistName = artist;
         this.trackNumber = trackNumber;
-        this.resourceId = resourceId;
+        this.pathName = pathName;
     }
 
-    public Track(String trackName, String albumName, String artist, int trackNumber, String website) {
+    /*public Track(String trackName, String albumName, String artist, int trackNumber, String website) {
         this.trackName = trackName;
         this.albumName = albumName;
         this.artistName = artist;
         this.trackNumber = trackNumber;
         this.website = website;
-    }
+    }*/
 
     /**
      * -1: dislike
@@ -114,10 +114,6 @@ public class Track {
         return status;
     }
 
-    public int getResourceId() {
-        return resourceId;
-    }
-
     public String getPersonLastPlayed() {
         return personLastPlayed;
     }
@@ -125,6 +121,8 @@ public class Track {
     public String getWebsite() {
         return website;
     }
+
+    public String getPathName() { return pathName; }
 
     /* Setters */
     public void setCalendar(Calendar calendar) {
@@ -139,10 +137,6 @@ public class Track {
         this.status = status;
     }
 
-    public void setResourceId(int resourceId) {
-        this.resourceId = resourceId;
-    }
-
     public void setPersonLastPlayed(String name) {
         this.personLastPlayed = name;
     }
@@ -150,6 +144,8 @@ public class Track {
     public void setWebsite(String site) {
         this.website = site;
     }
+
+    public void setPathName(String path) { this.pathName = path; }
 
     //Increment to the score
     public void incrementScore(int toAdd)

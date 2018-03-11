@@ -10,6 +10,7 @@ import android.os.Environment;
 import android.util.Log;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -144,12 +145,30 @@ public class MusicPlayer {
         return trackList;
     }
 
+    public void setDataSource(String path) throws IOException {
+        try {
+            mediaPlayer.setDataSource(path);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        } catch (SecurityException e) {
+            e.printStackTrace();
+        } catch (IllegalStateException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void prepareAsync() {
+        mediaPlayer.prepareAsync();
+    }
+
     /**
      * Load the songs.
      */
     public void loadSongs() {
         // getting songs out of Downloads folder
-        String path = Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS).toString() + "/DownloadedSongs";
+        String path = Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS).toString() + "/DownloadedSongs/";
         Log.d("Files", "Path: " + path);
         File directory = new File(path);
         File[] fields = directory.listFiles();
@@ -158,19 +177,16 @@ public class MusicPlayer {
             Log.d("Files", "FileName:" + fields[i].getName());
         }
 
-        //final Field[] fields = R.raw.class.getFields(); //Gets the all the files (tracks) in raw folder
         for (int count = 0; count < fields.length; count++) { //Goes through each track
             String name = fields[count].getName();
 
-            //Gets id to play the track (used in LoadMedia())
-            int resourceID = context.getResources().getIdentifier(name, "raw", context.getPackageName());
-            audioResourceId.add(resourceID);
-
             //Gets the metadata of the track (album, artist, track number in album, track name)
             MediaMetadataRetriever mmr = new MediaMetadataRetriever();
-            Resources res = context.getResources();
-            AssetFileDescriptor afd = res.openRawResourceFd(resourceID);
-            mmr.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
+
+            String pathName = path + fields[count].getName();
+            Log.d("Retrieving Metadata", pathName);
+            mmr.setDataSource(pathName);
+
             String albumName = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM);
             String artist = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
             String trackNumber = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_CD_TRACK_NUMBER);
@@ -188,14 +204,14 @@ public class MusicPlayer {
             if (trackNumber != null) {
                 String[] numbers = trackNumber.split("/");
                 trackNo = Integer.parseInt(numbers[0]);
-                numTracks = Integer.parseInt(numbers[1]);
+                //numTracks = Integer.parseInt(numbers[1]);
             }
             if (trackName == null || trackName.equals("")) {
                 trackName = "Unknown track";
             }
 
             // Create the track
-            Track t = new Track(trackName, albumName, artist, trackNo, resourceID);
+            Track t = new Track(trackName, albumName, artist, trackNo, pathName);
             trackList.add(t);
 
             // Retrieve data from sharedPreferences
