@@ -1,7 +1,6 @@
 package cse110.team19.flashbackmusic;
 
 import android.Manifest;
-import android.app.Dialog;
 import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -10,7 +9,6 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.media.MediaPlayer;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.os.Environment;
@@ -29,14 +27,8 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GoogleApiAvailability;
-import com.google.android.gms.common.Scopes;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.Scope;
-import com.google.api.client.googleapis.apache.GoogleApacheHttpTransport;
-import com.google.api.services.people.v1.PeopleScopes;
-import javax.annotation.Nonnull;
 
 import static android.os.Environment.DIRECTORY_DOWNLOADS;
 
@@ -64,13 +56,33 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         s_intentFilter.addAction(Intent.ACTION_TIME_CHANGED);
     }
 
-    private final BroadcastReceiver m_timeChangedReceiver = new BroadcastReceiver() {
+    private BroadcastReceiver timeChanged = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            final String action = intent.getAction();
+             String action = intent.getAction();
 
             if (action.equals(Intent.ACTION_TIME_CHANGED)) {
                 // TODO: Update playlist based on time and day
+            }
+        }
+    };
+
+    // Download complete
+    private BroadcastReceiver downloadComplete = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (action.equals(DownloadManager.ACTION_DOWNLOAD_COMPLETE) ){
+                Bundle extras = intent.getExtras();
+                long id = extras.getLong(DownloadManager.EXTRA_DOWNLOAD_ID);
+                String filename = download.getLatestFileName(id);
+
+                if (filename != null) {
+                    Log.d("newest name", filename);
+                    controller.updatePlayList(filename);
+                } else {
+                    Log.d("newest name", "null");
+                }
             }
         }
     };
@@ -97,11 +109,11 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
 
 
         // TODO The below code is TESTING purposes only. Remove this when funcionality is complete.
-        //Uri music_uri = Uri.parse("http://soundbible.com/grab.php?id=2191&type=zip");
-        Uri music_uri = Uri.parse("https://www.dropbox.com/s/zycnhvqskyfmzv5/blood_on_your_bootheels.mp3?dl=1");
         DownloadManager dm = (DownloadManager)getSystemService(DOWNLOAD_SERVICE);
         download = new Download(dm, getResources().getString(R.string.download_folder));
-        download.downloadData(music_uri);
+        download.downloadData("https://www.dropbox.com/s/zycnhvqskyfmzv5/blood_on_your_bootheels.mp3?dl=1");
+
+        registerReceiver(downloadComplete, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
 
         String directory = Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS).getPath()
                 + getResources().getString(R.string.download_folder);
@@ -119,7 +131,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         controller = new MusicController(this, adapter,
                 new MusicPlayer(new MediaPlayer()), playList);
 
-        registerReceiver(m_timeChangedReceiver, s_intentFilter);
+        registerReceiver(timeChanged, s_intentFilter);
 
         // Check mode and switch
         SharedPreferences sharedPreferences = this.getSharedPreferences("mode", MODE_PRIVATE);
@@ -200,7 +212,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        unregisterReceiver(m_timeChangedReceiver);
+        unregisterReceiver(timeChanged);
+        unregisterReceiver(downloadComplete);
     }
 
     //region Permission checking

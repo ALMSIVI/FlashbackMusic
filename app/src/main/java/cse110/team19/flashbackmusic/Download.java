@@ -1,9 +1,12 @@
 package cse110.team19.flashbackmusic;
 
 import android.app.DownloadManager;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Environment;
 import android.util.Log;
+import android.webkit.URLUtil;
+
 import java.io.File;
 
 /**
@@ -25,15 +28,17 @@ public class Download {
         downloadFolder = folder;
     }
 
-    public long downloadData (Uri uri) {
+    public long downloadData (String url) {
+        String filename = URLUtil.guessFileName(url, null, null);
         long downloadReference;
 
+        Uri uri = Uri.parse(url);
         // Create request for android download manager
         //dm = (DownloadManager)context.getSystemService(DOWNLOAD_SERVICE);
         DownloadManager.Request request = new DownloadManager.Request(uri);
 
         //Setting title of request
-        request.setTitle("Vibe Music");
+        //request.setTitle(filename);
 
         //Setting description of request
         request.setDescription("Downloading music from server...");
@@ -48,9 +53,28 @@ public class Download {
             Log.d("hi", "woo");
         }
         request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, downloadFolder + "/hi.mp3");
+        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, downloadFolder + filename);
         //Enqueue download and save into referenceId
         downloadReference = dm.enqueue(request);
         return downloadReference;
     }
+
+    public String getLatestFileName(long id) {
+
+        DownloadManager.Query q = new DownloadManager.Query();
+        q.setFilterById(id);
+        Cursor c = dm.query(q);
+
+        if (c.moveToFirst()) {
+            int status = c.getInt(c.getColumnIndex(DownloadManager.COLUMN_STATUS));
+            if (status == DownloadManager.STATUS_SUCCESSFUL) {
+                // process download
+                return c.getString(c.getColumnIndex(DownloadManager.COLUMN_TITLE));
+                // get other required data by changing the constant passed to getColumnIndex
+            }
+        }
+
+        return null;
+    }
+
 }

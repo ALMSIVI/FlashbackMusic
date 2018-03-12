@@ -16,6 +16,6 @@
     <string name="server_client_id">825068678459-qejd3hf8alpco70cfrke3d56su9aitc1.apps.googleusercontent.com</string>
     <string name="server_client_secret">tPegiE3eqcsx_zXNDzVEsuj5</string>
 
-    <string name="download_folder">/DownloadedSongs</string>
+    <string name="download_folder">/DownloadedSongs/</string>
 
 </resources>

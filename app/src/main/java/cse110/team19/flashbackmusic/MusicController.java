@@ -151,6 +151,12 @@ public class MusicController {
         }
         editor.apply();
     }
+
+    public void updatePlayList(String filename) {
+        playList.addTrack(filename);
+        playList.sort();
+        adapter.notifyDataSetChanged();
+    }
     //endregion
 
     //region MediaPlayer
