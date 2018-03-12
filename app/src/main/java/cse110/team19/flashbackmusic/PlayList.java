@@ -158,7 +158,7 @@ public class PlayList {
     }
 
     public boolean isNormalMode() {
-        return mode != Sort.Recent;
+        return mode != Sort.Score;
     }
 
     public void sortRecent() {

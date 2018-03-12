@@ -158,10 +158,17 @@ public class Track {
         public int compare(Track t1, Track t2) {
             if (t1 == null || t2 == null) {
                 return 1;
+            }else if (t1.getTime() == null && t2.getTime() != null) {
+                return -1;
+            } else if (t2.getTime() == null && t1.getTime() != null) {
+                return 1;
+            } else if (t1.getTime() == null && t2.getTime() == null) {
+                return t1.getTrackName().compareTo(t2.getTrackName());
+            } else {
+                return t1.getTime().compareTo(t2.getTime()) != 0 ?
+                        t1.getTime().compareTo(t2.getTime()) :
+                        t1.getTrackName().compareTo(t2.getTrackName());
             }
-            return t1.getTime().compareTo(t2.getTime()) != 0 ?
-            t1.getTime().compareTo(t2.getTime()) :
-            t1.getTrackName().compareTo(t2.getTrackName());
         }
     };
 
