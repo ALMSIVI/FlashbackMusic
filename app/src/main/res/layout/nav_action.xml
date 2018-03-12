@@ -26,4 +26,5 @@
         android:layout_gravity="left"
         app:buttonSize="icon_only"
         />
+
 </android.support.v7.widget.Toolbar>

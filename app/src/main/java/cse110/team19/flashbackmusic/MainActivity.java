@@ -113,13 +113,12 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         //This needs to go before the button
         super.onCreate(savedInstanceState);
         setContentView(R.layout.nav_action);
-        //Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        //setSupportActionBar(toolbar);
 
         // UI stuff
         toolbar = (Toolbar) findViewById(R.id.nav_action);
         setSupportActionBar(toolbar);
         setContentView(R.layout.activity_main_activity);
+
         drawerLayout = (DrawerLayout) findViewById(R.id.navigation_drawer);
         actionBarDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.open, R.string.close);
         drawerLayout.addDrawerListener(actionBarDrawerToggle);
