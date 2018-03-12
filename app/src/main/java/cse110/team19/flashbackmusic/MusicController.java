@@ -1,24 +1,20 @@
 package cse110.team19.flashbackmusic;
 
 import android.content.SharedPreferences;
-import android.content.res.AssetFileDescriptor;
 import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
-import android.os.Environment;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
+import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.TextView;
-
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
 import static android.content.Context.MODE_PRIVATE;
-import static android.os.Environment.DIRECTORY_DOWNLOADS;
 
 /**
  * Created by YueWu on 3/9/2018.
@@ -32,7 +28,7 @@ public class MusicController {
     private MainActivity mainActivity;
     private MusicPlayer player;
 
-    private PlayListAdapter adapter;
+    private BaseAdapter adapter;
     private PlayList playList;
 
     private Track isPlaying;
@@ -227,12 +223,14 @@ public class MusicController {
     public void setUpVibe() {
         player.stop();
         playList.createVibePlayList();
+        // TODO: ensure adapter is playlistadapter
         adapter.notifyDataSetChanged();
         player.play();
     }
 
     public void setUpNormal() {
         playList.createNormalPlayList();
+        // TODO: ensure adapter is playlistadapter
         adapter.notifyDataSetChanged();
     }
     //endregion
