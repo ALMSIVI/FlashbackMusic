@@ -1,24 +1,20 @@
 package cse110.team19.flashbackmusic;
 
 import android.content.SharedPreferences;
-import android.content.res.AssetFileDescriptor;
 import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
-import android.os.Environment;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
+import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.TextView;
-
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
 import static android.content.Context.MODE_PRIVATE;
-import static android.os.Environment.DIRECTORY_DOWNLOADS;
 
 /**
  * Created by YueWu on 3/9/2018.
@@ -31,6 +27,9 @@ public class MusicController {
     //region Variables
     private MainActivity mainActivity;
     private MusicPlayer player;
+
+    private BaseAdapter adapter;
+    private PlayList playList;
 
     private Track isPlaying;
 
@@ -49,29 +48,47 @@ public class MusicController {
      * @param adapter
      * @param player
      */
-    public MusicController(MainActivity mainActivity, PlayListAdapter adapter, MusicPlayer player) {
+    public MusicController(MainActivity mainActivity, PlayListAdapter adapter, MusicPlayer player,
+                           PlayList playList) {
         this.mainActivity = mainActivity;
+        this.adapter = adapter;
         adapter.setController(this);
         this.player = player;
         player.setController(this);
-
+        this.playList = playList;
         // Initialize the locations
         geocoder = new Geocoder(mainActivity, Locale.getDefault());
         gpstracker = new GPSTracker(mainActivity);
-        location = gpstracker.getLocation();
+        //location = gpstracker.getLocation();
         time = new Date();
     }
     //endregion
 
     //region Buttons
-    public void changePlay() {
+    public void changePlayPauseButton() {
+        if (player.isPlaying()) {
+            player.pause();
+            changePlay();
+        } else {
+            player.play();
+            changePause();
+        }
+    }
+
+    /**
+     * Changes the button to play.
+     */
+    private void changePlay() {
         Button mainPauseButton = (Button) mainActivity.findViewById(R.id.playButton);
         // Old version: mainActivity.getResources().getDrawable(...);
         Drawable play = ContextCompat.getDrawable(mainActivity, R.drawable.ic_play_arrow_actuallyblack_24dp);
         mainPauseButton.setCompoundDrawablesWithIntrinsicBounds(null, play, null, null);
     }
 
-    public void changePause() {
+    /**
+     * Changes the button to pause.
+     */
+    private void changePause() {
         Button mainPlayButton = (Button) mainActivity.findViewById(R.id.playButton);
         Drawable pause = ContextCompat.getDrawable(mainActivity, R.drawable.ic_pause_actuallyblack_24dp);
         mainPlayButton.setCompoundDrawablesWithIntrinsicBounds(null, pause, null, null);
@@ -112,7 +129,7 @@ public class MusicController {
     }
 
     public void updateTrackInfo() {
-        location = gpstracker.getLocation();
+        //location = gpstracker.getLocation();
         isPlaying.updateInfo(location, time.getTime());
     }
 
@@ -133,6 +150,12 @@ public class MusicController {
             editor.putString(track.getTrackName() + "Location", track.getLocation());
         }
         editor.apply();
+    }
+
+    public void updatePlayList(String filename) {
+        playList.addTrack(filename);
+        playList.sort();
+        adapter.notifyDataSetChanged();
     }
     //endregion
 
@@ -164,8 +187,12 @@ public class MusicController {
 
         updateText();
         //audioIndex++;
-        //mediaPlayer.start();
+        //mediaPlayer.play();
 
+    }
+
+    public void resetMusic() {
+        player.resetMusic();
     }
     //endregion
 
@@ -195,6 +222,22 @@ public class MusicController {
                     isPlaying.getTime(), lastLocation);
             lastPlayedView.setText(lastPlayedInfo);
         }
+    }
+    //endregion
+
+    //region Modes
+    public void setUpVibe() {
+        player.stop();
+        playList.createVibePlayList();
+        // TODO: ensure adapter is playlistadapter
+        adapter.notifyDataSetChanged();
+        player.play();
+    }
+
+    public void setUpNormal() {
+        playList.createNormalPlayList();
+        // TODO: ensure adapter is playlistadapter
+        adapter.notifyDataSetChanged();
     }
     //endregion
 }

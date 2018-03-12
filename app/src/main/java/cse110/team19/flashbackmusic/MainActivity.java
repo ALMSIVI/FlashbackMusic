@@ -9,11 +9,9 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.graphics.drawable.Drawable;
-import android.location.Location;
 import android.media.MediaPlayer;
-import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -30,6 +28,7 @@ import android.view.View;
 import android.widget.Adapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -39,37 +38,35 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.auth.api.signin.GoogleSignInResult;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.SignInButton;
+import com.google.android.gms.common.api.GoogleApiClient;
 
 import static android.os.Environment.DIRECTORY_DOWNLOADS;
 
 /**
  * Created by Meeta on 3/6/18.
  */
+public class MainActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener, View.OnClickListener {
+    private Download download;
+    private MusicController controller;
 
-public class MainActivity extends AppCompatActivity {
-    //region Variables
-    private boolean normalMode;
-    private MusicPlayer musicPlayer;
+    private GPSTracker gpsTracker;
+    private Intent locationIntent;
+    private BroadcastReceiver broadcastReceiver;
 
-    private PlayList playList;
-    static LinkedList<Track> recentlyPlayed;
+    private SignInButton SignIn;
+    private static final int REQ_CODE = 9001;
+    GoogleApiClient googleApiClient;
 
     // UI stuff
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle actionBarDrawerToggle;
     private Toolbar toolbar;
-    private RecyclerView recyclerView;
-    private Adapter adapter;
-
-    private Download download;
-    private MusicController controller;
-    //endregion
-
-    // for recording location at onset of flashback mode
-    GPSTracker gpsTracker;
-    Location startingLocation;
-    private Intent locationIntent;
-    private BroadcastReceiver broadcastReceiver;
 
     // Monitors time change
     private static IntentFilter s_intentFilter;
@@ -81,13 +78,33 @@ public class MainActivity extends AppCompatActivity {
         s_intentFilter.addAction(Intent.ACTION_TIME_CHANGED);
     }
 
-    private final BroadcastReceiver m_timeChangedReceiver = new BroadcastReceiver() {
+    private BroadcastReceiver timeChanged = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            final String action = intent.getAction();
+             String action = intent.getAction();
 
             if (action.equals(Intent.ACTION_TIME_CHANGED)) {
                 // TODO: Update playlist based on time and day
+            }
+        }
+    };
+
+    // Download complete
+    private BroadcastReceiver downloadComplete = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (action.equals(DownloadManager.ACTION_DOWNLOAD_COMPLETE) ){
+                Bundle extras = intent.getExtras();
+                long id = extras.getLong(DownloadManager.EXTRA_DOWNLOAD_ID);
+                String filename = download.getLatestFileName(id);
+
+                if (filename != null) {
+                    Log.d("newest name", filename);
+                    controller.updatePlayList(filename);
+                } else {
+                    Log.d("newest name", "null");
+                }
             }
         }
     };
@@ -115,43 +132,26 @@ public class MainActivity extends AppCompatActivity {
         actionBarDrawerToggle.syncState();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        MediaPlayer mediaPlayer = new MediaPlayer();
-        musicPlayer = new MusicPlayer(this, mediaPlayer);
+        // Google Signin Activity
+        SignIn = (SignInButton) findViewById(R.id.main_googlesigninbtn);
+        SignIn.setOnClickListener(this);
+        GoogleSignInOptions signInOptions = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
+        googleApiClient = new GoogleApiClient.Builder(this)
+                .enableAutoManage(this, this).addApi(Auth.GOOGLE_SIGN_IN_API,signInOptions).build();
 
-        // set up recycler view
-        playList = new PlayList(recentlyPlayed);
-        recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
-        adapter = new Adapter(playList);
-
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());
-        recyclerView.setLayoutManager(layoutManager);
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
-        recyclerView.setAdapter(adapter);
-
-        musicPlayer.loadSongs();
-
-        // Check mode and switch
-        switchModes(null);
-
-        // music url
-        //Uri music_uri = Uri.parse("http://soundbible.com/grab.php?id=2191&type=zip");
-        Uri music_uri = Uri.parse("http://soundbible.com/grab.php?id=2191&type=mp3");
+        // TODO The below code is TESTING purposes only. Remove this when funcionality is complete.
         DownloadManager dm = (DownloadManager)getSystemService(DOWNLOAD_SERVICE);
-        download = new Download(dm, this);
-        download.downloadData(music_uri);
+        download = new Download(dm, getResources().getString(R.string.download_folder));
+        download.downloadData("https://www.dropbox.com/s/zycnhvqskyfmzv5/blood_on_your_bootheels.mp3?dl=1");
 
-        musicPlayer = new MusicPlayer(new MediaPlayer());
+        registerReceiver(downloadComplete, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
 
-        Log.d("Download directory", Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS).getPath()
-                + getResources().getString(R.string.download_folder));
-        PlayList playList = new PlayList(this,
-                Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS).getPath()
-                        + getResources().getString(R.string.download_folder));
-        if (normalMode) {
-            playList.createNormalPlayList();
-        } else {
-            playList.createVibePlayList();
-        }
+        String directory = Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS).getPath()
+                + getResources().getString(R.string.download_folder);
+        Log.d("Download directory", directory);
+
+        // Initialize playlist
+        PlayList playList = new PlayList(this, directory);
 
         // Initialize the library list
         ListView listView = findViewById(R.id.listView);
@@ -159,7 +159,10 @@ public class MainActivity extends AppCompatActivity {
         listView.setAdapter(adapter);
 
         // Set up the MVC controller
-        controller = new MusicController(this, adapter, musicPlayer);
+        controller = new MusicController(this, adapter,
+                new MusicPlayer(new MediaPlayer()), playList);
+
+        registerReceiver(timeChanged, s_intentFilter);
 
         // initializing location services on start up
         gpsTracker = new GPSTracker(this);
@@ -168,32 +171,18 @@ public class MainActivity extends AppCompatActivity {
             startService(locationIntent);
         }
 
-        registerReceiver(m_timeChangedReceiver, s_intentFilter);
-    }
-
-
-    /**
-     * Click listener for the play button at the bottom of the activity.
-     */
-    @SuppressLint("NewApi")
-    @Override
-    public void onStop() {
-        super.onStop();
-        if (isChangingConfigurations() && musicPlayer.isPlaying()) {
-            ; //"do nothing"
+        // Check mode and switch
+        SharedPreferences sharedPreferences = this.getSharedPreferences("mode", MODE_PRIVATE);
+        String mode = sharedPreferences.getString("mode", null);
+        if (mode == null || mode.equals(getResources().getString(R.string.mode_normal))) {
+            setNormal();
+        } else {
+            setVibe();
         }
     }
 
     public void playMusic(View view) {
-        //Check if something is already playing
-        if (musicPlayer.isPlaying()) {
-            musicPlayer.pause();
-            controller.changePause();
-        } else {
-            //Since there is already a song loaded, just resume the song
-            musicPlayer.start();
-            controller.changePlay();
-        }
+        controller.changePlayPauseButton();
     }
 
     /**
@@ -201,7 +190,7 @@ public class MainActivity extends AppCompatActivity {
      * @param view
      */
     public void resetMusic(View view) {
-        musicPlayer.resetMusic();
+        controller.resetMusic();
     }
 
 
@@ -211,49 +200,62 @@ public class MainActivity extends AppCompatActivity {
      */
     @SuppressLint("NewApi")
     public void switchModes(View view) {
-        if(musicPlayer != null && musicPlayer.isPlaying()) {
-            musicPlayer.stop();
-        }
-
         //Get mode
         SharedPreferences sharedPreferences = this.getSharedPreferences("mode", MODE_PRIVATE);
         String mode = sharedPreferences.getString("mode", null);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
 
-        if (mode != null) {
-            if (mode.equals(getResources().getString(R.string.mode_normal))) {
-                editor.putString("mode", getResources().getString(R.string.mode_vibe));
-                Button modeSwitch = (Button) findViewById(R.id.flashbackButton);
-                modeSwitch.setText("N");
-                normalMode = false;
-                // TODO: automatically play vibe songs
-            } else if (mode.equals(getResources().getString(R.string.mode_vibe))) {
-                editor.putString("mode", getResources().getString(R.string.mode_normal));
-                Button modeSwitch = (Button) findViewById(R.id.flashbackButton);
-                modeSwitch.setText("V");
-                normalMode = true;
-            }
-        } else {
-            editor.putString("mode", getResources().getString(R.string.mode_normal));
-            Button modeSwitch = (Button) findViewById(R.id.flashbackButton);
-            modeSwitch.setText("V");
+        if (mode.equals(getResources().getString(R.string.mode_normal))) {
+            setVibe();
+        } else { // vibe mode, switch to normal
+            setNormal();
         }
-
-        editor.apply();
     }
+
+    private void setNormal() {
+        SharedPreferences sharedPreferences = this.getSharedPreferences("mode", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("mode", getResources().getString(R.string.mode_normal));
+        editor.apply();
+        // Change the button
+        Button modeSwitch = (Button) findViewById(R.id.flashbackButton);
+        modeSwitch.setText("V");
+        // Change the text
+        TextView libraryText = findViewById(R.id.libraryText);
+        libraryText.setText(R.string.library);
+        // Set up playlist
+        controller.setUpNormal();
+    }
+
+    private void setVibe() {
+        SharedPreferences sharedPreferences = this.getSharedPreferences("mode", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("mode", getResources().getString(R.string.mode_vibe));
+        editor.apply();
+        // Change the button
+        Button modeSwitch = (Button) findViewById(R.id.flashbackButton);
+        modeSwitch.setText("N");
+        // Change the text
+        TextView libraryText = findViewById(R.id.libraryText);
+        libraryText.setText(R.string.playlist);
+        // Set up playlist
+        controller.setUpVibe();
+    }
+    //endregion
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        unregisterReceiver(m_timeChangedReceiver);
 
         if (broadcastReceiver != null) {
             unregisterReceiver(broadcastReceiver);
         }
-
         stopService(locationIntent);
+
+        unregisterReceiver(timeChanged);
+        unregisterReceiver(downloadComplete);
     }
 
+    //region Permission checking
     private void checkPermission() {
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -316,4 +318,54 @@ public class MainActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+    //endregion
+
+    //region Google Friends
+    @Override
+    public void onClick(View view) {
+        switch(view.getId())
+        {
+            case R.id.main_googlesigninbtn:
+                signIn();
+                break;
+        }
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+    }
+
+    @Override
+    public void onPointerCaptureChanged(boolean hasCapture) {
+
+    }
+
+    private void signIn(){
+        Intent intent = Auth.GoogleSignInApi.getSignInIntent(googleApiClient);
+        startActivityForResult(intent, REQ_CODE);
+    }
+
+    private void handleResult(GoogleSignInResult result)
+    {
+        if(result.isSuccess())
+        {
+            GoogleSignInAccount account = result.getSignInAccount();
+            String name = account.getDisplayName();
+            SignIn.setVisibility(View.GONE);
+        }
+
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if(requestCode == REQ_CODE)
+        {
+            GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
+            handleResult(result);
+        }
+    }
+    //endregion
 }

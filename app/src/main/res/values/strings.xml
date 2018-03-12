@@ -3,8 +3,8 @@
     <string name="action_settings">Settings</string>
     <string name="normal_text">Normal Mode</string>
     <string name="vibe_text">Vibe Mode</string>
-    <string name="library">Library</string>
-    <string name="playlist">Vibe Playlist</string>
+    <string name="library">Your Library</string>
+    <string name="playlist">Your Vibe Playlist</string>
     <string name="title_activity_track_mode">TrackMode</string>
     <string name="title_activity_play_list_">PlayList_Activity</string>
     <string name="title_activity_delete">Delete</string>
@@ -12,7 +12,12 @@
     <string name="never_played_info">This is the first time you played this song!</string>
     <string name="mode_normal">Normal</string>
     <string name="mode_vibe">Vibe</string>
-    <string name="download_folder">/DownloadedSongs</string>
+
     <string name="open">Open</string>
     <string name="close">Close</string>
+
+    <string name="server_client_id">825068678459-qejd3hf8alpco70cfrke3d56su9aitc1.apps.googleusercontent.com</string>
+    <string name="server_client_secret">tPegiE3eqcsx_zXNDzVEsuj5</string>
+
+    <string name="download_folder">/DownloadedSongs</string>
 </resources>
