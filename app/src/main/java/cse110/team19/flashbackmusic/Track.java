@@ -7,27 +7,29 @@ import java.util.*;
 public class Track {
     private Calendar cal;
     private String trackName;
-    private String artist;
+    private String artistName;
+    private String albumName;
     private int trackNumber;
     private int score;
     private int status;
-    private int resourceId;
+    private String website;
     private Location location;
     private long time;
+    private String personLastPlayed;
+    private String pathName;
 
     /**
      * Constructor.
      * @param trackName name of the song
      * @param trackNumber track number of the song
-     * @param artist artist of the song
+     * @param artist artistName of the song
      */
-    public Track(String trackName, int trackNumber, String artist, int resourceId) {
+    public Track(String trackName, String albumName, String artist, int trackNumber, String pathName) {
         this.trackName = trackName;
+        this.albumName = albumName;
+        this.artistName = artist;
         this.trackNumber = trackNumber;
-        this.artist = artist;
-        this.resourceId = resourceId;
-        score = 0;
-        status = 0;
+        this.pathName = pathName;
     }
 
 
@@ -46,44 +48,13 @@ public class Track {
         }
     }
 
-    /**
-     * Update the last played up the song.
-     */
-    public void justPlayed() {
-        cal = Calendar.getInstance();
-
-        if(NormalMode.recentlyPlayed.contains(this))
-        {
-            NormalMode.recentlyPlayed.remove(this);
-        }
-        NormalMode.recentlyPlayed.addFirst(this);
-    }
-
-    //Get the tracks time of day
-    public String getTimePlayed() {
-        int hour = cal.get(Calendar.HOUR_OF_DAY);
-
-        if( 5 <= hour && hour < 11) {
-            return "morning";
-        } else if( 11 <= hour && hour < 17 ) {
-            return "afternoon";
-        } else {
-            return "evening";
-        }
-    }
-
-    //Get the tracks day of week
-    public int getDayPlayed() {
-        int day = cal.get(Calendar.DAY_OF_WEEK);
-        return day;
-    }
-
+    //region Getters
     // Get info for flashback
-    public String getTime() {
+    public Date getTime() {
         if (cal == null) { // not implemented
             return null;
         } else {
-            return cal.getTime().toString();
+            return cal.getTime();
         }
     }
 
@@ -100,17 +71,16 @@ public class Track {
         return time;
     }
 
-    /* Getters and setters */
-    public void setStatus(int status) {
-        this.status = status;
-    }
-
     public String getTrackName() {
         return trackName;
     }
 
-    public String getArtist() {
-        return artist;
+    public String getArtistName() {
+        return artistName;
+    }
+
+    public String getAlbumName() {
+        return albumName;
     }
 
     public int getTrackNumber() {
@@ -125,10 +95,20 @@ public class Track {
         return status;
     }
 
-    public int getResourceId() {
-        return resourceId;
+    public String getPersonLastPlayed() {
+        return personLastPlayed;
     }
 
+    public String getWebsite() {
+        return website;
+    }
+
+    public String getPathName() {
+        return pathName;
+    }
+    //endregion
+
+    //region Setters
     public void setCalendar(Calendar calendar) {
         cal = calendar;
     }
@@ -136,6 +116,23 @@ public class Track {
     public void setLocation(Location location) {
         this.location = location;
     }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
+    public void setPersonLastPlayed(String name) {
+        this.personLastPlayed = name;
+    }
+
+    public void setWebsite(String site) {
+        this.website = site;
+    }
+
+    public void setPathName(String path) {
+        this.pathName = path;
+    }
+    //endregion
 
     //Increment to the score
     public void incrementScore(int toAdd)
@@ -154,7 +151,82 @@ public class Track {
         this.location = location;
         this.time = time;
     }
+
+    /* Comparators for Track */
+    public static Comparator<Track> recentComparator = new Comparator<Track>() {
+        @Override
+        public int compare(Track t1, Track t2) {
+            if (t1 == null || t2 == null) {
+                return 1;
+            }else if (t1.getTime() == null && t2.getTime() != null) {
+                return -1;
+            } else if (t2.getTime() == null && t1.getTime() != null) {
+                return 1;
+            } else if (t1.getTime() == null && t2.getTime() == null) {
+                return t1.getTrackName().compareTo(t2.getTrackName());
+            } else {
+                return t1.getTime().compareTo(t2.getTime()) != 0 ?
+                        t1.getTime().compareTo(t2.getTime()) :
+                        t1.getTrackName().compareTo(t2.getTrackName());
+            }
+        }
+    };
+
+    public static Comparator<Track> favoriteComparator = new Comparator<Track>() {
+        @Override
+        public int compare(Track t1, Track t2) {
+            if (t1 == null || t2 == null) {
+                return 1;
+            }
+            return t1.getStatus() != t2.getStatus() ?
+                    t1.getStatus() - t2.getStatus() :
+                    t1.getTrackName().compareTo(t2.getTrackName());
+        }
+    };
+
+    public static Comparator<Track> nameComparator = new Comparator<Track>() {
+        @Override
+        public int compare(Track t1, Track t2) {
+            if (t1 == null || t2 == null) {
+                return 1;
+            }
+            return t1.getTrackName().compareTo(t2.getTrackName());
+        }
+    };
+
+    public static Comparator<Track> albumComparator = new Comparator<Track>() {
+        @Override
+        public int compare(Track t1, Track t2) {
+            if (t1 == null || t2 == null) {
+                return 1;
+            }
+            return t1.getAlbumName().compareTo(t2.getAlbumName()) != 0 ?
+                    t1.getAlbumName().compareTo(t2.getAlbumName()):
+                    t1.getTrackName().compareTo(t2.getTrackName());
+        }
+    };
+
+    public static Comparator<Track> artistComparator = new Comparator<Track>() {
+        @Override
+        public int compare(Track t1, Track t2) {
+            if (t1 == null || t2 == null) {
+                return 1;
+            }
+            return t1.getArtistName().compareTo(t2.getArtistName()) != 0 ?
+                    t1.getArtistName().compareTo(t2.getArtistName()):
+                    t1.getTrackName().compareTo(t2.getTrackName());
+        }
+    };
+
+    public static Comparator<Track> scoreComparator = new Comparator<Track>() {
+        @Override
+        public int compare(Track t1, Track t2) {
+            if (t1 == null || t2 == null) {
+                return 1;
+            }
+            return t1.getScore() != t2.getScore() ?
+                    t1.getScore() - t2.getScore() :
+                    t1.getTrackName().compareTo(t2.getTrackName());
+        }
+    };
 }
-
-
-
