@@ -32,6 +32,9 @@ public class MusicController {
     private MainActivity mainActivity;
     private MusicPlayer player;
 
+    private PlayListAdapter adapter;
+    private PlayList playList;
+
     private Track isPlaying;
 
     // for recording location of song
@@ -49,12 +52,14 @@ public class MusicController {
      * @param adapter
      * @param player
      */
-    public MusicController(MainActivity mainActivity, PlayListAdapter adapter, MusicPlayer player) {
+    public MusicController(MainActivity mainActivity, PlayListAdapter adapter, MusicPlayer player,
+                           PlayList playList) {
         this.mainActivity = mainActivity;
+        this.adapter = adapter;
         adapter.setController(this);
         this.player = player;
         player.setController(this);
-
+        this.playList = playList;
         // Initialize the locations
         geocoder = new Geocoder(mainActivity, Locale.getDefault());
         gpstracker = new GPSTracker(mainActivity);
@@ -64,14 +69,30 @@ public class MusicController {
     //endregion
 
     //region Buttons
-    public void changePlay() {
+    public void changePlayPauseButton() {
+        if (player.isPlaying()) {
+            player.pause();
+            changePlay();
+        } else {
+            player.play();
+            changePause();
+        }
+    }
+
+    /**
+     * Changes the button to play.
+     */
+    private void changePlay() {
         Button mainPauseButton = (Button) mainActivity.findViewById(R.id.playButton);
         // Old version: mainActivity.getResources().getDrawable(...);
         Drawable play = ContextCompat.getDrawable(mainActivity, R.drawable.ic_play_arrow_actuallyblack_24dp);
         mainPauseButton.setCompoundDrawablesWithIntrinsicBounds(null, play, null, null);
     }
 
-    public void changePause() {
+    /**
+     * Changes the button to pause.
+     */
+    private void changePause() {
         Button mainPlayButton = (Button) mainActivity.findViewById(R.id.playButton);
         Drawable pause = ContextCompat.getDrawable(mainActivity, R.drawable.ic_pause_actuallyblack_24dp);
         mainPlayButton.setCompoundDrawablesWithIntrinsicBounds(null, pause, null, null);
@@ -164,8 +185,12 @@ public class MusicController {
 
         updateText();
         //audioIndex++;
-        //mediaPlayer.start();
+        //mediaPlayer.play();
 
+    }
+
+    public void resetMusic() {
+        player.resetMusic();
     }
     //endregion
 
@@ -195,6 +220,20 @@ public class MusicController {
                     isPlaying.getTime(), lastLocation);
             lastPlayedView.setText(lastPlayedInfo);
         }
+    }
+    //endregion
+
+    //region Modes
+    public void setUpVibe() {
+        player.stop();
+        playList.createVibePlayList();
+        adapter.notifyDataSetChanged();
+        player.play();
+    }
+
+    public void setUpNormal() {
+        playList.createNormalPlayList();
+        adapter.notifyDataSetChanged();
     }
     //endregion
 }

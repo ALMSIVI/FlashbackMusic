@@ -71,7 +71,6 @@ public class Track {
         return time;
     }
 
-    /* Getters */
     public String getTrackName() {
         return trackName;
     }

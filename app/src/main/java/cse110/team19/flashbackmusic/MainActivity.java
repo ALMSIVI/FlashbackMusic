@@ -9,8 +9,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.graphics.drawable.Drawable;
-import android.location.Location;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
@@ -24,7 +22,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
-
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -52,6 +49,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nonnull;
+
 import static android.os.Environment.DIRECTORY_DOWNLOADS;
 
 /**
@@ -60,8 +58,6 @@ import static android.os.Environment.DIRECTORY_DOWNLOADS;
 
 
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener, View.OnClickListener{
-    private boolean normalMode;
-    private MusicPlayer musicPlayer;
     private Download download;
     private MusicController controller;
     //endregion
@@ -103,6 +99,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         setContentView(R.layout.activity_main_activity);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        // Google Signin Activity
         SignIn = (SignInButton) findViewById(R.id.main_googlesigninbtn);
         SignIn.setOnClickListener(this);
         GoogleSignInOptions signInOptions = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
@@ -110,30 +108,19 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
                 .enableAutoManage(this, this).addApi(Auth.GOOGLE_SIGN_IN_API,signInOptions).build();
 
 
-        // Check mode and switch
-        switchModes(null);
-
-        // music url
+        // TODO The below code is TESTING purposes only. Remove this when funcionality is complete.
         //Uri music_uri = Uri.parse("http://soundbible.com/grab.php?id=2191&type=zip");
         Uri music_uri = Uri.parse("http://soundbible.com/grab.php?id=2191&type=mp3");
         DownloadManager dm = (DownloadManager)getSystemService(DOWNLOAD_SERVICE);
-        download = new Download(dm, this);
+        download = new Download(dm, getResources().getString(R.string.download_folder));
         download.downloadData(music_uri);
 
-        musicPlayer = new MusicPlayer(new MediaPlayer());
+        String directory = Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS).getPath()
+                + getResources().getString(R.string.download_folder);
+        Log.d("Download directory", directory);
 
-
-        Log.d("Download directory", Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS).getPath()
-                + getResources().getString(R.string.download_folder));
-        PlayList playList = new PlayList(this,
-                Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS).getPath()
-                        + getResources().getString(R.string.download_folder));
-        if(normalMode) {
-            playList.createNormalPlayList();
-        } else {
-            playList.createVibePlayList();
-        }
-
+        // Initialize playlist
+        PlayList playList = new PlayList(this, directory);
 
         // Initialize the library list
         ListView listView = findViewById(R.id.listView);
@@ -141,27 +128,29 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         listView.setAdapter(adapter);
 
         // Set up the MVC controller
-        controller = new MusicController(this, adapter, musicPlayer);
+        controller = new MusicController(this, adapter,
+                new MusicPlayer(new MediaPlayer()), playList);
 
         registerReceiver(m_timeChangedReceiver, s_intentFilter);
 
+        // Check mode and switch
+        SharedPreferences sharedPreferences = this.getSharedPreferences("mode", MODE_PRIVATE);
+        String mode = sharedPreferences.getString("mode", null);
+        if (mode == null || mode.equals(getResources().getString(R.string.mode_normal))) {
+            setNormal();
+        } else {
+            setVibe();
+        }
     }
 
 
+    //region Click Listeners
     /**
      * Click listener for the play button at the bottom of the activity.
      * @param view
      */
     public void playMusic(View view) {
-        //Check if something is already playing
-        if (musicPlayer.isPlaying()) {
-            musicPlayer.pause();
-            controller.changePause();
-        } else {
-            //Since there is already a song loaded, just resume the song
-            musicPlayer.start();
-            controller.changePlay();
-        }
+        controller.changePlayPauseButton();
     }
 
     /**
@@ -169,7 +158,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
      * @param view
      */
     public void resetMusic(View view) {
-        musicPlayer.resetMusic();
+        controller.resetMusic();
     }
 
 
@@ -178,36 +167,37 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
      * @param view
      */
     public void switchModes(View view) {
-        if(musicPlayer != null && musicPlayer.isPlaying()) {
-            musicPlayer.stop();
-        }
-
         //Get mode
         SharedPreferences sharedPreferences = this.getSharedPreferences("mode", MODE_PRIVATE);
         String mode = sharedPreferences.getString("mode", null);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
 
-        if (mode != null) {
-            if (mode.equals(getResources().getString(R.string.mode_normal))) {
-                editor.putString("mode", getResources().getString(R.string.mode_vibe));
-                Button modeSwitch = (Button) findViewById(R.id.flashbackButton);
-                modeSwitch.setText("N");
-                normalMode = false;
-                // TODO: automatically play vibe songs
-            } else if (mode.equals(getResources().getString(R.string.mode_vibe))) {
-                editor.putString("mode", getResources().getString(R.string.mode_normal));
-                Button modeSwitch = (Button) findViewById(R.id.flashbackButton);
-                modeSwitch.setText("V");
-                normalMode = true;
-            }
-        } else {
-            editor.putString("mode", getResources().getString(R.string.mode_normal));
-            Button modeSwitch = (Button) findViewById(R.id.flashbackButton);
-            modeSwitch.setText("V");
+        if (mode.equals(getResources().getString(R.string.mode_normal))) {
+            setVibe();
+        } else { // vibe mode, switch to normal
+            setNormal();
         }
-
-        editor.apply();
     }
+
+    private void setNormal() {
+        SharedPreferences sharedPreferences = this.getSharedPreferences("mode", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("mode", getResources().getString(R.string.mode_normal));
+        editor.apply();
+        Button modeSwitch = (Button) findViewById(R.id.flashbackButton);
+        modeSwitch.setText("V");
+        controller.setUpNormal();
+    }
+
+    private void setVibe() {
+        SharedPreferences sharedPreferences = this.getSharedPreferences("mode", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("mode", getResources().getString(R.string.mode_vibe));
+        editor.apply();
+        Button modeSwitch = (Button) findViewById(R.id.flashbackButton);
+        modeSwitch.setText("N");
+        controller.setUpVibe();
+    }
+    //endregion
 
     @Override
     protected void onDestroy() {
@@ -215,6 +205,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         unregisterReceiver(m_timeChangedReceiver);
     }
 
+    //region Permission checking
     private void checkPermission() {
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -246,7 +237,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
             }
         }
     }
+    //endregion
 
+    //region Google Friends
     @Override
     public void onClick(View view) {
         switch(view.getId())
@@ -314,4 +307,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         return new People.Builder(httpTransport, jacksonFactory, credential).setApplicationName("Vibe Music").build();
 
     }
+
+    //endregionx````
+
 }
