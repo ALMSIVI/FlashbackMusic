@@ -97,9 +97,9 @@ public class GPSTracker extends Service {
      */
     public boolean permissionRequest() {
         // request permissions
-        if (Build.VERSION.SDK_INT >= 23 && ActivityCompat.checkSelfPermission(this,
+        if (Build.VERSION.SDK_INT >= 23 && ActivityCompat.checkSelfPermission(context,
                 Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
+                ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION)
                         != PackageManager.PERMISSION_GRANTED) {
 
             ActivityCompat.requestPermissions((Activity)context,

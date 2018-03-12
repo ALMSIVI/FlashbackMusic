@@ -81,7 +81,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     private BroadcastReceiver timeChanged = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-             String action = intent.getAction();
+            String action = intent.getAction();
 
             if (action.equals(Intent.ACTION_TIME_CHANGED)) {
                 // TODO: Update playlist based on time and day
@@ -114,7 +114,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
      *
      * @param savedInstanceState
      */
-    @SuppressLint("NewApi")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         //This needs to go before the button
@@ -144,7 +143,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         download = new Download(dm, getResources().getString(R.string.download_folder));
         download.downloadData("https://www.dropbox.com/s/zycnhvqskyfmzv5/blood_on_your_bootheels.mp3?dl=1");
 
-        registerReceiver(downloadComplete, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
+
 
         String directory = Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS).getPath()
                 + getResources().getString(R.string.download_folder);
@@ -179,6 +178,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         } else {
             setVibe();
         }
+
+        registerReceiver(downloadComplete, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
     }
 
     public void playMusic(View view) {
