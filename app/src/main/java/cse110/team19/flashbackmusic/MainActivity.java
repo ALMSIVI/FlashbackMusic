@@ -36,8 +36,16 @@ import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.Scope;
 import com.google.api.client.googleapis.apache.GoogleApacheHttpTransport;
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeTokenRequest;
+import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
+import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.services.people.v1.People;
 import com.google.api.services.people.v1.PeopleScopes;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -284,5 +292,26 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
             GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
             handleResult(result);
         }
+    }
+
+    public static People setUp(Context context, String serverAuthCode) throws IOException {
+        HttpTransport httpTransport = new NetHttpTransport();
+        JacksonFactory jacksonFactory = JacksonFactory.getDefaultInstance();
+
+        String redirectUrl = "";
+
+        GoogleTokenResponse tokenResponse = new GoogleAuthorizationCodeTokenRequest(
+                httpTransport, jacksonFactory, context.getString(R.string.server_client_id),
+                context.getString(R.string.server_client_secret), serverAuthCode, redirectUrl)
+                .execute();
+
+        GoogleCredential credential = new GoogleCredential.Builder().setClientSecrets(context.getString(R.string.server_client_id)
+        , context.getString(R.string.server_client_secret)).setTransport(httpTransport).setJsonFactory(jacksonFactory).build();
+
+
+        credential.setFromTokenResponse(tokenResponse);
+
+        return new People.Builder(httpTransport, jacksonFactory, credential).setApplicationName("Vibe Music").build();
+
     }
 }
