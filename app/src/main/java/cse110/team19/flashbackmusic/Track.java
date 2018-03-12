@@ -71,7 +71,6 @@ public class Track {
         return time;
     }
 
-    /* Getters */
     public String getTrackName() {
         return trackName;
     }
@@ -157,15 +156,28 @@ public class Track {
     public static Comparator<Track> recentComparator = new Comparator<Track>() {
         @Override
         public int compare(Track t1, Track t2) {
-            return t1.getTime().compareTo(t2.getTime()) != 0 ?
-            t1.getTime().compareTo(t2.getTime()) :
-            t1.getTrackName().compareTo(t2.getTrackName());
+            if (t1 == null || t2 == null) {
+                return 1;
+            }else if (t1.getTime() == null && t2.getTime() != null) {
+                return -1;
+            } else if (t2.getTime() == null && t1.getTime() != null) {
+                return 1;
+            } else if (t1.getTime() == null && t2.getTime() == null) {
+                return t1.getTrackName().compareTo(t2.getTrackName());
+            } else {
+                return t1.getTime().compareTo(t2.getTime()) != 0 ?
+                        t1.getTime().compareTo(t2.getTime()) :
+                        t1.getTrackName().compareTo(t2.getTrackName());
+            }
         }
     };
 
     public static Comparator<Track> favoriteComparator = new Comparator<Track>() {
         @Override
         public int compare(Track t1, Track t2) {
+            if (t1 == null || t2 == null) {
+                return 1;
+            }
             return t1.getStatus() != t2.getStatus() ?
                     t1.getStatus() - t2.getStatus() :
                     t1.getTrackName().compareTo(t2.getTrackName());
@@ -175,6 +187,9 @@ public class Track {
     public static Comparator<Track> nameComparator = new Comparator<Track>() {
         @Override
         public int compare(Track t1, Track t2) {
+            if (t1 == null || t2 == null) {
+                return 1;
+            }
             return t1.getTrackName().compareTo(t2.getTrackName());
         }
     };
@@ -182,6 +197,9 @@ public class Track {
     public static Comparator<Track> albumComparator = new Comparator<Track>() {
         @Override
         public int compare(Track t1, Track t2) {
+            if (t1 == null || t2 == null) {
+                return 1;
+            }
             return t1.getAlbumName().compareTo(t2.getAlbumName()) != 0 ?
                     t1.getAlbumName().compareTo(t2.getAlbumName()):
                     t1.getTrackName().compareTo(t2.getTrackName());
@@ -191,6 +209,9 @@ public class Track {
     public static Comparator<Track> artistComparator = new Comparator<Track>() {
         @Override
         public int compare(Track t1, Track t2) {
+            if (t1 == null || t2 == null) {
+                return 1;
+            }
             return t1.getArtistName().compareTo(t2.getArtistName()) != 0 ?
                     t1.getArtistName().compareTo(t2.getArtistName()):
                     t1.getTrackName().compareTo(t2.getTrackName());
@@ -200,6 +221,9 @@ public class Track {
     public static Comparator<Track> scoreComparator = new Comparator<Track>() {
         @Override
         public int compare(Track t1, Track t2) {
+            if (t1 == null || t2 == null) {
+                return 1;
+            }
             return t1.getScore() != t2.getScore() ?
                     t1.getScore() - t2.getScore() :
                     t1.getTrackName().compareTo(t2.getTrackName());
