@@ -22,6 +22,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.TextView;
+
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -183,8 +185,13 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("mode", getResources().getString(R.string.mode_normal));
         editor.apply();
+        // Change the button
         Button modeSwitch = (Button) findViewById(R.id.flashbackButton);
         modeSwitch.setText("V");
+        // Change the text
+        TextView libraryText = findViewById(R.id.libraryText);
+        libraryText.setText(R.string.library);
+        // Set up playlist
         controller.setUpNormal();
     }
 
@@ -193,8 +200,13 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("mode", getResources().getString(R.string.mode_vibe));
         editor.apply();
+        // Change the button
         Button modeSwitch = (Button) findViewById(R.id.flashbackButton);
         modeSwitch.setText("N");
+        // Change the text
+        TextView libraryText = findViewById(R.id.libraryText);
+        libraryText.setText(R.string.playlist);
+        // Set up playlist
         controller.setUpVibe();
     }
     //endregion
@@ -308,6 +320,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
 
     }
 
-    //endregionx````
+    //endregion
 
 }

@@ -36,8 +36,8 @@ public class MusicPlayer {
                 if (isPlaying()) {
                     controller.updateTrackInfo();
                     controller.saveTrackInfo(true, controller.getIsPlaying());
-
                 }
+                // Switch to next song if album view or
             }
         });
     }
