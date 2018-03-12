@@ -302,10 +302,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     public void download(View view) {
         EditText edittext = (EditText) findViewById(R.id.editText);
         String url = edittext.getText().toString();
-        Uri music_uri = Uri.parse(url);
         DownloadManager dm = (DownloadManager)getSystemService(DOWNLOAD_SERVICE);
         download = new Download(dm, getResources().getString(R.string.download_folder));
-        download.downloadData(music_uri);
+        download.downloadData(url);
 
         String directory = Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS).getPath()
                 + getResources().getString(R.string.download_folder);
