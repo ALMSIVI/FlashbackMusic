@@ -102,7 +102,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
 
         // TODO The below code is TESTING purposes only. Remove this when funcionality is complete.
         //Uri music_uri = Uri.parse("http://soundbible.com/grab.php?id=2191&type=zip");
-        Uri music_uri = Uri.parse("http://soundbible.com/grab.php?id=2191&type=mp3");
+        Uri music_uri = Uri.parse("https://www.dropbox.com/s/zycnhvqskyfmzv5/blood_on_your_bootheels.mp3?dl=1");
         DownloadManager dm = (DownloadManager)getSystemService(DOWNLOAD_SERVICE);
         download = new Download(dm, getResources().getString(R.string.download_folder));
         download.downloadData(music_uri);
