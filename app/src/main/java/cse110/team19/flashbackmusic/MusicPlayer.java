@@ -77,11 +77,16 @@ public class MusicPlayer {
      */
     public void playNext() {
         Track next = controller.getNext();
+        stop();
         if (next != null) {
-            setDataSource(next);
-            prepareAsync();
+            if (next.getStatus() != -1) {
+                setDataSource(next);
+                prepareAsync();
+            } else {
+                playNext();
+            }
         } else {
-            Log.d("Next track", "null");
+            controller.changePlay();
         }
     }
 

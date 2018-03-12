@@ -79,7 +79,7 @@ public class MusicController {
     /**
      * Changes the button to play.
      */
-    private void changePlay() {
+    public void changePlay() {
         Button mainPauseButton = (Button) mainActivity.findViewById(R.id.playButton);
         // Old version: mainActivity.getResources().getDrawable(...);
         Drawable play = ContextCompat.getDrawable(mainActivity, R.drawable.ic_play_arrow_actuallyblack_24dp);
@@ -89,7 +89,7 @@ public class MusicController {
     /**
      * Changes the button to pause.
      */
-    private void changePause() {
+    public void changePause() {
         Button mainPlayButton = (Button) mainActivity.findViewById(R.id.playButton);
         Drawable pause = ContextCompat.getDrawable(mainActivity, R.drawable.ic_pause_actuallyblack_24dp);
         mainPlayButton.setCompoundDrawablesWithIntrinsicBounds(null, pause, null, null);
@@ -185,24 +185,15 @@ public class MusicController {
     public void playSong(int id) {
         if (playList.get(id).getStatus() > -1) {
             changePause();
-            loadMedia(id);
             isPlaying = id;
-        }
-    }
 
-    public void loadMedia(int id) {
-        if (player.isPlaying()) {
-            player.resetMusic();
             player.stop();
-        }
-        try {
+
             player.setDataSource(getIsPlaying());
             player.prepareAsync();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
 
-        updateText();
+            updateText();
+        }
     }
 
     public Track getNext() {
