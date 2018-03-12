@@ -17,13 +17,17 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.Adapter;
 import android.widget.Button;
 import android.widget.ListView;
 
@@ -50,6 +54,10 @@ public class MainActivity extends AppCompatActivity {
     private PlayList playList;
     static LinkedList<Track> recentlyPlayed;
 
+    // UI stuff
+    private DrawerLayout drawerLayout;
+    private ActionBarDrawerToggle actionBarDrawerToggle;
+    private Toolbar toolbar;
     private RecyclerView recyclerView;
     private Adapter adapter;
 
@@ -97,6 +105,15 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main_activity);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        // UI stuff
+        toolbar = (Toolbar) findViewById(R.id.nav_action);
+        setSupportActionBar(toolbar);
+        drawerLayout = (DrawerLayout) findViewById(R.id.navigation_drawer);
+        actionBarDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.open, R.string.close);
+        drawerLayout.addDrawerListener(actionBarDrawerToggle);
+        actionBarDrawerToggle.syncState();
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         MediaPlayer mediaPlayer = new MediaPlayer();
         musicPlayer = new MusicPlayer(this, mediaPlayer);
@@ -290,5 +307,13 @@ public class MainActivity extends AppCompatActivity {
             };
         }
         registerReceiver(broadcastReceiver, new IntentFilter("Location Updated"));
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (actionBarDrawerToggle.onOptionsItemSelected(item)) {
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

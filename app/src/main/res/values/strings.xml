@@ -13,4 +13,6 @@
     <string name="mode_normal">Normal</string>
     <string name="mode_vibe">Vibe</string>
     <string name="download_folder">/DownloadedSongs</string>
+    <string name="open">Open</string>
+    <string name="close">Close</string>
 </resources>
