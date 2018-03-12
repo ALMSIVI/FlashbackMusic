@@ -21,7 +21,7 @@ public class AlbumTrackAdapter extends BaseAdapter {
     /**
      * Constructor.
      *
-     * @param l playlist
+     * @param a album
      */
     public AlbumTrackAdapter(Context context, Album a) {
         this.context = context;
