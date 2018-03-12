@@ -60,7 +60,7 @@ public class MusicController {
         // Initialize the locations
         geocoder = new Geocoder(mainActivity, Locale.getDefault());
         gpstracker = new GPSTracker(mainActivity);
-        location = gpstracker.getLocation();
+        //location = gpstracker.getLocation();
         time = new Date();
     }
     //endregion
@@ -127,7 +127,7 @@ public class MusicController {
     }
 
     public void updateTrackInfo() {
-        location = gpstracker.getLocation();
+        //location = gpstracker.getLocation();
         getIsPlaying().updateInfo(location, time.getTime());
     }
 

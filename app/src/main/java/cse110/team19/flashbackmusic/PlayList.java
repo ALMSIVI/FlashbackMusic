@@ -214,5 +214,4 @@ public class PlayList {
         mode = Sort.Score;
         Collections.sort(playList, Track.scoreComparator);
     }
-    //endregion
 }
