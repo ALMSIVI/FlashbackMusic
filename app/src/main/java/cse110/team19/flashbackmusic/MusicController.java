@@ -172,23 +172,21 @@ public class MusicController {
     }
 
     public void loadMedia(Track track) {
-        // TODO: fix this
-
         player.stop();
         isPlaying = track;
-        //changePause();
         player.resetMusic();
         try {
-            player.setDataSource(track.getPathName());
+            player.setDataSource(track);
             player.prepareAsync();
         } catch (Exception e) {
             System.out.println(e.toString());
         }
 
         updateText();
-        //audioIndex++;
-        //mediaPlayer.play();
+    }
 
+    public Track getNext() {
+        return null;
     }
 
     public void resetMusic() {
@@ -226,17 +224,19 @@ public class MusicController {
     //endregion
 
     //region Modes
+    public boolean isNormalMode() {
+        return playList.isNormalMode();
+    }
+
     public void setUpVibe() {
         player.stop();
         playList.createVibePlayList();
-        // TODO: ensure adapter is playlistadapter
         adapter.notifyDataSetChanged();
         player.play();
     }
 
     public void setUpNormal() {
         playList.createNormalPlayList();
-        // TODO: ensure adapter is playlistadapter
         adapter.notifyDataSetChanged();
     }
     //endregion

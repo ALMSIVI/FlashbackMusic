@@ -38,29 +38,20 @@ import static android.os.Environment.DIRECTORY_DOWNLOADS;
 
 
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener, View.OnClickListener{
+    //region Variables
     private Download download;
     private MusicController controller;
-    //endregion
 
     private SignInButton SignIn;
     private static final int REQ_CODE = 9001;
     GoogleApiClient googleApiClient;
+    //endregion
 
     // Monitors time change
-    private static IntentFilter s_intentFilter;
-
-    static {
-        s_intentFilter = new IntentFilter();
-        s_intentFilter.addAction(Intent.ACTION_TIME_TICK);
-        s_intentFilter.addAction(Intent.ACTION_TIMEZONE_CHANGED);
-        s_intentFilter.addAction(Intent.ACTION_TIME_CHANGED);
-    }
-
     private BroadcastReceiver timeChanged = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
              String action = intent.getAction();
-
             if (action.equals(Intent.ACTION_TIME_CHANGED)) {
                 // TODO: Update playlist based on time and day
             }
@@ -108,7 +99,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
                 .enableAutoManage(this, this).addApi(Auth.GOOGLE_SIGN_IN_API,signInOptions).build();
 
 
-        // TODO The below code is TESTING purposes only. Remove this when funcionality is complete.
+        // TODO The below code is TESTING purposes only. Remove this when functionality is complete.
         DownloadManager dm = (DownloadManager)getSystemService(DOWNLOAD_SERVICE);
         download = new Download(dm, getResources().getString(R.string.download_folder));
         download.downloadData("https://www.dropbox.com/s/zycnhvqskyfmzv5/blood_on_your_bootheels.mp3?dl=1");
@@ -131,6 +122,11 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         controller = new MusicController(this, adapter,
                 new MusicPlayer(new MediaPlayer()), playList);
 
+        // Time change
+        IntentFilter s_intentFilter = new IntentFilter();
+        s_intentFilter.addAction(Intent.ACTION_TIME_TICK);
+        s_intentFilter.addAction(Intent.ACTION_TIMEZONE_CHANGED);
+        s_intentFilter.addAction(Intent.ACTION_TIME_CHANGED);
         registerReceiver(timeChanged, s_intentFilter);
 
         // Check mode and switch
@@ -143,6 +139,12 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         }
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(timeChanged);
+        unregisterReceiver(downloadComplete);
+    }
 
     //region Click Listeners
     /**
@@ -161,7 +163,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         controller.resetMusic();
     }
 
-
     /**
      * Switch modes (Normal to Vibe or Vibe to Normal)
      * @param view
@@ -178,6 +179,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         }
     }
 
+    /**
+     * Switch to normal mode.
+     */
     private void setNormal() {
         SharedPreferences sharedPreferences = this.getSharedPreferences("mode", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -193,6 +197,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         controller.setUpNormal();
     }
 
+    /**
+     * Switch to Vibe mode.
+     */
     private void setVibe() {
         SharedPreferences sharedPreferences = this.getSharedPreferences("mode", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -208,13 +215,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         controller.setUpVibe();
     }
     //endregion
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        unregisterReceiver(timeChanged);
-        unregisterReceiver(downloadComplete);
-    }
 
     //region Permission checking
     private void checkPermission() {

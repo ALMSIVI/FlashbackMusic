@@ -23,7 +23,6 @@ public class PlayList {
     private List<Track> playList;
     private String downloadFolder;
     private Context context;
-    private int currentTrackIndex;
 
     public enum Sort {
         Recent, Name, Album, Artist, Favorite, Score;
@@ -148,9 +147,6 @@ public class PlayList {
             }*/
     }
 
-    public Track getCurrentTrack() {
-        return playList.get(currentTrackIndex);
-    }
 
     public int size() {
         return playList.size();
