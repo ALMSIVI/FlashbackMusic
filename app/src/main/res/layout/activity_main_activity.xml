@@ -24,6 +24,7 @@
             android:text="TextView"
             android:textAlignment="viewStart" />
 
+        <include layout="@layout/content_main_activity"/>
     </LinearLayout>
 
     <android.support.design.widget.NavigationView
@@ -34,39 +35,4 @@
         app:headerLayout="@layout/nav_header">
     </android.support.design.widget.NavigationView>
 
-    <include layout="@layout/content_main_activity"/>
-
-    <android.support.design.widget.AppBarLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:theme="@style/AppTheme.AppBarOverlay">
-
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
-            app:popupTheme="@style/AppTheme.PopupOverlay">
-            <Button
-                android:id="@+id/flashbackButton"
-                android:layout_margin="5dp"
-                android:layout_width="40dp"
-                android:layout_height="wrap_content"
-                android:text="V"
-                android:onClick="switchModes"
-                android:textSize="20dp"
-                android:background="#80000000"
-                android:layout_gravity="right"/>
-
-            <com.google.android.gms.common.SignInButton
-                android:id="@+id/main_googlesigninbtn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="left"
-                app:buttonSize="icon_only"
-                />
-
-        </android.support.v7.widget.Toolbar>
-
-    </android.support.design.widget.AppBarLayout>
 </android.support.v4.widget.DrawerLayout>

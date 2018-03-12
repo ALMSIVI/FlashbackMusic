@@ -37,7 +37,10 @@ public class MusicPlayer {
                     controller.updateTrackInfo();
                     controller.saveTrackInfo(true, controller.getIsPlaying());
                 }
-                // Switch to next song if album view or
+                // TODO: Switch to next song if score view
+                if (!controller.isNormalMode()) {
+                    //playNext();
+                }
             }
         });
     }
@@ -67,8 +70,13 @@ public class MusicPlayer {
         mediaPlayer.stop();
     }
 
+    /**
+     * Request next song from controller and play that.
+     */
     public void playNext() {
         // TODO: implement that
+        setDataSource(controller.getNext());
+        prepareAsync();
     }
 
     /**
@@ -87,9 +95,11 @@ public class MusicPlayer {
         mediaPlayer.seekTo(0);
     }
 
-    public void setDataSource(String path) throws IOException {
+    public void setDataSource(Track track) {
         try {
-            mediaPlayer.setDataSource(path);
+            if (track != null) {
+                mediaPlayer.setDataSource(track.getPathName());
+            }
         } catch (IOException e) {
             e.printStackTrace();
         } catch (IllegalArgumentException e) {
