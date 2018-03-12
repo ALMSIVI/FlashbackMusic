@@ -118,11 +118,11 @@ public class PlayList {
 
         // Retrieve data from sharedPreferences
         SharedPreferences sharedPreferences = context.getSharedPreferences("track_info", MODE_PRIVATE);
-        int status = sharedPreferences.getInt(t.getTrackName() + "Status", 0);
+        int status = sharedPreferences.getInt(t.getPathName() + "Status", 0);
         t.setStatus(status);
 
         // calendar
-        String cal = sharedPreferences.getString(t.getTrackName() + "Time", null);
+        String cal = sharedPreferences.getString(t.getPathName() + "Time", null);
         if (cal != null) {
             try {
                 Calendar calendar = Calendar.getInstance();
@@ -135,7 +135,7 @@ public class PlayList {
         }
 
         // location
-        String loc = sharedPreferences.getString(t.getTrackName() + "Location", "Unknown Location");
+        String loc = sharedPreferences.getString(t.getPathName() + "Location", "Unknown Location");
             /*if (!loc.equals("Unknown Location")) {
                 String[] locationValue = loc.split("");
                 double latitude = Double.parseDouble(locationValue[0]);

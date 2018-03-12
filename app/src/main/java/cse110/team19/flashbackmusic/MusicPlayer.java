@@ -1,6 +1,8 @@
 package cse110.team19.flashbackmusic;
 
 import android.media.MediaPlayer;
+import android.util.Log;
+
 import java.io.IOException;
 
 
@@ -37,9 +39,9 @@ public class MusicPlayer {
                     controller.updateTrackInfo();
                     controller.saveTrackInfo(true, controller.getIsPlaying());
                 }
-                // TODO: Switch to next song if score view
+
                 if (!controller.isNormalMode()) {
-                    //playNext();
+                    playNext();
                 }
             }
         });
@@ -74,9 +76,13 @@ public class MusicPlayer {
      * Request next song from controller and play that.
      */
     public void playNext() {
-        // TODO: implement that
-        setDataSource(controller.getNext());
-        prepareAsync();
+        Track next = controller.getNext();
+        if (next != null) {
+            setDataSource(next);
+            prepareAsync();
+        } else {
+            Log.d("Next track", "null");
+        }
     }
 
     /**

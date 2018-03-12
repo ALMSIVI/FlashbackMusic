@@ -6,6 +6,7 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.TextView;
@@ -31,7 +32,7 @@ public class MusicController {
     private BaseAdapter adapter;
     private PlayList playList;
 
-    private Track isPlaying;
+    private int isPlaying;
 
     // for recording location of song
     private Date time;
@@ -94,8 +95,8 @@ public class MusicController {
         mainPlayButton.setCompoundDrawablesWithIntrinsicBounds(null, pause, null, null);
     }
 
-    public void changeStatusButton(Track track, Button button) {
-        int stat = track.getStatus();
+    public void changeStatusButton(int id, Button button) {
+        int stat = playList.get(id).getStatus();
         if (stat == 0) {
             Drawable neutral = ContextCompat.getDrawable(mainActivity, R.drawable.neutral);
             button.setCompoundDrawablesWithIntrinsicBounds(null, neutral, null, null);
@@ -111,26 +112,23 @@ public class MusicController {
 
     //region Track
     public Track getIsPlaying() {
-        return isPlaying;
+        return playList.get(isPlaying);
     }
 
-    public void changeStatus(Track track, Button button) {
+    public void changeStatus(int id, Button button) {
+        Track track = playList.get(id);
         track.updateStatus();
         saveTrackInfo(false, track);
-        changeStatusButton(track, button);
+        changeStatusButton(id, button);
 
-        if (track.getStatus() == -1 && player.isPlaying() && isPlaying == track) {
-            player.stop();
-            // TODO: fix this
-            //if (audioResourceId.size() > audioIndex) {
-            //    loadMedia(audioResourceId.get(audioIndex).first, audioResourceId.get(audioIndex).second);
-            //}
+        if (track.getStatus() == -1 && player.isPlaying() && isPlaying == id) {
+            player.playNext();
         }
     }
 
     public void updateTrackInfo() {
         location = gpstracker.getLocation();
-        isPlaying.updateInfo(location, time.getTime());
+        getIsPlaying().updateInfo(location, time.getTime());
     }
 
     /**
@@ -141,13 +139,13 @@ public class MusicController {
         SharedPreferences sharedPreferences = mainActivity.getSharedPreferences("track_info", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
 
-        editor.putInt(track.getTrackName() + "Status", track.getStatus());
+        editor.putInt(track.getPathName() + "Status", track.getStatus());
 
         if (all) {
-            editor.putString(track.getTrackName() + "Time", track.getTime() != null ?
+            editor.putString(track.getPathName() + "Time", track.getTime() != null ?
                     track.getTime().toString() :
                     "null");
-            editor.putString(track.getTrackName() + "Location", track.getLocation());
+            editor.putString(track.getPathName() + "Location", track.getLocation());
         }
         editor.apply();
     }
@@ -157,36 +155,64 @@ public class MusicController {
         playList.sort();
         adapter.notifyDataSetChanged();
     }
+
+    public void updatePlayList(PlayList.Sort sort) {
+        switch (sort) {
+            case Name:
+                playList.sortName();
+                break;
+            case Album:
+                playList.sortAlbum();
+                break;
+            case Artist:
+                playList.sortArtist();
+                break;
+            case Recent:
+                playList.sortRecent();
+                break;
+            case Favorite:
+                playList.sortFavorite();
+                break;
+            case Score:
+            default:
+                break;
+        }
+        adapter.notifyDataSetChanged();
+    }
     //endregion
 
     //region MediaPlayer
-    public void playSong(Track track) {
-        if (track.getStatus() > -1) {
+    public void playSong(int id) {
+        if (playList.get(id).getStatus() > -1) {
             changePause();
-
-            //audioResourceId = new <Pair<Integer, Track>>ArrayList();
-            //audioResourceId.add(new Pair<Integer, Track>(id, track));
-            loadMedia(track);
-            isPlaying = track;
+            loadMedia(id);
+            isPlaying = id;
         }
     }
 
-    public void loadMedia(Track track) {
-        player.stop();
-        isPlaying = track;
-        player.resetMusic();
+    public void loadMedia(int id) {
+        if (player.isPlaying()) {
+            player.resetMusic();
+            player.stop();
+        }
         try {
-            player.setDataSource(track);
+            player.setDataSource(getIsPlaying());
             player.prepareAsync();
         } catch (Exception e) {
-            System.out.println(e.toString());
+            e.printStackTrace();
         }
 
         updateText();
     }
 
     public Track getNext() {
-        return null;
+        if (isPlaying == playList.size() - 1) {
+            return null;
+        } else {
+            isPlaying++;
+            Log.d("isPlaying", Integer.toString(isPlaying));
+            return getIsPlaying();
+        }
     }
 
     public void resetMusic() {
@@ -198,10 +224,10 @@ public class MusicController {
     public void updateText() {
         // Update the "Now playing" text
         TextView infoView = mainActivity.findViewById(R.id.info);
-        infoView.setText(isPlaying.getTrackName());
+        infoView.setText(getIsPlaying().getTrackName());
         // Update the "Last played" text
         TextView lastPlayedView = mainActivity.findViewById(R.id.lastPlayed);
-        if (isPlaying.getTime() == null) {
+        if (getIsPlaying().getTime() == null) {
             lastPlayedView.setText(mainActivity.getString(R.string.never_played_info));
         } else {
             String lastLocation = "Unknown location";
@@ -217,7 +243,7 @@ public class MusicController {
 
             String lastPlayedInfo = String.format(
                     mainActivity.getString(R.string.last_played_info),
-                    isPlaying.getTime(), lastLocation);
+                    getIsPlaying().getTime(), lastLocation);
             lastPlayedView.setText(lastPlayedInfo);
         }
     }
@@ -229,13 +255,14 @@ public class MusicController {
     }
 
     public void setUpVibe() {
-        player.stop();
         playList.createVibePlayList();
         adapter.notifyDataSetChanged();
-        player.play();
+        isPlaying = -1;
+        player.stop();
     }
 
     public void setUpNormal() {
+        player.stop();
         playList.createNormalPlayList();
         adapter.notifyDataSetChanged();
     }
