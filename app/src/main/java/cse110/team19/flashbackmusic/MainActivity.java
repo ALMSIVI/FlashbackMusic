@@ -21,6 +21,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -283,6 +284,19 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
             GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
             handleResult(result);
         }
+    }
+
+    public void download(View view) {
+        EditText edittext = (EditText) findViewById(R.id.editText);
+        String url = edittext.getText().toString();
+        Uri music_uri = Uri.parse(url);
+        DownloadManager dm = (DownloadManager)getSystemService(DOWNLOAD_SERVICE);
+        download = new Download(dm, getResources().getString(R.string.download_folder));
+        download.downloadData(music_uri);
+
+        String directory = Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS).getPath()
+                + getResources().getString(R.string.download_folder);
+        Log.d("Download directory", directory);
     }
     //endregion
 }
