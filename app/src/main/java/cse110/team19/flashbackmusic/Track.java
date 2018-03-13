@@ -2,6 +2,8 @@ package cse110.team19.flashbackmusic;
 
 import android.location.Location;
 
+import com.google.android.gms.plus.model.people.Person;
+
 import java.util.*;
 
 public class Track {
@@ -13,7 +15,8 @@ public class Track {
     private int score;
     private int status;
     private String website;
-    private Location location;
+    private ArrayList<Location> locations;
+    private Person lastPlayedBy;
     private long time;
     private String personLastPlayed;
     private String pathName;
@@ -58,13 +61,7 @@ public class Track {
         }
     }
 
-    public String getLocation() {
-        if (location != null) {
-            return location.getLatitude() + " " + location.getLongitude();
-        } else {
-            return "Unknown location";
-        }
-    }
+
 
     //Get time since last play
     public long getTimeSinceLastPlayed() {
@@ -114,7 +111,7 @@ public class Track {
     }
 
     public void setLocation(Location location) {
-        this.location = location;
+        this.locations.add(location);
     }
 
     public void setStatus(int status) {
@@ -148,7 +145,11 @@ public class Track {
 
     public void updateInfo(Location location, long time) {
         cal = Calendar.getInstance();
-        this.location = location;
+        locations.add(location);
+        Set<Location> parser = new HashSet<>();
+        parser.addAll(locations);
+        locations.clear();
+        locations.addAll(parser);
         this.time = time;
     }
 

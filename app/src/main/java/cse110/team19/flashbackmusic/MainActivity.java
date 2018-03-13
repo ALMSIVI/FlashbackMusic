@@ -67,6 +67,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     private SignInButton SignIn;
     private static final int REQ_CODE = 9001;
     GoogleApiClient googleApiClient;
+    GoogleSignInAccount signInAccount;
+    String serverAuthCode;
 
     // Monitors time change
     private static IntentFilter s_intentFilter;
@@ -277,16 +279,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         startActivityForResult(intent, REQ_CODE);
     }
 
-    private void handleResult(GoogleSignInResult result)
-    {
-        if(result.isSuccess())
-        {
-            GoogleSignInAccount account = result.getSignInAccount();
-            String name = account.getDisplayName();
-            SignIn.setVisibility(View.GONE);
-        }
-
-    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -295,7 +287,13 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         if(requestCode == REQ_CODE)
         {
             GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
-            handleResult(result);
+
+            if(result.isSuccess())
+            {
+                signInAccount = result.getSignInAccount();
+                serverAuthCode = signInAccount.getServerAuthCode();
+                SignIn.setVisibility(View.GONE);
+            }
         }
     }
 
@@ -319,6 +317,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         return new People.Builder(httpTransport, jacksonFactory, credential).setApplicationName("Vibe Music").build();
 
     }
+
+    //People peopleService = setUp(MainActivity.this, serverAuthCode);
+
 
     //endregion
 

@@ -121,6 +121,8 @@ public class PlayList {
         playList.clear();
         // TODO: retrieve every song info from Firebase
 
+
+
         Calendar calender;
         calender = Calendar.getInstance();
 
@@ -136,6 +138,8 @@ public class PlayList {
             } else if (status == -1) {
                 track.makeScoreNegative();
             }
+
+            //Make sure it was played it the last week
 
             if(track.getScore() > -1) {
                 playList.add(track);
