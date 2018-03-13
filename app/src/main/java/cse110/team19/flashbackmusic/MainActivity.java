@@ -2,9 +2,11 @@ package cse110.team19.flashbackmusic;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -13,16 +15,23 @@ import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.os.Environment;
+import android.support.design.widget.NavigationView;
+import android.support.design.widget.NavigationView.OnNavigationItemSelectedListener;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -47,7 +56,8 @@ import static android.os.Environment.DIRECTORY_DOWNLOADS;
 /**
  * Created by Meeta on 3/6/18.
  */
-public class MainActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener, View.OnClickListener{
+public class MainActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener, View.OnClickListener,
+        NavigationView.OnNavigationItemSelectedListener {
     //region Variables
     private Download download;
     private MusicController controller;
@@ -110,13 +120,17 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     protected void onCreate(Bundle savedInstanceState) {
         //This needs to go before the button
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.nav_action);
+        //setContentView(R.layout.activity_main_activity);
 
         // UI stuff
         toolbar = (Toolbar) findViewById(R.id.nav_action);
         setSupportActionBar(toolbar);
-
         setContentView(R.layout.activity_main_activity);
+
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
 
         drawerLayout = (DrawerLayout) findViewById(R.id.navigation_drawer);
         actionBarDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.open, R.string.close);
@@ -131,10 +145,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         googleApiClient = new GoogleApiClient.Builder(this)
                 .enableAutoManage(this, this).addApi(Auth.GOOGLE_SIGN_IN_API,signInOptions).build();
 
-        // TODO The below code is TESTING purposes only. Remove this when functionality is complete.
-        DownloadManager dm = (DownloadManager)getSystemService(DOWNLOAD_SERVICE);
-        download = new Download(dm, getResources().getString(R.string.download_folder));
-        download.downloadData("https://www.dropbox.com/s/zycnhvqskyfmzv5/blood_on_your_bootheels.mp3?dl=1");
 
         directory = Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS).getPath()
                 + getResources().getString(R.string.download_folder);
@@ -336,6 +346,51 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         }
         return super.onOptionsItemSelected(item);
     }
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        // navigation view item clicks
+        switch (item.getItemId()) {
+            case R.id.RecentlyPlayed: {
+                if (controller.isNormalMode()) {
+                    ((NormalController)controller).updatePlayList(NormalPlayList.Sort.Recent);
+                }
+                break;
+            }
+            case R.id.Tracks: {
+                if (controller.isNormalMode()) {
+                    ((NormalController)controller).updatePlayList(NormalPlayList.Sort.Name);
+                }
+                break;
+            }
+            case R.id.Albums: {
+                if (controller.isNormalMode()) {
+                    ((NormalController)controller).updatePlayList(NormalPlayList.Sort.Album);
+                }
+                break;
+            }
+            case R.id.Artists: {
+                if (controller.isNormalMode()) {
+                    ((NormalController)controller).updatePlayList(NormalPlayList.Sort.Artist);
+                }
+                break;
+            }
+            case R.id.Favorites: {
+                if (controller.isNormalMode()) {
+                    ((NormalController)controller).updatePlayList(NormalPlayList.Sort.Favorite);
+                }
+                break;
+            }
+            case R.id.Download: {
+                download();
+                break;
+            }
+        }
+        //close navigation drawer
+        drawerLayout.closeDrawer(GravityCompat.START);
+        return true;
+    }
+
     //endregion
 
     //region Google Friends
@@ -385,5 +440,37 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
             handleResult(result);
         }
     }
+
+    public void download() {
+        AlertDialog.Builder alert = new AlertDialog.Builder(this);
+        alert.setTitle("Download song/album");
+        alert.setMessage("Enter URL");
+        // Set EditText view to get user input
+        final EditText input = new EditText(this);
+        alert.setView(input);
+
+        alert.setPositiveButton("Download", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+
+                String url = input.getText().toString();
+                DownloadManager dm = (DownloadManager)getSystemService(DOWNLOAD_SERVICE);
+                download = new Download(dm, getResources().getString(R.string.download_folder));
+                download.downloadData(url);
+
+                String directory = Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS).getPath()
+                        + getResources().getString(R.string.download_folder);
+                Log.d("Download directory", directory);
+            }
+        });
+
+        alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                // Cancelled.
+            }
+        });
+
+        alert.show();
+    }
+
     //endregion
 }

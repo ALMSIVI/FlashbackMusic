@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <item android:id="@+id/RecentlyPlayed"
         android:icon="@mipmap/recents"
         android:title="Recently Played">
@@ -25,8 +26,9 @@
         android:title="Favorites">
     </item>
 
-    <item android:id="@+id/Download"
+    <item
+        android:id="@+id/Download"
         android:icon="@mipmap/download"
-        android:title="Download Music">
-    </item>
+        android:title="Download Music"></item>
+
 </menu>
