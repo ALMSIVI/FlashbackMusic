@@ -47,13 +47,14 @@ public class PlayListAdapter extends BaseAdapter {
     /**
      * Constructor.
      *
-     * @param l playlist
      */
-    public PlayListAdapter(Context context, PlayList l) {
+    public PlayListAdapter(Context context) {
         this.context = context;
-        playList = l;
     }
 
+    public void setPlayList(PlayList playList) {
+        this.playList = playList;
+    }
 
     public void setController(MusicController controller) {
         this.controller = controller;

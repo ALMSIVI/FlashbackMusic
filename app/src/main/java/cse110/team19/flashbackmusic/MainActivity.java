@@ -18,14 +18,10 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Adapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -55,10 +51,13 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     //region Variables
     private Download download;
     private MusicController controller;
-
+    private String directory;
     private GPSTracker gpsTracker;
     private Intent locationIntent;
     private BroadcastReceiver broadcastReceiver;
+
+    private PlayListAdapter adapter;
+    private MusicPlayer player;
 
     private SignInButton SignIn;
     private static final int REQ_CODE = 9001;
@@ -137,23 +136,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         download = new Download(dm, getResources().getString(R.string.download_folder));
         download.downloadData("https://www.dropbox.com/s/zycnhvqskyfmzv5/blood_on_your_bootheels.mp3?dl=1");
 
-
-
-        String directory = Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS).getPath()
+        directory = Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS).getPath()
                 + getResources().getString(R.string.download_folder);
         Log.d("Download directory", directory);
-
-        // Initialize playlist
-        PlayList playList = new PlayList(this, directory);
-
-        // Initialize the library list
-        ListView listView = findViewById(R.id.listView);
-        PlayListAdapter adapter = new PlayListAdapter(this, playList);
-        listView.setAdapter(adapter);
-
-        // Set up the MVC controller
-        controller = new MusicController(this, adapter,
-                new MusicPlayer(new MediaPlayer()), playList);
 
         // Time change
         IntentFilter s_intentFilter = new IntentFilter();
@@ -168,6 +153,13 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
             locationIntent = new Intent(getApplicationContext(), GPSTracker.class);
             startService(locationIntent);
         }
+
+
+        // Initialize the library list
+        adapter = new PlayListAdapter(this);
+
+        player = new MusicPlayer(new MediaPlayer());
+
 
         // Check mode and switch
         SharedPreferences sharedPreferences = this.getSharedPreferences("mode", MODE_PRIVATE);
@@ -214,6 +206,16 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
      * Switch to normal mode.
      */
     private void setNormal() {
+        // Initialize playlist
+        PlayList playList = new NormalPlayList(this, directory);
+        adapter.setPlayList(playList);
+        ListView listView = findViewById(R.id.listView);
+        listView.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
+
+        // Set up the MVC controller
+        controller = new NormalController(this, adapter, player, playList);
+
         SharedPreferences sharedPreferences = this.getSharedPreferences("mode", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("mode", getResources().getString(R.string.mode_normal));
@@ -225,13 +227,23 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         TextView libraryText = findViewById(R.id.libraryText);
         libraryText.setText(R.string.library);
         // Set up playlist
-        controller.setUpNormal();
+        controller.setUp();
     }
 
     /**
      * Switch to Vibe mode.
      */
     private void setVibe() {
+        // Initialize playlist
+        PlayList playList = new VibePlayList(this, directory);
+        adapter.setPlayList(playList);
+        ListView listView = findViewById(R.id.listView);
+        listView.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
+
+        // Set up the MVC controller
+        controller = new VibeController(this, adapter, player, playList);
+
         SharedPreferences sharedPreferences = this.getSharedPreferences("mode", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("mode", getResources().getString(R.string.mode_vibe));
@@ -243,7 +255,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         TextView libraryText = findViewById(R.id.libraryText);
         libraryText.setText(R.string.playlist);
         // Set up playlist
-        controller.setUpVibe();
+        controller.setUp();
     }
     //endregion
 
@@ -254,7 +266,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         if (broadcastReceiver != null) {
             unregisterReceiver(broadcastReceiver);
         }
-        stopService(locationIntent);
+        //stopService(locationIntent);
 
         unregisterReceiver(timeChanged);
         unregisterReceiver(downloadComplete);

@@ -19,7 +19,7 @@ public class Track {
     private String pathName;
 
     /**
-     * Defaulot constructor.
+     * Default constructor.
      */
     public Track() {}
 
