@@ -135,15 +135,16 @@ public class MusicController {
      * Stores the current song's status into sharedPreferences. This method does NOT update the info.
      */
     public void saveTrackInfo(boolean all, Track track) {
-        // TODO: Change to firebase
+        // Put status into shared preferences
         SharedPreferences sharedPreferences = mainActivity.getSharedPreferences("track_info", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
 
         editor.putInt(track.getPathName() + "Status", track.getStatus());
 
         if (all) {
-            editor.putString(track.getPathName() + "Time", track.getTime() != null ?
-                    track.getTime().toString() :
+            // Put time, location, and friend's name to firebase
+            editor.putString(track.getPathName() + "Time", track.getDate() != null ?
+                    track.getDate().toString() :
                     "null");
             editor.putString(track.getPathName() + "Location", track.getLocation());
         }
@@ -218,7 +219,7 @@ public class MusicController {
         infoView.setText(getIsPlaying().getTrackName());
         // Update the "Last played" text
         TextView lastPlayedView = mainActivity.findViewById(R.id.lastPlayed);
-        if (getIsPlaying().getTime() == null) {
+        if (getIsPlaying().getDate() == null) {
             lastPlayedView.setText(mainActivity.getString(R.string.never_played_info));
         } else {
             String lastLocation = "Unknown location";
@@ -234,7 +235,7 @@ public class MusicController {
 
             String lastPlayedInfo = String.format(
                     mainActivity.getString(R.string.last_played_info),
-                    getIsPlaying().getTime(), lastLocation);
+                    getIsPlaying().getDate(), lastLocation);
             lastPlayedView.setText(lastPlayedInfo);
         }
     }
