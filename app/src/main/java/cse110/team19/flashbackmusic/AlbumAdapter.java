@@ -36,7 +36,7 @@ public class AlbumAdapter extends BaseAdapter {
     }
 
     @Override
-    public View getView(int i, View view, ViewGroup viewGroup) {
+    public View getView(final int i, View view, ViewGroup viewGroup) {
         final Track track = (Track) getItem(i);
 
         // inflate the view
@@ -50,17 +50,17 @@ public class AlbumAdapter extends BaseAdapter {
         newTrack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                controller.playSong(track);
+                controller.playSong(i);
             }
         });
 
         final Button statusButton = (Button) view.findViewById(R.id.set_status);
-        controller.changeStatusButton(track, statusButton);
+        controller.changeStatusButton(i, statusButton);
 
         statusButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                controller.changeStatus(track, statusButton);
+                controller.changeStatus(i, statusButton);
             }
         });
         return view;
