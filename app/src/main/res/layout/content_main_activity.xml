@@ -19,6 +19,7 @@
         app:layout_constraintHorizontal_bias="0"
         app:layout_constraintRight_toRightOf="parent"/>
 
+
     <ListView
         android:id="@+id/listView"
         android:layout_width="match_parent"

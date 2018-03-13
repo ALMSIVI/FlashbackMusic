@@ -1,9 +1,12 @@
 package cse110.team19.flashbackmusic;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -12,16 +15,38 @@ import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.os.Environment;
+import android.support.design.widget.NavigationView;
+import android.support.design.widget.NavigationView.OnNavigationItemSelectedListener;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.Adapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -35,31 +60,31 @@ import static android.os.Environment.DIRECTORY_DOWNLOADS;
 /**
  * Created by Meeta on 3/6/18.
  */
-
-
-public class MainActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener, View.OnClickListener{
+public class MainActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener, View.OnClickListener,
+        NavigationView.OnNavigationItemSelectedListener {
+    //region Variables
     private Download download;
     private MusicController controller;
-    //endregion
+
+    private GPSTracker gpsTracker;
+    private Intent locationIntent;
+    private BroadcastReceiver broadcastReceiver;
 
     private SignInButton SignIn;
     private static final int REQ_CODE = 9001;
     GoogleApiClient googleApiClient;
+    //endregion
+
+    // UI stuff
+    private DrawerLayout drawerLayout;
+    private ActionBarDrawerToggle actionBarDrawerToggle;
+    private Toolbar toolbar;
 
     // Monitors time change
-    private static IntentFilter s_intentFilter;
-
-    static {
-        s_intentFilter = new IntentFilter();
-        s_intentFilter.addAction(Intent.ACTION_TIME_TICK);
-        s_intentFilter.addAction(Intent.ACTION_TIMEZONE_CHANGED);
-        s_intentFilter.addAction(Intent.ACTION_TIME_CHANGED);
-    }
-
     private BroadcastReceiver timeChanged = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-             String action = intent.getAction();
+            String action = intent.getAction();
 
             if (action.equals(Intent.ACTION_TIME_CHANGED)) {
                 // TODO: Update playlist based on time and day
@@ -96,9 +121,22 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     protected void onCreate(Bundle savedInstanceState) {
         //This needs to go before the button
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main_activity);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setContentView(R.layout.nav_action);
+        //setContentView(R.layout.activity_main_activity);
+
+        // UI stuff
+        toolbar = (Toolbar) findViewById(R.id.nav_action);
         setSupportActionBar(toolbar);
+        setContentView(R.layout.activity_main_activity);
+
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+
+        drawerLayout = (DrawerLayout) findViewById(R.id.navigation_drawer);
+        actionBarDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.open, R.string.close);
+        drawerLayout.addDrawerListener(actionBarDrawerToggle);
+        actionBarDrawerToggle.syncState();
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         // Google Signin Activity
         SignIn = (SignInButton) findViewById(R.id.main_googlesigninbtn);
@@ -107,13 +145,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         googleApiClient = new GoogleApiClient.Builder(this)
                 .enableAutoManage(this, this).addApi(Auth.GOOGLE_SIGN_IN_API,signInOptions).build();
 
-
-        // TODO The below code is TESTING purposes only. Remove this when funcionality is complete.
-        DownloadManager dm = (DownloadManager)getSystemService(DOWNLOAD_SERVICE);
-        download = new Download(dm, getResources().getString(R.string.download_folder));
-        download.downloadData("https://www.dropbox.com/s/zycnhvqskyfmzv5/blood_on_your_bootheels.mp3?dl=1");
-
-        registerReceiver(downloadComplete, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
 
         String directory = Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS).getPath()
                 + getResources().getString(R.string.download_folder);
@@ -131,7 +162,19 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         controller = new MusicController(this, adapter,
                 new MusicPlayer(new MediaPlayer()), playList);
 
+        // Time change
+        IntentFilter s_intentFilter = new IntentFilter();
+        s_intentFilter.addAction(Intent.ACTION_TIME_TICK);
+        s_intentFilter.addAction(Intent.ACTION_TIMEZONE_CHANGED);
+        s_intentFilter.addAction(Intent.ACTION_TIME_CHANGED);
         registerReceiver(timeChanged, s_intentFilter);
+
+        // initializing location services on start up
+        gpsTracker = new GPSTracker(this);
+        if (gpsTracker.permissionRequest()) {
+            locationIntent = new Intent(getApplicationContext(), GPSTracker.class);
+            startService(locationIntent);
+        }
 
         // Check mode and switch
         SharedPreferences sharedPreferences = this.getSharedPreferences("mode", MODE_PRIVATE);
@@ -141,14 +184,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         } else {
             setVibe();
         }
+
+        registerReceiver(downloadComplete, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
     }
 
-
-    //region Click Listeners
-    /**
-     * Click listener for the play button at the bottom of the activity.
-     * @param view
-     */
     public void playMusic(View view) {
         controller.changePlayPauseButton();
     }
@@ -161,11 +200,11 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         controller.resetMusic();
     }
 
-
     /**
      * Switch modes (Normal to Vibe or Vibe to Normal)
      * @param view
      */
+    @SuppressLint("NewApi")
     public void switchModes(View view) {
         //Get mode
         SharedPreferences sharedPreferences = this.getSharedPreferences("mode", MODE_PRIVATE);
@@ -178,6 +217,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         }
     }
 
+    /**
+     * Switch to normal mode.
+     */
     private void setNormal() {
         SharedPreferences sharedPreferences = this.getSharedPreferences("mode", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -193,6 +235,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         controller.setUpNormal();
     }
 
+    /**
+     * Switch to Vibe mode.
+     */
     private void setVibe() {
         SharedPreferences sharedPreferences = this.getSharedPreferences("mode", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -212,9 +257,16 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     @Override
     protected void onDestroy() {
         super.onDestroy();
+
+        if (broadcastReceiver != null) {
+            unregisterReceiver(broadcastReceiver);
+        }
+        stopService(locationIntent);
+
         unregisterReceiver(timeChanged);
         unregisterReceiver(downloadComplete);
     }
+
 
     //region Permission checking
     private void checkPermission() {
@@ -235,7 +287,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         switch (requestCode) {
             case 123: {
-
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // TODO: is this necessary?
@@ -246,8 +297,75 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
                 }
                 return;
             }
+            // for location service permissions
+            case 100: {
+                if (grantResults[0] != PackageManager.PERMISSION_GRANTED
+                        || grantResults[1] != PackageManager.PERMISSION_GRANTED) {
+                    gpsTracker.permissionRequest();
+                }
+            }
         }
     }
+
+    // for registering and un-registering a broadcast receiver (prevents memory leads)
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (broadcastReceiver == null) {
+            broadcastReceiver = new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    // TODO: This is where we get the information from the GPSTracker
+                    // TODO: Should be constantly updating playlist
+                    //textview.append("\n" + intent.getExtras().get("Coordinates"));
+                }
+            };
+        }
+        registerReceiver(broadcastReceiver, new IntentFilter("Location Updated"));
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (actionBarDrawerToggle.onOptionsItemSelected(item)) {
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        // navigation view item clicks
+        switch (item.getItemId()) {
+            case R.id.RecentlyPlayed: {
+                controller.updatePlayList(PlayList.Sort.Recent);
+                break;
+            }
+            case R.id.Tracks: {
+                controller.updatePlayList(PlayList.Sort.Name);
+                break;
+            }
+            case R.id.Albums: {
+                controller.updatePlayList(PlayList.Sort.Album);
+                break;
+            }
+            case R.id.Artists: {
+                controller.updatePlayList(PlayList.Sort.Artist);
+                break;
+            }
+            case R.id.Favorites: {
+                controller.updatePlayList(PlayList.Sort.Favorite);
+                break;
+            }
+            case R.id.Download: {
+                download();
+                break;
+            }
+        }
+        //close navigation drawer
+        drawerLayout.closeDrawer(GravityCompat.START);
+        return true;
+    }
+
     //endregion
 
     //region Google Friends
@@ -297,5 +415,37 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
             handleResult(result);
         }
     }
+
+    public void download() {
+        AlertDialog.Builder alert = new AlertDialog.Builder(this);
+        alert.setTitle("Download song/album");
+        alert.setMessage("Enter URL");
+        // Set EditText view to get user input
+        final EditText input = new EditText(this);
+        alert.setView(input);
+
+        alert.setPositiveButton("Download", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+
+                String url = input.getText().toString();
+                DownloadManager dm = (DownloadManager)getSystemService(DOWNLOAD_SERVICE);
+                download = new Download(dm, getResources().getString(R.string.download_folder));
+                download.downloadData(url);
+
+                String directory = Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS).getPath()
+                        + getResources().getString(R.string.download_folder);
+                Log.d("Download directory", directory);
+            }
+        });
+
+        alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                // Cancelled.
+            }
+        });
+
+        alert.show();
+    }
+
     //endregion
 }

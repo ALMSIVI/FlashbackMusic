@@ -5,6 +5,9 @@ import android.content.SharedPreferences;
 import android.media.MediaMetadataRetriever;
 import android.util.Log;
 
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -20,10 +23,10 @@ import static android.content.Context.MODE_PRIVATE;
  */
 
 public class PlayList {
+    private TrackFactory factory;
     private List<Track> playList;
     private String downloadFolder;
     private Context context;
-    private int currentTrackIndex;
 
     public enum Sort {
         Recent, Name, Album, Artist, Favorite, Score;
@@ -39,7 +42,7 @@ public class PlayList {
 
     public void createNormalPlayList() {
         playList.clear();
-
+        factory = new LocalFactory(context);
         // getting songs out of Downloads folder
         Log.d("Files", "Path: " + downloadFolder);
         File directory = new File(downloadFolder);
@@ -59,6 +62,7 @@ public class PlayList {
     public void createVibePlayList() {
         playList.clear();
         // TODO: retrieve every song info from Firebase
+        factory = new CloudFactory(context);
 
         Calendar calender;
         calender = Calendar.getInstance();
@@ -85,72 +89,11 @@ public class PlayList {
     }
 
     public void addTrack(String filename) {
-        //Gets the metadata of the track (album, artist, track number in album, track name)
-        MediaMetadataRetriever mmr = new MediaMetadataRetriever();
-
-        String pathName = downloadFolder + filename;
-        Log.d("Retrieving Metadata", pathName);
-        mmr.setDataSource(pathName);
-
-        String albumName = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM);
-        String artist = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
-        String trackNumber = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_CD_TRACK_NUMBER);
-        String trackName = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
-
-        // Parse the metadata
-        if (albumName == null || albumName.equals("")) {
-            albumName = "Unknown album";
-        }
-        if (artist == null || artist.equals("")) {
-            artist = "Unknown artist";
-        }
-        int trackNo = 0;
-        if (trackNumber != null) {
-            String[] numbers = trackNumber.split("/");
-            trackNo = Integer.parseInt(numbers[0]);
-        }
-        if (trackName == null || trackName.equals("")) {
-            trackName = "Unknown track";
-        }
-
-        // Create the track
-        Track t = new Track(trackName, albumName, artist, trackNo, pathName);
+        Track t = factory.createTrack(downloadFolder + filename);
         playList.add(t);
-
-        // Retrieve data from sharedPreferences
-        SharedPreferences sharedPreferences = context.getSharedPreferences("track_info", MODE_PRIVATE);
-        int status = sharedPreferences.getInt(t.getTrackName() + "Status", 0);
-        t.setStatus(status);
-
-        // calendar
-        String cal = sharedPreferences.getString(t.getTrackName() + "Time", null);
-        if (cal != null) {
-            try {
-                Calendar calendar = Calendar.getInstance();
-                SimpleDateFormat format = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.ENGLISH);
-                calendar.setTime(format.parse(cal));
-                t.setCalendar(calendar);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
-        // location
-        String loc = sharedPreferences.getString(t.getTrackName() + "Location", "Unknown Location");
-            /*if (!loc.equals("Unknown Location")) {
-                String[] locationValue = loc.split("");
-                double latitude = Double.parseDouble(locationValue[0]);
-                double longitude = Double.parseDouble(locationValue[1]);
-                Location location = new Location("");
-                location.setLatitude(latitude);
-                location.setLongitude(longitude);
-                t.setLocation(location);
-            }*/
+        // TODO: see if cloud generated songs already exist in local
     }
 
-    public Track getCurrentTrack() {
-        return playList.get(currentTrackIndex);
-    }
 
     public int size() {
         return playList.size();
@@ -218,5 +161,4 @@ public class PlayList {
         mode = Sort.Score;
         Collections.sort(playList, Track.scoreComparator);
     }
-    //endregion
 }

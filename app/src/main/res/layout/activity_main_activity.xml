@@ -1,45 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+
+<android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="cse110.team19.flashbackmusic.MainActivity">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".MainActivity"
+    android:id="@+id/navigation_drawer">
 
-    <android.support.design.widget.AppBarLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:theme="@style/AppTheme.AppBarOverlay">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar"
+        <include
+            layout="@layout/nav_action"
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
-            app:popupTheme="@style/AppTheme.PopupOverlay">
-            <Button
-                android:id="@+id/flashbackButton"
-                android:layout_margin="5dp"
-                android:layout_width="40dp"
-                android:layout_height="wrap_content"
-                android:text="V"
-                android:onClick="switchModes"
-                android:textSize="20dp"
-                android:background="#80000000"
-                android:layout_gravity="right"/>
+            android:layout_height="wrap_content" />
 
-            <com.google.android.gms.common.SignInButton
-                android:id="@+id/main_googlesigninbtn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="left"
-                app:buttonSize="icon_only"
-                />
+        <include layout="@layout/content_main_activity"/>
 
-        </android.support.v7.widget.Toolbar>
+    </LinearLayout>
 
-    </android.support.design.widget.AppBarLayout>
+    <android.support.design.widget.NavigationView
+        android:id="@+id/nav_view"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        app:menu="@menu/nav_menu"
+        app:headerLayout="@layout/nav_header">
 
-    <include layout="@layout/content_main_activity" />
+    </android.support.design.widget.NavigationView>
 
-</android.support.design.widget.CoordinatorLayout>
+</android.support.v4.widget.DrawerLayout>
