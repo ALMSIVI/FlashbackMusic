@@ -19,6 +19,7 @@ import android.support.design.widget.NavigationView;
 import android.support.design.widget.NavigationView.OnNavigationItemSelectedListener;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -337,18 +338,23 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         switch (item.getItemId()) {
             case R.id.RecentlyPlayed: {
                 controller.updatePlayList(PlayList.Sort.Recent);
+                break;
             }
             case R.id.Tracks: {
-
+                controller.updatePlayList(PlayList.Sort.Name);
+                break;
             }
             case R.id.Albums: {
-
+                controller.updatePlayList(PlayList.Sort.Album);
+                break;
             }
             case R.id.Artists: {
-
+                controller.updatePlayList(PlayList.Sort.Artist);
+                break;
             }
             case R.id.Favorites: {
-
+                controller.updatePlayList(PlayList.Sort.Favorite);
+                break;
             }
             case R.id.Download: {
                 download();
@@ -356,7 +362,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
             }
         }
         //close navigation drawer
-        //mDrawerLayout.closeDrawer(GravityCompat.START);
+        drawerLayout.closeDrawer(GravityCompat.START);
         return true;
     }
 
