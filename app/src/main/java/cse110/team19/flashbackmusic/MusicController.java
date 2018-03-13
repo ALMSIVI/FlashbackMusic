@@ -142,7 +142,11 @@ public abstract class MusicController {
             changePause();
             isPlaying = id;
 
-            player.stop();
+            player.reset();
+
+            Track track = getIsPlaying();
+            Log.d("Current song track", track.getTrackName());
+            Log.d("Current song path", track.getPathName());
 
             player.setDataSource(getIsPlaying());
             player.prepareAsync();
