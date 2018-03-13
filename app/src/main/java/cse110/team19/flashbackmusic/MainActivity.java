@@ -113,8 +113,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.nav_action);
-        //Toolbar toolbar = (Toolbar) findViewById(R.id.na);
-        setSupportActionBar(toolbar);
 
         // UI stuff
         toolbar = (Toolbar) findViewById(R.id.nav_action);
