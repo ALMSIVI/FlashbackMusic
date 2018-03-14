@@ -50,6 +50,7 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.people.v1.People;
 import com.google.api.services.people.v1.PeopleScopes;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -114,7 +115,21 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
                 long id = extras.getLong(DownloadManager.EXTRA_DOWNLOAD_ID);
                 String filename = download.getLatestFileName(id);
 
-                if (filename != null) {
+                if (filename != null && filename.contains("zip")) {
+                    Log.d("hi", "wool");
+                    File tDirectory = new File(Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS).getPath()
+                            + getResources().getString(R.string.download_folder));
+                    File zipFile = new File(Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS).getPath()
+                            + getResources().getString(R.string.download_album_folder) + filename);
+                    try {
+                        download.unzipFile(zipFile, tDirectory);
+                    } catch (IOException e) {
+                        Log.d("IOException", e.getMessage());
+                        System.exit(-1);
+                    }
+                }
+
+                else if (filename != null) {
                     Log.d("newest name", filename);
                     controller.updatePlayList(filename);
                 } else {
@@ -517,7 +532,21 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
             }
         });
 
-        alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+        alert.setNegativeButton("Download Album", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+
+                String url = input.getText().toString();
+                DownloadManager dm = (DownloadManager)getSystemService(DOWNLOAD_SERVICE);
+                download = new Download(dm, getResources().getString(R.string.download_album_folder));
+                download.downloadData(url);
+
+                String directory = Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS).getPath()
+                        + getResources().getString(R.string.download_folder);
+                Log.d("Download directory", directory);
+            }
+        });
+
+        alert.setNeutralButton("Cancel", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
                 // Cancelled.
             }

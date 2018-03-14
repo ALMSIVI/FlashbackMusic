@@ -95,8 +95,7 @@ public class Download {
      * @throws IOException
      */
     public void unzipFile(File zipFile, File targetDirectory) throws IOException {
-        ZipInputStream zis = new ZipInputStream(
-                new BufferedInputStream(new FileInputStream(zipFile)));
+        ZipInputStream zis = new ZipInputStream(new BufferedInputStream(new FileInputStream(zipFile)));
         try {
             ZipEntry ze;
             int count;
