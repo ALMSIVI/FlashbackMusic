@@ -1,12 +1,9 @@
 package Tests;
 
-import android.support.test.rule.ActivityTestRule;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import cse110.team19.flashbackmusic.FlashbackMode;
 import cse110.team19.flashbackmusic.Track;
 
 import static junit.framework.Assert.assertEquals;
@@ -21,7 +18,7 @@ public class TrackTest {
 
     @Before
     public void initialize() {
-        track = new Track("Happy Birthday", 1, "Sarah", 32);
+        track = new Track("Happy Birthday", "HBD Album", "Meeta", 1, "path");
     }
 
     @Test

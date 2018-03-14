@@ -11,9 +11,7 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.TextView;
 import java.io.IOException;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -24,46 +22,23 @@ import static android.content.Context.MODE_PRIVATE;
  * View: List of tracks/PlayListAdapter
  */
 
-public class MusicController {
+public abstract class MusicController {
     //region Variables
-    private MainActivity mainActivity;
-    private MusicPlayer player;
+    protected MainActivity mainActivity;
+    protected MusicPlayer player;
 
-    private BaseAdapter adapter;
-    private PlayList playList;
+    protected BaseAdapter adapter;
+    protected PlayList playList;
 
-    private int isPlaying;
+    protected int isPlaying;
 
-    // for recording location of song
-    private Date time;
-    private Geocoder geocoder;
-    private List<Address> addresses;
-    private GPSTracker gpstracker;
-    private Location location;
+    // for recording information of song
+    protected Geocoder geocoder;
+    protected List<Address> addresses;
+    protected GPSTracker gpstracker;
+    protected Location location;
     //endregion
 
-    //region Constructor
-    /**
-     * Constructor.
-     * @param mainActivity
-     * @param adapter
-     * @param player
-     */
-    public MusicController(MainActivity mainActivity, PlayListAdapter adapter, MusicPlayer player,
-                           PlayList playList) {
-        this.mainActivity = mainActivity;
-        this.adapter = adapter;
-        adapter.setController(this);
-        this.player = player;
-        player.setController(this);
-        this.playList = playList;
-        // Initialize the locations
-        geocoder = new Geocoder(mainActivity, Locale.getDefault());
-        gpstracker = new GPSTracker(mainActivity);
-        //location = gpstracker.getLocation();
-        time = new Date();
-    }
-    //endregion
 
     //region Buttons
     public void changePlayPauseButton() {
@@ -128,7 +103,7 @@ public class MusicController {
 
     public void updateTrackInfo() {
         //location = gpstracker.getLocation();
-        getIsPlaying().updateInfo(location, time.getTime());
+        getIsPlaying().updateInfo(location, MockTime.now().toLocalDate());
     }
 
     /**
@@ -141,12 +116,13 @@ public class MusicController {
 
         editor.putInt(track.getPathName() + "Status", track.getStatus());
 
+        // TODO: put into Firebase
         if (all) {
             // Put time, location, and friend's name to firebase
-            editor.putString(track.getPathName() + "Time", track.getDate() != null ?
-                    track.getDate().toString() :
-                    "null");
-            editor.putString(track.getPathName() + "Location", track.getLocation());
+            //editor.putString(track.getPathName() + "Time", track.getDate() != null ?
+            //        track.getDate().toString() :
+            //        "null");
+            //editor.putString(track.getPathName() + "Location", track.getLocation());
         }
         editor.apply();
     }
@@ -154,30 +130,6 @@ public class MusicController {
     public void updatePlayList(String filename) {
         playList.addTrack(filename);
         playList.sort();
-        adapter.notifyDataSetChanged();
-    }
-
-    public void updatePlayList(PlayList.Sort sort) {
-        switch (sort) {
-            case Name:
-                playList.sortName();
-                break;
-            case Album:
-                playList.sortAlbum();
-                break;
-            case Artist:
-                playList.sortArtist();
-                break;
-            case Recent:
-                playList.sortRecent();
-                break;
-            case Favorite:
-                playList.sortFavorite();
-                break;
-            case Score:
-            default:
-                break;
-        }
         adapter.notifyDataSetChanged();
     }
     //endregion
@@ -188,7 +140,11 @@ public class MusicController {
             changePause();
             isPlaying = id;
 
-            player.stop();
+            player.reset();
+
+            Track track = getIsPlaying();
+            Log.d("Current song track", track.getTrackName());
+            Log.d("Current song path", track.getPathName());
 
             player.setDataSource(getIsPlaying());
             player.prepareAsync();
@@ -242,21 +198,10 @@ public class MusicController {
     //endregion
 
     //region Modes
-    public boolean isNormalMode() {
-        return playList.isNormalMode();
-    }
+    public abstract boolean isNormalMode();
 
-    public void setUpVibe() {
-        playList.createVibePlayList();
-        adapter.notifyDataSetChanged();
-        isPlaying = -1;
-        player.stop();
-    }
+    public abstract void setUp();
 
-    public void setUpNormal() {
-        player.stop();
-        playList.createNormalPlayList();
-        adapter.notifyDataSetChanged();
-    }
+    public abstract void sortPlayList(PlayList.Sort sort);
     //endregion
 }

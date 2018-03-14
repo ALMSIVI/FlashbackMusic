@@ -1,25 +1,30 @@
 package cse110.team19.flashbackmusic;
 
 import android.location.Location;
+import android.util.Log;
 
+import com.google.android.gms.plus.model.people.Person;
+
+import java.time.LocalDateTime;
 import java.util.*;
 
 public class Track {
-    private Calendar cal;
-    private String trackName;
+    private String trackName; // Firebase
     private String artistName;
     private String albumName;
     private int trackNumber;
     private int score;
     private int status;
-    private String website;
-    private Location location;
+    private String website; // Firebase
+    private Person lastPlayedBy;
     private long time;
-    private String personLastPlayed;
     private String pathName;
 
+    private LocalDateTime date; // Firebase
+    private Location location; // Firebase
+
     /**
-     * Defaulot constructor.
+     * Default constructor.
      */
     public Track() {}
 
@@ -35,6 +40,7 @@ public class Track {
         this.artistName = artist;
         this.trackNumber = trackNumber;
         this.pathName = pathName;
+        location = new Location("");
     }
 
 
@@ -54,31 +60,12 @@ public class Track {
     }
 
     //region Getters
-    // Get info for flashback
-    public Date getDate() {
-        if (cal == null) { // not implemented
-            return null;
-        } else {
-            return cal.getTime();
-        }
-    }
-
-    public String getLocation() {
-        if (location != null) {
-            return location.getLatitude() + " " + location.getLongitude();
-        } else {
-            return "Unknown location";
-        }
-    }
-
-    //Get time since last play
-
     /**
-     * Time is stored into Firebase.
-     * @return
+     * Date is stored into Firebase.
+     * @return date this track was last played
      */
-    public long getTime() {
-        return time;
+    public LocalDateTime getDate() {
+        return date;
     }
 
     /**
@@ -98,8 +85,8 @@ public class Track {
     }
 
 
-    public String getPersonLastPlayed() {
-        return personLastPlayed;
+    public Person getPersonLastPlayed() {
+        return lastPlayedBy;
     }
 
     public String getArtistName() {
@@ -125,6 +112,10 @@ public class Track {
     public String getPathName() {
         return pathName;
     }
+
+    public Location getLocation() {
+        return location;
+    }
     //endregion
 
     //region Setters
@@ -136,20 +127,12 @@ public class Track {
         this.time = time;
     }
 
-    public void setCalendar(Calendar calendar) {
-        cal = calendar;
-    }
-
-    public void setLocation(Location location) {
-        this.location = location;
-    }
-
     public void setStatus(int status) {
         this.status = status;
     }
 
-    public void setPersonLastPlayed(String name) {
-        this.personLastPlayed = name;
+    public void setPersonLastPlayed(Person user) {
+        this.lastPlayedBy = user;
     }
 
     public void setWebsite(String site) {
@@ -159,7 +142,22 @@ public class Track {
     public void setPathName(String path) {
         this.pathName = path;
     }
+
+    public void setLocation(double latitude, double longitude) {
+        location.setLatitude(latitude);
+        location.setLongitude(longitude);
+    }
+
+    public void setDate(int year, int month, int day, int hour, int minute) {
+        this.date = LocalDateTime.of(year, month, day, hour, minute);
+    }
+
     //endregion
+
+    public void updateInfo(Location newLocation, LocalDateTime newDate) {
+        location = newLocation;
+        date = newDate;
+    }
 
     //Increment to the score
     public void incrementScore(int toAdd)
@@ -171,12 +169,6 @@ public class Track {
     public void makeScoreNegative()
     {
         this.score = -1;
-    }
-
-    public void updateInfo(Location location, long time) {
-        cal = Calendar.getInstance();
-        this.location = location;
-        this.time = time;
     }
 
     /* Comparators for Track */
@@ -205,8 +197,9 @@ public class Track {
             if (t1 == null || t2 == null) {
                 return 1;
             }
+            // Reverse logic: the HIGHER the status is, the LOWER index it is in the list.
             return t1.getStatus() != t2.getStatus() ?
-                    t1.getStatus() - t2.getStatus() :
+                    t2.getStatus() - t1.getStatus() :
                     t1.getTrackName().compareTo(t2.getTrackName());
         }
     };
@@ -252,7 +245,7 @@ public class Track {
                 return 1;
             }
             return t1.getScore() != t2.getScore() ?
-                    t1.getScore() - t2.getScore() :
+                    t2.getScore() - t1.getScore() :
                     t1.getTrackName().compareTo(t2.getTrackName());
         }
     };

@@ -69,10 +69,11 @@ public class LocalFactory implements TrackFactory {
         String cal = sharedPreferences.getString(track.getPathName() + "Time", null);
         if (cal != null) {
             try {
-                Calendar calendar = Calendar.getInstance();
-                SimpleDateFormat format = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.ENGLISH);
-                calendar.setTime(format.parse(cal));
-                track.setCalendar(calendar);
+                // TODO: Firebase
+                //Calendar calendar = Calendar.getInstance();
+                //SimpleDateFormat format = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.ENGLISH);
+                //calendar.setTime(format.parse(cal));
+                //track.setCalendar(calendar);
             } catch (Exception e) {
                 e.printStackTrace();
             }

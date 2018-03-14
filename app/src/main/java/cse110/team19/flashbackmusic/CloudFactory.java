@@ -30,8 +30,9 @@ public class CloudFactory implements TrackFactory {
      * @return a cloud song
      */
     public Track createTrack(String path) {
-        // Get data from tracks reference
         FirebaseDatabase database = FirebaseDatabase.getInstance();
+
+        // Get data from tracks reference
         DatabaseReference reference = database.getReference("track");
 
         Query query = reference.orderByChild("trackName").equalTo(path);
@@ -45,19 +46,53 @@ public class CloudFactory implements TrackFactory {
                     Log.w("DatabaseError", "No data found");
                 } else {
                     // Get track name, time and url
-                    Track tempTrack = dataSnapshot.getValue(Track.class);
+                    int year = 0;
+                    int month = 0;
+                    int day = 0;
+                    int hour = 0;
+                    int minute = 0;
+                    double latitude = 0;
+                    double longitude = 0;
 
-                    track.setTrackName(tempTrack.getTrackName());
-                    track.setTime(tempTrack.getTime());
-                    track.setWebsite(tempTrack.getWebsite());
+                    for (DataSnapshot child : dataSnapshot.getChildren()) {
+                        switch (child.getKey()) {
+                            case "trackName":
+                                track.setTrackName((String)child.getValue());
+                                break;
+                            case "website":
+                                track.setWebsite((String)child.getValue());
+                                break;
+                            case "year":
+                                year = (Integer)child.getValue();
+                                break;
+                            case "month":
+                                month = (Integer)child.getValue();
+                                break;
+                            case "day":
+                                day = (Integer)child.getValue();
+                                break;
+                            case "hour":
+                                hour = (Integer)child.getValue();
+                                break;
+                            case "minute":
+                                minute = (Integer)child.getValue();
+                                break;
+                            case "latitude":
+                                latitude = (Double)child.getValue();
+                                break;
+                            case "longitude":
+                                longitude = (Double)child.getValue();
+                        }
+                    }
+
+                    track.setDate(year, month, day, hour, minute);
+                    track.setLocation(latitude, longitude);
 
                     // Retrieve data from sharedPreferences
                     SharedPreferences sharedPreferences =
                             context.getSharedPreferences("track_info", MODE_PRIVATE);
                     int status = sharedPreferences.getInt(track.getPathName() + "Status", 0);
                     track.setStatus(status);
-
-                    // TODO: update location and user info
                 }
             }
 
@@ -66,6 +101,8 @@ public class CloudFactory implements TrackFactory {
                 Log.w("DatabaseError", databaseError.toException());
             }
         });
+
+        // TODO: retrieve user and location info
 
         return track;
     }

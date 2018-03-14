@@ -29,7 +29,7 @@ import static org.hamcrest.Matchers.allOf;
 public class PlayAndResetTest {
 
     @Rule
-    public ActivityTestRule<NormalMode> mActivityTestRule = new ActivityTestRule<>(NormalMode.class);
+    public ActivityTestRule<MainActivity> mActivityTestRule = new ActivityTestRule<>(MainActivity.class);
 
     @Test
     public void playAndResetTest() {
