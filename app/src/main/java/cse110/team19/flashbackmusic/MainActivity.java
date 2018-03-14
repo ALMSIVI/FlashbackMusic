@@ -52,6 +52,7 @@ import com.google.api.services.people.v1.People;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 
 
 import static android.os.Environment.DIRECTORY_DOWNLOADS;
@@ -103,11 +104,18 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
                             + getResources().getString(R.string.download_folder));
                     File zipFile = new File(Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS).getPath()
                             + getResources().getString(R.string.download_album_folder) + filename);
+                    ArrayList<String> fileNames = new ArrayList<String>();
+
                     try {
-                        download.unzipFile(zipFile, tDirectory);
+                        fileNames = download.unzipFile(zipFile, tDirectory);
                     } catch (IOException e) {
                         Log.d("IOException", e.getMessage());
                         System.exit(-1);
+                    }
+
+                    for (String file : fileNames) {
+                        Log.d("adding new file", file);
+                        controller.updatePlayList(file);
                     }
                 }
 

@@ -103,7 +103,7 @@ public abstract class MusicController {
 
     public void updateTrackInfo() {
         //location = gpstracker.getLocation();
-        getIsPlaying().updateInfo(location, MockTime.now().toLocalDate());
+        getIsPlaying().updateInfo(location, MockTime.now());
     }
 
     /**
