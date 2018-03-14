@@ -449,7 +449,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         final EditText input = new EditText(this);
         alert.setView(input);
 
-        alert.setPositiveButton("Download", new DialogInterface.OnClickListener() {
+        alert.setPositiveButton("Download Song", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
 
                 String url = input.getText().toString();
