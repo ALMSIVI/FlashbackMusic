@@ -137,7 +137,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         SignIn.setOnClickListener(this);
         GoogleSignInOptions signInOptions = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
         googleApiClient = new GoogleApiClient.Builder(this)
-                .enableAutoManage(this, this).addApi(Auth.GOOGLE_SIGN_IN_API,signInOptions).build();
+                .enableAutoManage(this, this)
+                .addApi(Auth.GOOGLE_SIGN_IN_API,signInOptions)
+                .build();
 
 
         directory = Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS).getPath()
@@ -419,15 +421,20 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         {
             GoogleSignInAccount account = result.getSignInAccount();
             String name = account.getDisplayName();
+            Log.d("user name", name);
             SignIn.setVisibility(View.GONE);
         }
 
+        else {
+            result.getStatus().getStatusMessage();
+        }
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
+        Log.d("onActivityResult", "reached");
+        Log.d("requestCode and REQ_CODE", requestCode + " " + REQ_CODE);
         if(requestCode == REQ_CODE)
         {
             GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
