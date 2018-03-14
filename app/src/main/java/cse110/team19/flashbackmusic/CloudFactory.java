@@ -49,6 +49,8 @@ public class CloudFactory implements TrackFactory {
                     int year = 0;
                     int month = 0;
                     int day = 0;
+                    int hour = 0;
+                    int minute = 0;
                     double latitude = 0;
                     double longitude = 0;
 
@@ -69,6 +71,12 @@ public class CloudFactory implements TrackFactory {
                             case "day":
                                 day = (Integer)child.getValue();
                                 break;
+                            case "hour":
+                                hour = (Integer)child.getValue();
+                                break;
+                            case "minute":
+                                minute = (Integer)child.getValue();
+                                break;
                             case "latitude":
                                 latitude = (Double)child.getValue();
                                 break;
@@ -77,7 +85,7 @@ public class CloudFactory implements TrackFactory {
                         }
                     }
 
-                    track.setDate(year, month, day);
+                    track.setDate(year, month, day, hour, minute);
                     track.setLocation(latitude, longitude);
 
                     // Retrieve data from sharedPreferences

@@ -5,7 +5,7 @@ import android.util.Log;
 
 import com.google.android.gms.plus.model.people.Person;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 
 public class Track {
@@ -20,7 +20,7 @@ public class Track {
     private long time;
     private String pathName;
 
-    private LocalDate date; // Firebase
+    private LocalDateTime date; // Firebase
     private Location location; // Firebase
 
     /**
@@ -64,7 +64,7 @@ public class Track {
      * Date is stored into Firebase.
      * @return date this track was last played
      */
-    public LocalDate getDate() {
+    public LocalDateTime getDate() {
         return date;
     }
 
@@ -148,13 +148,13 @@ public class Track {
         location.setLongitude(longitude);
     }
 
-    public void setDate(int year, int month, int day) {
-        this.date = LocalDate.of(year, month, day);
+    public void setDate(int year, int month, int day, int hour, int minute) {
+        this.date = LocalDateTime.of(year, month, day, hour, minute);
     }
 
     //endregion
 
-    public void updateInfo(Location newLocation, LocalDate newDate) {
+    public void updateInfo(Location newLocation, LocalDateTime newDate) {
         location = newLocation;
         date = newDate;
     }

@@ -119,9 +119,9 @@ public abstract class MusicController {
         // TODO: put into Firebase
         if (all) {
             // Put time, location, and friend's name to firebase
-            editor.putString(track.getPathName() + "Time", track.getDate() != null ?
-                    track.getDate().toString() :
-                    "null");
+            //editor.putString(track.getPathName() + "Time", track.getDate() != null ?
+            //        track.getDate().toString() :
+            //        "null");
             //editor.putString(track.getPathName() + "Location", track.getLocation());
         }
         editor.apply();
