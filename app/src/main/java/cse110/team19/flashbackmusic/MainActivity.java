@@ -145,9 +145,11 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         // Google Signin Activity
         SignIn = (SignInButton) findViewById(R.id.main_googlesigninbtn);
         SignIn.setOnClickListener(this);
-        GoogleSignInOptions signInOptions = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
+        GoogleSignInOptions signInOptions = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestEmail()
+                .build();
         googleApiClient = new GoogleApiClient.Builder(this)
-                .enableAutoManage(this, this)
+                //.enableAutoManage(this, this)
                 .addApi(Auth.GOOGLE_SIGN_IN_API,signInOptions)
                 .build();
 
@@ -432,7 +434,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         }
 
         else {
-            result.getStatus().getStatusMessage();
+            //Log.d("result error message", result.getStatus().getStatusMessage());
         }
     }
 
@@ -476,6 +478,22 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     }
 
     //People peopleService = setUp(MainActivity.this, serverAuthCode);
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        if (googleApiClient != null) {
+            googleApiClient.connect();
+        }
+    }
+
+    @Override
+    public void onStop() {
+        if (googleApiClient != null && googleApiClient.isConnected()) {
+            googleApiClient.disconnect();
+        }
+        super.onStop();
+    }
     //endregion
 
     //region Download and Time
@@ -487,7 +505,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         final EditText input = new EditText(this);
         alert.setView(input);
 
-        alert.setPositiveButton("Download", new DialogInterface.OnClickListener() {
+        alert.setPositiveButton("Download Song", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
 
                 String url = input.getText().toString();
@@ -509,6 +527,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
 
         alert.show();
     }
+
 
     public void mockTime() {
         DatePickerDialog datePicker = new DatePickerDialog(this);
