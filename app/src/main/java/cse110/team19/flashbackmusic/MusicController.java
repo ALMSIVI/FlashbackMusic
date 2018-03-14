@@ -124,7 +124,7 @@ public abstract class MusicController {
             editor.putString(track.getPathName() + "Time", track.getDate() != null ?
                     track.getDate().toString() :
                     "null");
-            editor.putString(track.getPathName() + "Location", track.getLocation());
+            //editor.putString(track.getPathName() + "Location", track.getLocation());
         }
         editor.apply();
     }
