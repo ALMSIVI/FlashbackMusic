@@ -46,11 +46,39 @@ public class CloudFactory implements TrackFactory {
                     Log.w("DatabaseError", "No data found");
                 } else {
                     // Get track name, time and url
-                    Track tempTrack = dataSnapshot.getValue(Track.class);
+                    int year = 0;
+                    int month = 0;
+                    int day = 0;
+                    double latitude = 0;
+                    double longitude = 0;
 
-                    track.setTrackName(tempTrack.getTrackName());
-                    track.setTime(tempTrack.getTime());
-                    track.setWebsite(tempTrack.getWebsite());
+                    for (DataSnapshot child : dataSnapshot.getChildren()) {
+                        switch (child.getKey()) {
+                            case "trackName":
+                                track.setTrackName((String)child.getValue());
+                                break;
+                            case "website":
+                                track.setWebsite((String)child.getValue());
+                                break;
+                            case "year":
+                                year = (Integer)child.getValue();
+                                break;
+                            case "month":
+                                month = (Integer)child.getValue();
+                                break;
+                            case "day":
+                                day = (Integer)child.getValue();
+                                break;
+                            case "latitude":
+                                latitude = (Double)child.getValue();
+                                break;
+                            case "longitude":
+                                longitude = (Double)child.getValue();
+                        }
+                    }
+
+                    track.setDate(year, month, day);
+                    track.setLocation(latitude, longitude);
 
                     // Retrieve data from sharedPreferences
                     SharedPreferences sharedPreferences =

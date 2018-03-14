@@ -34,16 +34,18 @@ public class NormalPlayList extends PlayList {
         Log.d("Files", "Path: " + downloadFolder);
         File directory = new File(downloadFolder);
         File[] fields = directory.listFiles();
-        Log.d("Files", "Size: " + fields.length);
-        for (int i = 0; i < fields.length; i++) {
-            Log.d("Files", "FileName:" + fields[i].getName());
-        }
+        if (fields != null) {
+            Log.d("Files", "Size: " + fields.length);
+            for (int i = 0; i < fields.length; i++) {
+                Log.d("Files", "FileName:" + fields[i].getName());
+            }
 
-        for (int count = 0; count < fields.length; count++) { //Goes through each track
-            addTrack(fields[count].getName());
-        }
+            for (int count = 0; count < fields.length; count++) { //Goes through each track
+                addTrack(fields[count].getName());
+            }
 
-        sortRecent();
+            sortRecent();
+        }
     }
 
     @Override
