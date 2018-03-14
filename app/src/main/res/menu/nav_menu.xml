@@ -1,32 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <item android:id="@+id/RecentlyPlayed"
         android:icon="@mipmap/recents"
-        android:title="Recently Played">
+        android:title="@string/menu_recent">
     </item>
 
     <item android:id="@+id/Tracks"
         android:icon="@mipmap/tracks"
-        android:title="Tracks">
+        android:title="@string/menu_track">
     </item>
 
     <item android:id="@+id/Albums"
         android:icon="@mipmap/albums"
-        android:title="Albums">
+        android:title="@string/menu_album">
     </item>
 
     <item android:id="@+id/Artists"
         android:icon="@mipmap/user"
-        android:title="Artists">
+        android:title="@string/menu_artist">
     </item>
 
     <item android:id="@+id/Favorites"
         android:icon="@mipmap/favorites"
-        android:title="Favorites">
+        android:title="@string/menu_favorite">
     </item>
 
-    <item android:id="@+id/Download"
+    <item
+        android:id="@+id/Download"
         android:icon="@mipmap/download"
-        android:title="Download Music">
-    </item>
+        android:title="@string/menu_download"></item>
+
+    <item
+        android:id="@+id/Time"
+        android:title="@string/menu_time"></item>
+
 </menu>

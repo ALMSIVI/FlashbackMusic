@@ -30,8 +30,9 @@ public class CloudFactory implements TrackFactory {
      * @return a cloud song
      */
     public Track createTrack(String path) {
-        // Get data from tracks reference
         FirebaseDatabase database = FirebaseDatabase.getInstance();
+
+        // Get data from tracks reference
         DatabaseReference reference = database.getReference("track");
 
         Query query = reference.orderByChild("trackName").equalTo(path);
@@ -56,8 +57,6 @@ public class CloudFactory implements TrackFactory {
                             context.getSharedPreferences("track_info", MODE_PRIVATE);
                     int status = sharedPreferences.getInt(track.getPathName() + "Status", 0);
                     track.setStatus(status);
-
-                    // TODO: update location and user info
                 }
             }
 
@@ -66,6 +65,8 @@ public class CloudFactory implements TrackFactory {
                 Log.w("DatabaseError", databaseError.toException());
             }
         });
+
+        // TODO: retrieve user and location info
 
         return track;
     }

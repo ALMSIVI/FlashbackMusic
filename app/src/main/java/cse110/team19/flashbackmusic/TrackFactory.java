@@ -5,5 +5,5 @@ package cse110.team19.flashbackmusic;
  */
 
 public interface TrackFactory {
-    public Track createTrack(String path);
+    Track createTrack(String path);
 }
