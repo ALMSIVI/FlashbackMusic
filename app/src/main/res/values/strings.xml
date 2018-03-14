@@ -20,4 +20,13 @@
     <string name="server_client_secret">tPegiE3eqcsx_zXNDzVEsuj5</string>
 
     <string name="download_folder">/DownloadedSongs/</string>
+    <string name="title_activity_pop_up">PopUpActivity</string>
+
+    <string name="menu_recent">Recently Played</string>
+    <string name="menu_track">Tracks</string>
+    <string name="menu_album">Albums</string>
+    <string name="menu_artist">Artists</string>
+    <string name="menu_favorite">Favorites</string>
+    <string name="menu_download">Download Music</string>
+    <string name="menu_time">Mock time</string>
 </resources>

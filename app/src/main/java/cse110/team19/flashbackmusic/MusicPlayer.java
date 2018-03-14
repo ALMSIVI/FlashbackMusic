@@ -106,6 +106,10 @@ public class MusicPlayer {
         mediaPlayer.seekTo(0);
     }
 
+    public void reset() {
+        mediaPlayer.reset();
+    }
+
     public void setDataSource(Track track) {
         try {
             if (track != null) {
