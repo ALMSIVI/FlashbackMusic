@@ -19,23 +19,17 @@ import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
-
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationServices;
 
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -351,37 +345,40 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         switch (item.getItemId()) {
             case R.id.RecentlyPlayed: {
                 if (controller.isNormalMode()) {
-                    ((NormalController)controller).updatePlayList(NormalPlayList.Sort.Recent);
+                    controller.sortPlayList(NormalPlayList.Sort.Recent);
                 }
                 break;
             }
             case R.id.Tracks: {
                 if (controller.isNormalMode()) {
-                    ((NormalController)controller).updatePlayList(NormalPlayList.Sort.Name);
+                    controller.sortPlayList(NormalPlayList.Sort.Name);
                 }
                 break;
             }
             case R.id.Albums: {
                 if (controller.isNormalMode()) {
-                    ((NormalController)controller).updatePlayList(NormalPlayList.Sort.Album);
+                    controller.sortPlayList(NormalPlayList.Sort.Album);
                 }
                 break;
             }
             case R.id.Artists: {
                 if (controller.isNormalMode()) {
-                    ((NormalController)controller).updatePlayList(NormalPlayList.Sort.Artist);
+                    controller.sortPlayList(NormalPlayList.Sort.Artist);
                 }
                 break;
             }
             case R.id.Favorites: {
                 if (controller.isNormalMode()) {
-                    ((NormalController)controller).updatePlayList(NormalPlayList.Sort.Favorite);
+                    controller.sortPlayList(NormalPlayList.Sort.Favorite);
                 }
                 break;
             }
             case R.id.Download: {
                 download();
                 break;
+            }
+            case R.id.Time: {
+                // TODO: time mocking
             }
         }
         //close navigation drawer

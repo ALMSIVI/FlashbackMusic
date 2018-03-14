@@ -203,5 +203,7 @@ public abstract class MusicController {
     public abstract boolean isNormalMode();
 
     public abstract void setUp();
+
+    public abstract void sortPlayList(PlayList.Sort sort);
     //endregion
 }

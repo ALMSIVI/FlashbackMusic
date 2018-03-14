@@ -41,6 +41,12 @@ public class VibeController extends MusicController {
         playList.createPlayList();
         adapter.notifyDataSetChanged();
         isPlaying = -1;
-        player.stop();
+        player.reset();
+        // TODO: Load the first song into the player and start
+    }
+
+    @Override
+    public void sortPlayList(NormalPlayList.Sort sort) {
+        playList.sort();
     }
 }
