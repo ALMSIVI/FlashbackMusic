@@ -1,10 +1,10 @@
 package cse110.team19.flashbackmusic;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.DownloadManager;
+import android.app.TimePickerDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -32,6 +32,7 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.TimePicker;
 
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -41,8 +42,6 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.GoogleApiClient;
 
-import com.google.android.gms.common.api.Scope;
-import com.google.api.client.googleapis.apache.GoogleApacheHttpTransport;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeTokenRequest;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
@@ -50,16 +49,8 @@ import com.google.api.client.http.HttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.people.v1.People;
-import com.google.api.services.people.v1.PeopleScopes;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import javax.annotation.Nonnull;
 
 
 import static android.os.Environment.DIRECTORY_DOWNLOADS;
@@ -185,6 +176,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         registerReceiver(downloadComplete, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
     }
 
+    //region UI listeners
     public void playMusic(View view) {
         controller.changePlayPauseButton();
     }
@@ -201,7 +193,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
      * Switch modes (Normal to Vibe or Vibe to Normal)
      * @param view
      */
-    @SuppressLint("NewApi")
     public void switchModes(View view) {
         //Get mode
         SharedPreferences sharedPreferences = this.getSharedPreferences("mode", MODE_PRIVATE);
@@ -269,20 +260,62 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         // Set up playlist
         controller.setUp();
     }
-    //endregion
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
-
-        if (broadcastReceiver != null) {
-            unregisterReceiver(broadcastReceiver);
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (actionBarDrawerToggle.onOptionsItemSelected(item)) {
+            return true;
         }
-        //stopService(locationIntent);
-
-        unregisterReceiver(downloadComplete);
+        return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        // navigation view item clicks
+        switch (item.getItemId()) {
+            case R.id.RecentlyPlayed: {
+                if (controller.isNormalMode()) {
+                    controller.sortPlayList(NormalPlayList.Sort.Recent);
+                }
+                break;
+            }
+            case R.id.Tracks: {
+                if (controller.isNormalMode()) {
+                    controller.sortPlayList(NormalPlayList.Sort.Name);
+                }
+                break;
+            }
+            case R.id.Albums: {
+                if (controller.isNormalMode()) {
+                    controller.sortPlayList(NormalPlayList.Sort.Album);
+                }
+                break;
+            }
+            case R.id.Artists: {
+                if (controller.isNormalMode()) {
+                    controller.sortPlayList(NormalPlayList.Sort.Artist);
+                }
+                break;
+            }
+            case R.id.Favorites: {
+                if (controller.isNormalMode()) {
+                    controller.sortPlayList(NormalPlayList.Sort.Favorite);
+                }
+                break;
+            }
+            case R.id.Download: {
+                download();
+                break;
+            }
+            case R.id.Time: {
+                mockTime();
+            }
+        }
+        //close navigation drawer
+        drawerLayout.closeDrawer(GravityCompat.START);
+        return true;
+    }
+    //endregion
 
     //region Permission checking
     private void checkPermission() {
@@ -341,60 +374,16 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (actionBarDrawerToggle.onOptionsItemSelected(item)) {
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
+    protected void onDestroy() {
+        super.onDestroy();
 
-    @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        // navigation view item clicks
-        switch (item.getItemId()) {
-            case R.id.RecentlyPlayed: {
-                if (controller.isNormalMode()) {
-                    controller.sortPlayList(NormalPlayList.Sort.Recent);
-                }
-                break;
-            }
-            case R.id.Tracks: {
-                if (controller.isNormalMode()) {
-                    controller.sortPlayList(NormalPlayList.Sort.Name);
-                }
-                break;
-            }
-            case R.id.Albums: {
-                if (controller.isNormalMode()) {
-                    controller.sortPlayList(NormalPlayList.Sort.Album);
-                }
-                break;
-            }
-            case R.id.Artists: {
-                if (controller.isNormalMode()) {
-                    controller.sortPlayList(NormalPlayList.Sort.Artist);
-                }
-                break;
-            }
-            case R.id.Favorites: {
-                if (controller.isNormalMode()) {
-                    controller.sortPlayList(NormalPlayList.Sort.Favorite);
-                }
-                break;
-            }
-            case R.id.Download: {
-                download();
-                break;
-            }
-            case R.id.Time: {
-                mockTime();
-            }
+        if (broadcastReceiver != null) {
+            unregisterReceiver(broadcastReceiver);
         }
-        //close navigation drawer
-        drawerLayout.closeDrawer(GravityCompat.START);
-        return true;
-    }
+        //stopService(locationIntent);
 
+        unregisterReceiver(downloadComplete);
+    }
     //endregion
 
     //region Google Friends
@@ -531,10 +520,23 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
 
     public void mockTime() {
         DatePickerDialog datePicker = new DatePickerDialog(this);
+
+        final DateWrapper wrapper = new DateWrapper();
+
+        TimePickerDialog.OnTimeSetListener listener = new TimePickerDialog.OnTimeSetListener() {
+            @Override
+            public void onTimeSet(TimePicker timePicker, int i, int i1) {
+                wrapper.setTime(i, i1);
+                MockTime.useFixedClockAt(wrapper.generateDate());
+            }
+        };
+
+        final TimePickerDialog timePicker = new TimePickerDialog(this, listener, 0, 0, false);
         datePicker.setOnDateSetListener(new DatePickerDialog.OnDateSetListener() {
             @Override
             public void onDateSet(DatePicker datePicker, int i, int i1, int i2) {
-                MockTime.useFixedClockAt(LocalDateTime.of(i, i1, i2, 0, 0, 0));
+                wrapper.setDate(i, i1, i2);
+                timePicker.show();
             }
         });
 
