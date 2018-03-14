@@ -17,8 +17,10 @@ import java.util.Locale;
 
 public abstract class PlayList {
     public enum Sort {
-        Recent, Name, Album, Artist, Favorite, Score
+
+        Recent, Name, Album, Artist, Favorite, Score;
     }
+
 
     protected List<Track> playList;
 
