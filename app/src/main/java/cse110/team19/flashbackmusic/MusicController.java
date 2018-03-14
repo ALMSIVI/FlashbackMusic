@@ -6,6 +6,7 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.TextView;
@@ -31,7 +32,7 @@ public class MusicController {
     private BaseAdapter adapter;
     private PlayList playList;
 
-    private Track isPlaying;
+    private int isPlaying;
 
     // for recording location of song
     private Date time;
@@ -59,7 +60,7 @@ public class MusicController {
         // Initialize the locations
         geocoder = new Geocoder(mainActivity, Locale.getDefault());
         gpstracker = new GPSTracker(mainActivity);
-        location = gpstracker.getLocation();
+        //location = gpstracker.getLocation();
         time = new Date();
     }
     //endregion
@@ -78,7 +79,7 @@ public class MusicController {
     /**
      * Changes the button to play.
      */
-    private void changePlay() {
+    public void changePlay() {
         Button mainPauseButton = (Button) mainActivity.findViewById(R.id.playButton);
         // Old version: mainActivity.getResources().getDrawable(...);
         Drawable play = ContextCompat.getDrawable(mainActivity, R.drawable.ic_play_arrow_actuallyblack_24dp);
@@ -88,14 +89,14 @@ public class MusicController {
     /**
      * Changes the button to pause.
      */
-    private void changePause() {
+    public void changePause() {
         Button mainPlayButton = (Button) mainActivity.findViewById(R.id.playButton);
         Drawable pause = ContextCompat.getDrawable(mainActivity, R.drawable.ic_pause_actuallyblack_24dp);
         mainPlayButton.setCompoundDrawablesWithIntrinsicBounds(null, pause, null, null);
     }
 
-    public void changeStatusButton(Track track, Button button) {
-        int stat = track.getStatus();
+    public void changeStatusButton(int id, Button button) {
+        int stat = playList.get(id).getStatus();
         if (stat == 0) {
             Drawable neutral = ContextCompat.getDrawable(mainActivity, R.drawable.neutral);
             button.setCompoundDrawablesWithIntrinsicBounds(null, neutral, null, null);
@@ -111,78 +112,99 @@ public class MusicController {
 
     //region Track
     public Track getIsPlaying() {
-        return isPlaying;
+        return playList.get(isPlaying);
     }
 
-    public void changeStatus(Track track, Button button) {
+    public void changeStatus(int id, Button button) {
+        Track track = playList.get(id);
         track.updateStatus();
         saveTrackInfo(false, track);
-        changeStatusButton(track, button);
+        changeStatusButton(id, button);
 
-        if (track.getStatus() == -1 && player.isPlaying() && isPlaying == track) {
-            player.stop();
-            // TODO: fix this
-            //if (audioResourceId.size() > audioIndex) {
-            //    loadMedia(audioResourceId.get(audioIndex).first, audioResourceId.get(audioIndex).second);
-            //}
+        if (track.getStatus() == -1 && player.isPlaying() && isPlaying == id) {
+            player.playNext();
         }
     }
 
     public void updateTrackInfo() {
-        location = gpstracker.getLocation();
-        isPlaying.updateInfo(location, time.getTime());
+        //location = gpstracker.getLocation();
+        getIsPlaying().updateInfo(location, time.getTime());
     }
 
     /**
      * Stores the current song's status into sharedPreferences. This method does NOT update the info.
      */
     public void saveTrackInfo(boolean all, Track track) {
-        // TODO: Change to firebase
+        // Put status into shared preferences
         SharedPreferences sharedPreferences = mainActivity.getSharedPreferences("track_info", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
 
-        editor.putInt(track.getTrackName() + "Status", track.getStatus());
+        editor.putInt(track.getPathName() + "Status", track.getStatus());
 
         if (all) {
-            editor.putString(track.getTrackName() + "Time", track.getTime() != null ?
-                    track.getTime().toString() :
+            // Put time, location, and friend's name to firebase
+            editor.putString(track.getPathName() + "Time", track.getDate() != null ?
+                    track.getDate().toString() :
                     "null");
-            editor.putString(track.getTrackName() + "Location", track.getLocation());
+            editor.putString(track.getPathName() + "Location", track.getLocation());
         }
         editor.apply();
+    }
+
+    public void updatePlayList(String filename) {
+        playList.addTrack(filename);
+        playList.sort();
+        adapter.notifyDataSetChanged();
+    }
+
+    public void updatePlayList(PlayList.Sort sort) {
+        switch (sort) {
+            case Name:
+                playList.sortName();
+                break;
+            case Album:
+                playList.sortAlbum();
+                break;
+            case Artist:
+                playList.sortArtist();
+                break;
+            case Recent:
+                playList.sortRecent();
+                break;
+            case Favorite:
+                playList.sortFavorite();
+                break;
+            case Score:
+            default:
+                break;
+        }
+        adapter.notifyDataSetChanged();
     }
     //endregion
 
     //region MediaPlayer
-    public void playSong(Track track) {
-        if (track.getStatus() > -1) {
+    public void playSong(int id) {
+        if (playList.get(id).getStatus() > -1) {
             changePause();
+            isPlaying = id;
 
-            //audioResourceId = new <Pair<Integer, Track>>ArrayList();
-            //audioResourceId.add(new Pair<Integer, Track>(id, track));
-            loadMedia(track);
-            isPlaying = track;
+            player.stop();
+
+            player.setDataSource(getIsPlaying());
+            player.prepareAsync();
+
+            updateText();
         }
     }
 
-    public void loadMedia(Track track) {
-        // TODO: fix this
-
-        player.stop();
-        isPlaying = track;
-        //changePause();
-        player.resetMusic();
-        try {
-            player.setDataSource(track.getPathName());
-            player.prepareAsync();
-        } catch (Exception e) {
-            System.out.println(e.toString());
+    public Track getNext() {
+        if (isPlaying == playList.size() - 1) {
+            return null;
+        } else {
+            isPlaying++;
+            Log.d("isPlaying", Integer.toString(isPlaying));
+            return getIsPlaying();
         }
-
-        updateText();
-        //audioIndex++;
-        //mediaPlayer.play();
-
     }
 
     public void resetMusic() {
@@ -194,10 +216,10 @@ public class MusicController {
     public void updateText() {
         // Update the "Now playing" text
         TextView infoView = mainActivity.findViewById(R.id.info);
-        infoView.setText(isPlaying.getTrackName());
+        infoView.setText(getIsPlaying().getTrackName());
         // Update the "Last played" text
         TextView lastPlayedView = mainActivity.findViewById(R.id.lastPlayed);
-        if (isPlaying.getTime() == null) {
+        if (getIsPlaying().getDate() == null) {
             lastPlayedView.setText(mainActivity.getString(R.string.never_played_info));
         } else {
             String lastLocation = "Unknown location";
@@ -213,24 +235,27 @@ public class MusicController {
 
             String lastPlayedInfo = String.format(
                     mainActivity.getString(R.string.last_played_info),
-                    isPlaying.getTime(), lastLocation);
+                    getIsPlaying().getDate(), lastLocation);
             lastPlayedView.setText(lastPlayedInfo);
         }
     }
     //endregion
 
     //region Modes
+    public boolean isNormalMode() {
+        return playList.isNormalMode();
+    }
+
     public void setUpVibe() {
-        player.stop();
         playList.createVibePlayList();
-        // TODO: ensure adapter is playlistadapter
         adapter.notifyDataSetChanged();
-        player.play();
+        isPlaying = -1;
+        player.stop();
     }
 
     public void setUpNormal() {
+        player.stop();
         playList.createNormalPlayList();
-        // TODO: ensure adapter is playlistadapter
         adapter.notifyDataSetChanged();
     }
     //endregion

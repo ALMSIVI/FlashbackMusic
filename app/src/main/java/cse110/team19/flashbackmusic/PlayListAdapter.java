@@ -60,7 +60,7 @@ public class PlayListAdapter extends BaseAdapter {
     }
 
     @Override
-    public View getView(int i, View view, ViewGroup viewGroup) {
+    public View getView(final int i, View view, ViewGroup viewGroup) {
         final Track track = (Track) getItem(i);
 
         // inflate the view
@@ -74,19 +74,19 @@ public class PlayListAdapter extends BaseAdapter {
         newTrack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (playList.isNormalMode()) {
-                    controller.playSong(track);
+                if (controller.isNormalMode()) {
+                    controller.playSong(i);
                 }
             }
         });
 
         final Button statusButton = (Button) view.findViewById(R.id.set_status);
-        controller.changeStatusButton(track, statusButton);
+        controller.changeStatusButton(i, statusButton);
 
         statusButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                controller.changeStatus(track, statusButton);
+                controller.changeStatus(i, statusButton);
             }
         });
         return view;

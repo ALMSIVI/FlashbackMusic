@@ -22,6 +22,11 @@ public class Track {
     private String pathName;
 
     /**
+     * Defaulot constructor.
+     */
+    public Track() {}
+
+    /**
      * Constructor.
      * @param trackName name of the song
      * @param trackNumber track number of the song
@@ -53,7 +58,7 @@ public class Track {
 
     //region Getters
     // Get info for flashback
-    public Date getTime() {
+    public Date getDate() {
         if (cal == null) { // not implemented
             return null;
         } else {
@@ -64,12 +69,34 @@ public class Track {
 
 
     //Get time since last play
-    public long getTimeSinceLastPlayed() {
+
+    /**
+     * Time is stored into Firebase.
+     * @return
+     */
+    public long getTime() {
         return time;
     }
 
+    /**
+     * TrackName is stored into Firebase.
+     * @return name of the track
+     */
     public String getTrackName() {
         return trackName;
+    }
+
+    /**
+     * website is stored into Firebase.
+     * @return url of the song
+     */
+    public String getWebsite() {
+        return website;
+    }
+
+
+    public String getPersonLastPlayed() {
+        return personLastPlayed;
     }
 
     public String getArtistName() {
@@ -92,20 +119,20 @@ public class Track {
         return status;
     }
 
-    public String getPersonLastPlayed() {
-        return personLastPlayed;
-    }
-
-    public String getWebsite() {
-        return website;
-    }
-
     public String getPathName() {
         return pathName;
     }
     //endregion
 
     //region Setters
+    public void setTrackName(String trackName) {
+        this.trackName = trackName;
+    }
+
+    public void setTime(long time) {
+        this.time = time;
+    }
+
     public void setCalendar(Calendar calendar) {
         cal = calendar;
     }
@@ -159,10 +186,17 @@ public class Track {
         public int compare(Track t1, Track t2) {
             if (t1 == null || t2 == null) {
                 return 1;
+            }else if (t1.getDate() == null && t2.getDate() != null) {
+                return -1;
+            } else if (t2.getDate() == null && t1.getDate() != null) {
+                return 1;
+            } else if (t1.getDate() == null && t2.getDate() == null) {
+                return t1.getTrackName().compareTo(t2.getTrackName());
+            } else {
+                return t1.getDate().compareTo(t2.getDate()) != 0 ?
+                        t1.getDate().compareTo(t2.getDate()) :
+                        t1.getTrackName().compareTo(t2.getTrackName());
             }
-            return t1.getTime().compareTo(t2.getTime()) != 0 ?
-            t1.getTime().compareTo(t2.getTime()) :
-            t1.getTrackName().compareTo(t2.getTrackName());
         }
     };
 
@@ -196,7 +230,7 @@ public class Track {
             }
             return t1.getAlbumName().compareTo(t2.getAlbumName()) != 0 ?
                     t1.getAlbumName().compareTo(t2.getAlbumName()):
-                    t1.getTrackName().compareTo(t2.getTrackName());
+                    t1.getTrackNumber() - t2.getTrackNumber();
         }
     };
 

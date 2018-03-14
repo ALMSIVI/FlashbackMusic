@@ -1,6 +1,8 @@
 package cse110.team19.flashbackmusic;
 
 import android.media.MediaPlayer;
+import android.util.Log;
+
 import java.io.IOException;
 
 
@@ -37,7 +39,10 @@ public class MusicPlayer {
                     controller.updateTrackInfo();
                     controller.saveTrackInfo(true, controller.getIsPlaying());
                 }
-                // Switch to next song if album view or
+
+                if (!controller.isNormalMode()) {
+                    playNext();
+                }
             }
         });
     }
@@ -67,8 +72,22 @@ public class MusicPlayer {
         mediaPlayer.stop();
     }
 
+    /**
+     * Request next song from controller and play that.
+     */
     public void playNext() {
-        // TODO: implement that
+        Track next = controller.getNext();
+        stop();
+        if (next != null) {
+            if (next.getStatus() != -1) {
+                setDataSource(next);
+                prepareAsync();
+            } else {
+                playNext();
+            }
+        } else {
+            controller.changePlay();
+        }
     }
 
     /**
@@ -87,9 +106,11 @@ public class MusicPlayer {
         mediaPlayer.seekTo(0);
     }
 
-    public void setDataSource(String path) throws IOException {
+    public void setDataSource(Track track) {
         try {
-            mediaPlayer.setDataSource(path);
+            if (track != null) {
+                mediaPlayer.setDataSource(track.getPathName());
+            }
         } catch (IOException e) {
             e.printStackTrace();
         } catch (IllegalArgumentException e) {
