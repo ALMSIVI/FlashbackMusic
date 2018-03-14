@@ -29,7 +29,6 @@ public class NormalController extends MusicController {
         geocoder = new Geocoder(mainActivity, Locale.getDefault());
         gpstracker = new GPSTracker(mainActivity);
         //location = gpstracker.getLocation();
-        time = new Date();
     }
 
     @Override

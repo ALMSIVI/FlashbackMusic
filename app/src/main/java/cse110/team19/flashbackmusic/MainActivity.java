@@ -3,6 +3,7 @@ package cse110.team19.flashbackmusic;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.app.DatePickerDialog;
 import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -27,6 +28,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -52,6 +54,7 @@ import com.google.api.services.people.v1.PeopleScopes;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -92,18 +95,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle actionBarDrawerToggle;
     private Toolbar toolbar;
-
-    // Monitors time change
-    private BroadcastReceiver timeChanged = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-
-            if (action.equals(Intent.ACTION_TIME_CHANGED)) {
-                // TODO: Update playlist based on time and day
-            }
-        }
-    };
 
     // Download complete
     private BroadcastReceiver downloadComplete = new BroadcastReceiver() {
@@ -182,13 +173,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
                 + getResources().getString(R.string.download_folder);
         Log.d("Download directory", directory);
 
-        // Time change
-        IntentFilter s_intentFilter = new IntentFilter();
-        s_intentFilter.addAction(Intent.ACTION_TIME_TICK);
-        s_intentFilter.addAction(Intent.ACTION_TIMEZONE_CHANGED);
-        s_intentFilter.addAction(Intent.ACTION_TIME_CHANGED);
-        registerReceiver(timeChanged, s_intentFilter);
-
         // initializing location services on start up
         gpsTracker = new GPSTracker(this);
         if (gpsTracker.permissionRequest()) {
@@ -196,12 +180,13 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
             startService(locationIntent);
         }
 
+        // Mock time setup
+        MockTime.useSystemDefaultZoneClock();
 
         // Initialize the library list
         adapter = new PlayListAdapter(this);
 
         player = new MusicPlayer(new MediaPlayer());
-
 
         // Check mode and switch
         SharedPreferences sharedPreferences = this.getSharedPreferences("mode", MODE_PRIVATE);
@@ -310,7 +295,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         }
         //stopService(locationIntent);
 
-        unregisterReceiver(timeChanged);
         unregisterReceiver(downloadComplete);
     }
 
@@ -418,7 +402,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
                 break;
             }
             case R.id.Time: {
-                // TODO: time mocking
+                mockTime();
             }
         }
         //close navigation drawer
@@ -510,6 +494,24 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
 
     //People peopleService = setUp(MainActivity.this, serverAuthCode);
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        if (googleApiClient != null) {
+            googleApiClient.connect();
+        }
+    }
+
+    @Override
+    public void onStop() {
+        if (googleApiClient != null && googleApiClient.isConnected()) {
+            googleApiClient.disconnect();
+        }
+        super.onStop();
+    }
+    //endregion
+
+    //region Download and Time
     public void download() {
         AlertDialog.Builder alert = new AlertDialog.Builder(this);
         alert.setTitle("Download song/album");
@@ -555,22 +557,18 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         alert.show();
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        if (googleApiClient != null) {
-            googleApiClient.connect();
-        }
-    }
 
-    @Override
-    public void onStop() {
-        if (googleApiClient != null && googleApiClient.isConnected()) {
-            googleApiClient.disconnect();
-        }
-        super.onStop();
-    }
+    public void mockTime() {
+        DatePickerDialog datePicker = new DatePickerDialog(this);
+        datePicker.setOnDateSetListener(new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker datePicker, int i, int i1, int i2) {
+                MockTime.useFixedClockAt(LocalDateTime.of(i, i1, i2, 0, 0, 0));
+            }
+        });
 
+        datePicker.show();
+    }
     //endregion
 
 }
