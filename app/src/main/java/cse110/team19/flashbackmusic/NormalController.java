@@ -40,13 +40,13 @@ public class NormalController extends MusicController {
     @Override
     public void setUp() {
         changePlay();
-        player.stop();
+        player.reset();
         playList.createPlayList();
         adapter.notifyDataSetChanged();
     }
 
-    public void updatePlayList(NormalPlayList.Sort sort) {
-        ((NormalPlayList)playList).sort(sort);
+    public void sortPlayList(PlayList.Sort sort) {
+        playList.sort(sort);
         adapter.notifyDataSetChanged();
     }
 }

@@ -68,4 +68,13 @@ public class VibePlayList extends PlayList {
         // TODO: Retrieve music from website, calculate scores, update playlist
         Collections.sort(playList, Track.scoreComparator);
     }
+
+    /**
+     * Reject any sort requests and sort based on score.
+     * @param sort
+     */
+    @Override
+    public void sort(PlayList.Sort sort) {
+        sort();
+    }
 }

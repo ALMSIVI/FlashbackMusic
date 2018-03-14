@@ -16,6 +16,10 @@ import java.util.Locale;
  */
 
 public abstract class PlayList {
+    public enum Sort {
+        Recent, Name, Album, Artist, Favorite, Score
+    }
+
     protected List<Track> playList;
 
     public int size() {
@@ -34,5 +38,7 @@ public abstract class PlayList {
     public abstract boolean isNormalMode();
 
     public abstract void sort();
+
+    public abstract void sort(Sort sort);
     //endregion
 }

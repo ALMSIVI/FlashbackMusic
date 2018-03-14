@@ -7,7 +7,14 @@ import android.os.Environment;
 import android.util.Log;
 import android.webkit.URLUtil;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 /**
  * Created by sarahji on 3/8/18.
@@ -75,5 +82,11 @@ public class Download {
         }
 
         return null;
+    }
+
+    public void unzipFile(String path) throws IOException {
+        ZipInputStream zis = new ZipInputStream(
+                new BufferedInputStream(new FileInputStream(path)));
+
     }
 }

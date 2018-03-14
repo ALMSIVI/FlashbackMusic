@@ -1,6 +1,7 @@
 package cse110.team19.flashbackmusic;
 
 import android.location.Location;
+import android.util.Log;
 
 import java.util.*;
 
@@ -205,8 +206,9 @@ public class Track {
             if (t1 == null || t2 == null) {
                 return 1;
             }
+            // Reverse logic: the HIGHER the status is, the LOWER index it is in the list.
             return t1.getStatus() != t2.getStatus() ?
-                    t1.getStatus() - t2.getStatus() :
+                    t2.getStatus() - t1.getStatus() :
                     t1.getTrackName().compareTo(t2.getTrackName());
         }
     };
@@ -252,7 +254,7 @@ public class Track {
                 return 1;
             }
             return t1.getScore() != t2.getScore() ?
-                    t1.getScore() - t2.getScore() :
+                    t2.getScore() - t1.getScore() :
                     t1.getTrackName().compareTo(t2.getTrackName());
         }
     };

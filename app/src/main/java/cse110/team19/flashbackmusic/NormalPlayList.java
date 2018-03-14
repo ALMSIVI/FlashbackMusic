@@ -17,9 +17,6 @@ public class NormalPlayList extends PlayList {
     private String downloadFolder;
     private Context context;
 
-    public enum Sort {
-        Recent, Name, Album, Artist, Favorite, Score;
-    }
 
     Sort mode = Sort.Recent;
 
