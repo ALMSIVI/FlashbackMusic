@@ -17,7 +17,7 @@ import static android.content.Context.MODE_PRIVATE;
  * Created by Tyler on 3/13/18.
  */
 
-/*public class LocationRetriever implements Retriever {
+public class LocationRetriever implements Retriever {
     @Override
     public Object retrieve() {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
@@ -38,4 +38,3 @@ import static android.content.Context.MODE_PRIVATE;
         return null;
     }
 }
-*/
