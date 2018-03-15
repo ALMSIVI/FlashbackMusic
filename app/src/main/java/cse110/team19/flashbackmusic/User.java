@@ -32,4 +32,8 @@ public class User {
     public LinkedList<Track> getTracks() {
         return tracks;
     }
+
+    //Setters
+    public void setName(String name){this.name = name;}
+    public void setId(String id) { this.id = id;}
 }
