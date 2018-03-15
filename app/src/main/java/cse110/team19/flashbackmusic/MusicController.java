@@ -204,6 +204,10 @@ public abstract class MusicController {
                     e.printStackTrace();
                 }
                 lastLocation = addresses.get(0).getAddressLine(0);
+
+                String locationString = String.format(mainActivity.getString(R.string.location_info), lastLocation);
+                TextView locationInfo = mainActivity.findViewById(R.id.locationInfo);
+                locationInfo.setText(locationString);
             }
 
             // userInfo
