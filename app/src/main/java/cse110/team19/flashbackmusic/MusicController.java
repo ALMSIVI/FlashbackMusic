@@ -184,6 +184,12 @@ public abstract class MusicController {
         }
     }
 
+    public void playNext() {
+        if (getNext() != null) {
+            playSong(isPlaying);
+        }
+    }
+
     public void resetMusic() {
         player.resetMusic();
     }
@@ -192,10 +198,10 @@ public abstract class MusicController {
     //region Texts
     public void updateText() {
         // Update the "Now playing" text
-        TextView infoView = mainActivity.findViewById(R.id.info);
+        TextView infoView = mainActivity.findViewById(R.id.trackInfo);
         infoView.setText(getIsPlaying().getTrackName());
         // Update the "Last played" text
-        TextView lastPlayedView = mainActivity.findViewById(R.id.lastPlayed);
+        TextView lastPlayedView = mainActivity.findViewById(R.id.timeInfo);
         if (getIsPlaying().getDate() == null) {
             lastPlayedView.setText(mainActivity.getString(R.string.never_played_info));
         } else {
@@ -210,9 +216,10 @@ public abstract class MusicController {
                 lastLocation = addresses.get(0).getFeatureName();
             }
 
+            LocalDateTime date = getIsPlaying().getDate();
             String lastPlayedInfo = String.format(
-                    mainActivity.getString(R.string.last_played_info),
-                    getIsPlaying().getDate(), lastLocation);
+                    mainActivity.getString(R.string.time_info), date.getMonthValue(),
+                    date.getDayOfMonth(), date.getYear(), date.getHour(), date.getMinute());
             lastPlayedView.setText(lastPlayedInfo);
         }
     }

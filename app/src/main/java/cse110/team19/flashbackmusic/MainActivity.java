@@ -224,6 +224,12 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         controller.resetMusic();
     }
 
+    public void skipMusic(View view) {
+        if (controller.getNext() != null) {
+            controller.playNext();
+        }
+    }
+
     /**
      * Switch modes (Normal to Vibe or Vibe to Normal)
      * @param view

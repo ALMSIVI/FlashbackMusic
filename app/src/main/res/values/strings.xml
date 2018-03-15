@@ -8,7 +8,10 @@
     <string name="title_activity_track_mode">TrackMode</string>
     <string name="title_activity_play_list_">PlayList_Activity</string>
     <string name="title_activity_delete">Delete</string>
-    <string name="last_played_info">You last played this song at %1s in %2s.</string>
+    <string name="default_info">I want to know where they are</string>
+    <string name="user_info">It was last played by %1s.</string>
+    <string name="location_info">It was last played at %1s.</string>
+    <string name="time_info">It was last played on %1d/%2d/%3d at %4d:%5d.</string>
     <string name="never_played_info">This is the first time you played this song!</string>
     <string name="mode_normal">Normal</string>
     <string name="mode_vibe">Vibe</string>
