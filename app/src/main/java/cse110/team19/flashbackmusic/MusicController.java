@@ -109,6 +109,7 @@ public abstract class MusicController {
     }
 
     public void updateTrackInfo() {
+        location = gpstracker.getLocation();
         //location = gpstracker.getLocation();
         getIsPlaying().updateInfo(location, MockTime.now());
     }
@@ -125,6 +126,7 @@ public abstract class MusicController {
         editor.apply();
 
         if (all) {
+
             FirebaseDatabase database = FirebaseDatabase.getInstance();
             DatabaseReference reference = database.getReference("track");
 
@@ -145,6 +147,7 @@ public abstract class MusicController {
 
             // TODO: put person
             reference.updateChildren(trackInfo);
+
         }
     }
 
@@ -213,7 +216,7 @@ public abstract class MusicController {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                lastLocation = addresses.get(0).getFeatureName();
+                lastLocation = addresses.get(0).getAddressLine(0);
             }
 
             LocalDateTime date = getIsPlaying().getDate();
