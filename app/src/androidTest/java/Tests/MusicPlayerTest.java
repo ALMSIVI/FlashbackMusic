@@ -10,11 +10,9 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import cse110.team19.flashbackmusic.MainActivity;
-import cse110.team19.flashbackmusic.MusicController;
 import cse110.team19.flashbackmusic.MusicPlayer;
 import cse110.team19.flashbackmusic.NormalController;
 import cse110.team19.flashbackmusic.NormalPlayList;
-import cse110.team19.flashbackmusic.PlayList;
 import cse110.team19.flashbackmusic.PlayListAdapter;
 import cse110.team19.flashbackmusic.R;
 import cse110.team19.flashbackmusic.Track;
