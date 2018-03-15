@@ -90,7 +90,7 @@ public class CloudFactory implements TrackFactory {
 
                     // Retrieve data from sharedPreferences
                     SharedPreferences sharedPreferences =
-                            context.getSharedPreferences("track_info", MODE_PRIVATE);
+                            context.getSharedPreferences("tracks", MODE_PRIVATE);
                     int status = sharedPreferences.getInt(track.getPathName() + "Status", 0);
                     track.setStatus(status);
                 }

@@ -59,9 +59,9 @@ public class NormalPlayList extends PlayList {
             Track t = factory.createTrack(downloadFolder + filename);
             playList.add(t);
         }
-        // TODO: see if cloud generated songs already exist in local
     }
 
+    //region Sorting
     @Override
     public void sort() {
         switch (mode) {
@@ -86,7 +86,7 @@ public class NormalPlayList extends PlayList {
         }
     }
 
-
+    @Override
     public void sort(Sort sort) {
         switch (sort) {
             case Name:
@@ -115,24 +115,24 @@ public class NormalPlayList extends PlayList {
         Collections.sort(playList, Track.recentComparator);
     }
 
-    public void sortName() {
+    private void sortName() {
         mode = Sort.Name;
         Collections.sort(playList, Track.nameComparator);
     }
 
-    public void sortAlbum() {
+    private void sortAlbum() {
         mode = Sort.Album;
         Collections.sort(playList, Track.albumComparator);
     }
 
-    public void sortArtist() {
+    private void sortArtist() {
         mode = Sort.Artist;
         Collections.sort(playList, Track.artistComparator);
     }
 
-    public void sortFavorite() {
+    private void sortFavorite() {
         mode = Sort.Favorite;
         Collections.sort(playList, Track.favoriteComparator);
     }
-
+    //endregion
 }
