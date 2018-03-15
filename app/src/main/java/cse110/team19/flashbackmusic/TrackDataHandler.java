@@ -2,6 +2,7 @@ package cse110.team19.flashbackmusic;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.location.Location;
 import android.util.Log;
 
 import com.google.firebase.database.DataSnapshot;
@@ -107,7 +108,7 @@ public class TrackDataHandler {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference reference = database.getReference("track");
 
-        Log.d("firebase now website", track.getWebsite());
+        Log.d("sharedpreference now website", track.getWebsite());
 
         reference = reference.child(track.getTrackName());
 
@@ -121,6 +122,10 @@ public class TrackDataHandler {
         trackInfo.put("day", dateTime.getDayOfMonth());
         trackInfo.put("hour", dateTime.getHour());
         trackInfo.put("minute", dateTime.getMinute());
+
+        Location location = track.getLocation();
+        trackInfo.put("latitude", location.getLatitude());
+        trackInfo.put("longitude", location.getLongitude());
 
         // TODO: put person
         reference.updateChildren(trackInfo);

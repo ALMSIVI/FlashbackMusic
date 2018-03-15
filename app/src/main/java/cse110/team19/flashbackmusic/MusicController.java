@@ -37,7 +37,7 @@ public abstract class MusicController {
     protected BaseAdapter adapter;
     protected PlayList playList;
 
-    protected int isPlaying;
+    protected int isPlaying = -1;
 
     // for recording information of song
     protected Geocoder geocoder;
@@ -52,7 +52,7 @@ public abstract class MusicController {
         if (player.isPlaying()) {
             player.pause();
             changePlay();
-        } else {
+        } else if (isPlaying != -1){
             player.play();
             changePause();
         }
@@ -73,20 +73,20 @@ public abstract class MusicController {
      */
     public void changePause() {
         Button mainPlayButton = (Button) mainActivity.findViewById(R.id.playButton);
-        Drawable pause = ContextCompat.getDrawable(mainActivity, R.drawable.ic_pause_actuallyblack_24dp);
+        Drawable pause = ContextCompat.getDrawable(mainActivity, R.mipmap.pause);
         mainPlayButton.setCompoundDrawablesWithIntrinsicBounds(null, pause, null, null);
     }
 
     public void changeStatusButton(int id, Button button) {
         int stat = playList.get(id).getStatus();
         if (stat == 0) {
-            Drawable neutral = ContextCompat.getDrawable(mainActivity, R.drawable.neutral);
+            Drawable neutral = ContextCompat.getDrawable(mainActivity, R.mipmap.neutral);
             button.setCompoundDrawablesWithIntrinsicBounds(null, neutral, null, null);
         } else if (stat == 1) {
-            Drawable liked = ContextCompat.getDrawable(mainActivity, R.drawable.favorite);
+            Drawable liked = ContextCompat.getDrawable(mainActivity, R.mipmap.like);
             button.setCompoundDrawablesWithIntrinsicBounds(null, liked, null, null);
         } else if (stat == -1) {
-            Drawable disliked = ContextCompat.getDrawable(mainActivity, R.drawable.dislike);
+            Drawable disliked = ContextCompat.getDrawable(mainActivity, R.mipmap.dislike);
             button.setCompoundDrawablesWithIntrinsicBounds(null, disliked, null, null);
         }
     }

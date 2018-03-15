@@ -103,7 +103,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@null"
-            android:drawableTop="@drawable/ic_refresh_black_24dp"
+            android:drawableTop="@mipmap/prev"
             android:onClick="resetMusic"/>
 
         <Button
@@ -111,7 +111,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@null"
-            android:drawableTop="@drawable/ic_play_arrow_actuallyblack_24dp"
+            android:drawableTop="@mipmap/play"
             android:onClick="playMusic" />
 
         <Button
@@ -119,7 +119,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@null"
-            android:drawableTop="@drawable/ic_fast_rewind_black_24dp"
+            android:drawableTop="@mipmap/skip"
             android:onClick="skipMusic"/>
     </LinearLayout>
 </android.support.constraint.ConstraintLayout>
