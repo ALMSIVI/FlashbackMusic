@@ -126,26 +126,8 @@ public abstract class MusicController {
 
         if (all) {
 
-            FirebaseDatabase database = FirebaseDatabase.getInstance();
-            DatabaseReference reference = database.getReference("track");
-
-            Log.d("firebase now website", track.getWebsite());
-
-            reference = reference.child(track.getTrackName());
-
-            Map<String, Object> trackInfo = new HashMap<String, Object>();
-            trackInfo.put("trackName", getIsPlaying().getTrackName());
-            trackInfo.put("website", getIsPlaying().getWebsite());
-
-            LocalDateTime dateTime = getIsPlaying().getDate();
-            trackInfo.put("year", dateTime.getYear());
-            trackInfo.put("month", dateTime.getMonthValue());
-            trackInfo.put("day", dateTime.getDayOfMonth());
-            trackInfo.put("hour", dateTime.getHour());
-            trackInfo.put("minute", dateTime.getMinute());
-
-            // TODO: put person
-            reference.updateChildren(trackInfo);
+           TrackDataHandler handler = new TrackDataHandler(mainActivity);
+           handler.writeTrack(track);
 
         }
     }
@@ -199,14 +181,20 @@ public abstract class MusicController {
 
     //region Texts
     public void updateText() {
-        // Update the "Now playing" text
-        TextView infoView = mainActivity.findViewById(R.id.trackInfo);
-        infoView.setText(getIsPlaying().getTrackName());
-        // Update the "Last played" text
-        TextView lastPlayedView = mainActivity.findViewById(R.id.timeInfo);
+        // trackInfo
+        TextView trackInfo = mainActivity.findViewById(R.id.trackInfo);
+        trackInfo.setText(getIsPlaying().getTrackName());
+
+        // albumInfo
+        TextView albumInfo = mainActivity.findViewById(R.id.albumInfo);
+        albumInfo.setText(getIsPlaying().getAlbumName());
+
+
+        TextView timeInfo = mainActivity.findViewById(R.id.timeInfo);
         if (getIsPlaying().getDate() == null) {
-            lastPlayedView.setText(mainActivity.getString(R.string.never_played_info));
+            timeInfo.setText(mainActivity.getString(R.string.never_played_info));
         } else {
+            // locationInfo
             String lastLocation = "Unknown location";
 
             if (location != null) {
@@ -218,13 +206,33 @@ public abstract class MusicController {
                 lastLocation = addresses.get(0).getAddressLine(0);
             }
 
+            // userInfo
+
+            // timeInfo
             LocalDateTime date = getIsPlaying().getDate();
             String lastPlayedInfo = String.format(
                     mainActivity.getString(R.string.time_info), date.getMonthValue(),
                     date.getDayOfMonth(), date.getYear(), String.format("%02d",date.getHour()),
                     String.format("%02d", date.getMinute()));
-            lastPlayedView.setText(lastPlayedInfo);
+            timeInfo.setText(lastPlayedInfo);
         }
+    }
+
+    public void clearText() {
+        TextView trackInfo = mainActivity.findViewById(R.id.trackInfo);
+        trackInfo.setText("");
+
+        TextView albumInfo = mainActivity.findViewById(R.id.albumInfo);
+        albumInfo.setText("");
+
+        TextView userInfo = mainActivity.findViewById(R.id.userInfo);
+        userInfo.setText("");
+
+        TextView locationInfo = mainActivity.findViewById(R.id.locationInfo);
+        locationInfo.setText("");
+
+        TextView timeInfo = mainActivity.findViewById(R.id.userInfo);
+        userInfo.setText("");
     }
     //endregion
 

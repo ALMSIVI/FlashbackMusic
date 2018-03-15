@@ -239,6 +239,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         SharedPreferences sharedPreferences = getSharedPreferences("mode", MODE_PRIVATE);
         String mode = sharedPreferences.getString("mode", null);
 
+        controller.clearText();
+
         if (mode.equals(getResources().getString(R.string.mode_normal))) {
             setVibe();
         } else { // vibe mode, switch to normal

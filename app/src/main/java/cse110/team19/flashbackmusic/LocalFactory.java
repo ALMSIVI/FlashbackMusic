@@ -75,9 +75,9 @@ public class LocalFactory implements TrackFactory {
         else
             Log.d("firebase track site", website);
 
-        // calendar
 
-        // location
+        TrackDataHandler handler = new TrackDataHandler(context);
+        handler.retrieveTrackNecessary(track);
 
         return track;
     }
