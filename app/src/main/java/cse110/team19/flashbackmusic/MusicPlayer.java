@@ -52,6 +52,7 @@ public class MusicPlayer {
                     playNext();
                 } else {
                     controller.updateText();
+                    controller.changePlay();
                 }
             }
         });

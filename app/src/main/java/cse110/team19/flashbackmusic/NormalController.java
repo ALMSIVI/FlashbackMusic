@@ -42,6 +42,7 @@ public class NormalController extends MusicController {
         player.reset();
         playList.createPlayList();
         adapter.notifyDataSetChanged();
+        isPlaying = -1;
     }
 
     public void sortPlayList(PlayList.Sort sort) {
