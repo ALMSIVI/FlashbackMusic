@@ -15,7 +15,7 @@ public class Track {
     private int score;
     private int status; //SharedPreferences
     private String website; // Firebase
-    private Person personLastPlayed;
+    private String personLastPlayed;
     private String pathName;
 
     private LocalDateTime date; // Firebase
@@ -94,7 +94,7 @@ public class Track {
      * personLastPlayed is stored into Firebase.
      * @return the person who last played th song
      */
-    public Person getPersonLastPlayed() {
+    public String getPersonLastPlayed() {
         return personLastPlayed;
     }
 
@@ -150,9 +150,8 @@ public class Track {
         this.date = LocalDateTime.of(year, month, day, hour, minute);
     }
 
-    public void setPerson(String email) {
-        // TODO: update person
-        // this.personLastPlayed =
+    public void setPerson(String id) {
+        personLastPlayed = id;
     }
 
     //endregion

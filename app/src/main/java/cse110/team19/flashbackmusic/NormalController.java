@@ -3,6 +3,7 @@ package cse110.team19.flashbackmusic;
 import android.location.Geocoder;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -18,7 +19,7 @@ public class NormalController extends MusicController {
      * @param player
      */
     public NormalController(MainActivity mainActivity, PlayListAdapter adapter, MusicPlayer player,
-                           PlayList playList) {
+                           PlayList playList, List<User> users) {
         this.mainActivity = mainActivity;
         this.adapter = adapter;
         adapter.setController(this);
@@ -28,7 +29,8 @@ public class NormalController extends MusicController {
         // Initialize the locations
         geocoder = new Geocoder(mainActivity, Locale.getDefault());
         gpstracker = new GPSTracker(mainActivity);
-        //location = gpstracker.getLocation();
+
+        this.users = users;
     }
 
     @Override

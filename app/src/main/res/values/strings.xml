@@ -8,7 +8,7 @@
     <string name="title_activity_track_mode">TrackMode</string>
     <string name="title_activity_play_list_">PlayList_Activity</string>
     <string name="title_activity_delete">Delete</string>
-    <string name="default_info">I want to know where they are</string>
+    <string name="default_info">Friends info will not be available until you sign in.</string>
     <string name="user_info">It was last played by %1s.</string>
     <string name="location_info">It was last played at %1s.</string>
     <string name="time_info">It was last played on %1d/%2d/%3d at %4s:%5s.</string>
@@ -19,8 +19,8 @@
     <string name="open">Open</string>
     <string name="close">Close</string>
 
-    <string name="server_client_id">825068678459-qejd3hf8alpco70cfrke3d56su9aitc1.apps.googleusercontent.com</string>
-    <string name="server_client_secret">tPegiE3eqcsx_zXNDzVEsuj5</string>
+    <string name="server_client_id">825068678459-eth7175v1m15299pnsv6qh2g805gec5d.apps.googleusercontent.com</string>
+    <string name="server_client_secret">9Hhp-_EZJNk3ItnQVliWhxBm</string>
 
     <string name="download_folder">/DownloadedSongs/</string>
     <string name="download_album_folder">/DownloadedAlbums/</string>

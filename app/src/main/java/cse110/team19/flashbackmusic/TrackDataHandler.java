@@ -54,6 +54,7 @@ public class TrackDataHandler {
                     int minute = 0;
                     double latitude = 0;
                     double longitude = 0;
+                    String userId="";
 
                     dataSnapshot = dataSnapshot.child(track.getTrackName());
                     for (DataSnapshot child : dataSnapshot.getChildren()) {
@@ -84,11 +85,24 @@ public class TrackDataHandler {
                                 break;
                             case "longitude":
                                 longitude = (Double)child.getValue();
+                                break;
+                            case "userId":
+                                userId = (String)child.getValue();
                         }
                     }
 
-                    track.setDate(year, month, day, hour, minute);
-                    track.setLocation(latitude, longitude);
+                    if (month != 0) {
+                        track.setDate(year, month, day, hour, minute);
+                    }
+
+                    if (latitude != 0 || longitude != 0) {
+                        track.setLocation(latitude, longitude);
+                    }
+
+                    if (userId != "") {
+                        track.setPerson(userId);
+                    }
+
                     // Retrieve data from sharedPreferences
                     SharedPreferences sharedPreferences =
                             context.getSharedPreferences("tracks", MODE_PRIVATE);
@@ -127,7 +141,8 @@ public class TrackDataHandler {
         trackInfo.put("latitude", location.getLatitude());
         trackInfo.put("longitude", location.getLongitude());
 
-        // TODO: put person
+        trackInfo.put("userId", track.getPersonLastPlayed());
+
         reference.updateChildren(trackInfo);
     }
 
@@ -159,6 +174,7 @@ public class TrackDataHandler {
                     int minute = 0;
                     double latitude = 0;
                     double longitude = 0;
+                    String userId = "";
 
                     dataSnapshot = dataSnapshot.child(track.getTrackName());
                     for (DataSnapshot child : dataSnapshot.getChildren()) {
@@ -184,6 +200,9 @@ public class TrackDataHandler {
                                 break;
                             case "longitude":
                                 longitude = (Double) child.getValue();
+                                break;
+                            case "userId":
+                                userId = (String)child.getValue();
                         }
                     }
 
@@ -194,6 +213,11 @@ public class TrackDataHandler {
                     if (latitude != 0 || longitude != 0) {
                         track.setLocation(latitude, longitude);
                     }
+
+                    if (userId != "") {
+                        track.setPerson(userId);
+                    }
+
                     // Retrieve data from sharedPreferences
                     SharedPreferences sharedPreferences =
                             context.getSharedPreferences("tracks", MODE_PRIVATE);

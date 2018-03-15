@@ -43,17 +43,26 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.GoogleApiClient;
 
+import com.google.android.gms.common.api.Scope;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeTokenRequest;
+import com.google.api.client.googleapis.auth.oauth2.GoogleBrowserClientRequestUrl;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.services.people.v1.People;
+import com.google.api.services.people.v1.model.EmailAddress;
+import com.google.api.services.people.v1.model.ListConnectionsResponse;
+import com.google.api.services.people.v1.PeopleService;
+import com.google.api.services.people.v1.model.Name;
+import com.google.api.services.people.v1.model.Person;
+
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 
 import static android.os.Environment.DIRECTORY_DOWNLOADS;
@@ -71,6 +80,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     private Intent locationIntent;
     private BroadcastReceiver broadcastReceiver;
 
+    TextView userNameT;
+    TextView userEmailT;
+
 
     private String url;
 
@@ -84,6 +96,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
 
     GoogleSignInAccount signInAccount;
     String serverAuthCode;
+    static PeopleService peopleService;
+    List<Person> connections;
+
+    List<User> myFriends;
 
     //endregion
 
@@ -168,11 +184,14 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         actionBarDrawerToggle.syncState();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+
         // Google Signin Activity
         SignIn = (SignInButton) findViewById(R.id.main_googlesigninbtn);
         SignIn.setOnClickListener(this);
         GoogleSignInOptions signInOptions = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestEmail()
+                .requestScopes(new Scope("https://www.googleapis.com/auth/contacts"))
+                .requestServerAuthCode(this.getString(R.string.server_client_id))
                 .build();
         googleApiClient = new GoogleApiClient.Builder(this)
                 //.enableAutoManage(this, this)
@@ -453,20 +472,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         startActivityForResult(intent, REQ_CODE);
     }
 
-    private void handleResult(GoogleSignInResult result)
-    {
-        if(result.isSuccess())
-        {
-            GoogleSignInAccount account = result.getSignInAccount();
-            String name = account.getDisplayName();
-            Log.d("user name", name);
-            SignIn.setVisibility(View.GONE);
-        }
-
-        else {
-            //Log.d("result error message", result.getStatus().getStatusMessage());
-        }
-    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -481,20 +486,103 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
             {
                 signInAccount = result.getSignInAccount();
                 serverAuthCode = signInAccount.getServerAuthCode();
+
+                if(serverAuthCode == null)
+                {
+                    Log.e("Server auth code is sad", "i cri");
+                }
+
+                String name = signInAccount.getDisplayName();
+                userNameT = (TextView) findViewById(R.id.userName);
+                userNameT.setText(name);
+
+                String email = signInAccount.getEmail();
+                userEmailT = (TextView) findViewById(R.id.userEmail);
+                userEmailT.setText(email);
+
                 SignIn.setVisibility(View.GONE);
+
+                try {
+                    setUp(this, serverAuthCode);
+                }
+                catch (IOException e){
+                    e.printStackTrace();
+                }
+
+                try {
+                    ListConnectionsResponse response = peopleService.people().connections().list("people/me")
+                            .setPersonFields("names,emailAddresses")
+                            .execute();
+                     connections = response.getConnections();
+                }
+                catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                for(Person p : connections)
+                {
+                    String tempEmail;
+                    String tempName;
+                    List<Name> names;
+                    List<EmailAddress> emailAddresses;
+
+                    names = p.getNames();
+                    tempName = (names.get(0).toString());
+
+                    emailAddresses = p.getEmailAddresses();
+                    tempEmail = (emailAddresses.get(0).toString());
+
+                    User tempUser = new User(tempName, tempEmail);
+                    myFriends.add(tempUser);
+
+                }
+
             }
         }
     }
 
-    public static People setUp(Context context, String serverAuthCode) throws IOException {
+    //Followed google tutorial on developers.google.com/people
+    public void setUp(Context context, String serverAuthCode) throws IOException {
         HttpTransport httpTransport = new NetHttpTransport();
         JacksonFactory jacksonFactory = JacksonFactory.getDefaultInstance();
 
-        String redirectUrl = "";
+        String clientId = context.getString(R.string.server_client_id);
+        String clientSecret = context.getString(R.string.server_client_secret);
+        String redirectUrl = "urn:ietf:wg:oauth:2.0:oob";
+        String scope = "https://www.googleapis.com/auth/contacts.readonly";
+
+        //String authURL = new GoogleBrowserClientRequestUrl(clientId, redirectUrl, Arrays.asList(scope)).build();
+        /*
+        Intent i = new Intent(Intent.ACTION_VIEW);
+        i.setData(Uri.parse(authURL));
+        startActivity(i);
+        */
+
+        if(httpTransport == null)
+        {
+            Log.e("Fuck http", "fuck it");
+        }
+
+        if(jacksonFactory == null)
+        {
+            Log.e("Fuck jsonFactory", "fuck it");
+        }
+
+        if(serverAuthCode == null)
+        {
+            Log.e("Fuck serverAuth", "fuck it");
+        }
+
+        if(redirectUrl == null)
+        {
+            Log.e("Fuck redirectURL", "fuck it");
+        }
 
         GoogleTokenResponse tokenResponse = new GoogleAuthorizationCodeTokenRequest(
-                httpTransport, jacksonFactory, context.getString(R.string.server_client_id),
-                context.getString(R.string.server_client_secret), serverAuthCode, redirectUrl)
+                httpTransport, jacksonFactory, clientId,
+                clientSecret,
+                serverAuthCode,
+                redirectUrl)
                 .execute();
 
         GoogleCredential credential = new GoogleCredential.Builder().setClientSecrets(context.getString(R.string.server_client_id)
@@ -503,7 +591,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
 
         credential.setFromTokenResponse(tokenResponse);
 
-        return new People.Builder(httpTransport, jacksonFactory, credential).setApplicationName("Vibe Music").build();
+        peopleService = new PeopleService.Builder(httpTransport,jacksonFactory,credential).build();
+
+
 
     }
 
