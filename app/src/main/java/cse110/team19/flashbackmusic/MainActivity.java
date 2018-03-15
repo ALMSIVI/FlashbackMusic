@@ -123,17 +123,17 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
                         }
 
                         for (String file : fileNames) {
+                            editor.putString(directory + file + "Website", url);
+                            editor.apply();
                             Log.d("adding new file", file);
                             controller.updatePlayList(file);
-                            editor.putString(directory + file + "Website", url);
                         }
                     } else {
+                        editor.putString(directory + filename + "Website", url);
+                        editor.apply();
                         Log.d("newest name", filename);
                         controller.updatePlayList(filename);
-                        editor.putString(directory + filename + "Website", url);
-                        Log.d("firebase website", directory + filename);
                     }
-                    editor.apply();
                 } else {
                     Log.d("newest name", "null");
                 }

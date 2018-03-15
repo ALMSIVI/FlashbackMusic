@@ -37,7 +37,7 @@ public abstract class MusicController {
     protected BaseAdapter adapter;
     protected PlayList playList;
 
-    protected int isPlaying;
+    protected int isPlaying = -1;
 
     // for recording information of song
     protected Geocoder geocoder;
@@ -52,7 +52,7 @@ public abstract class MusicController {
         if (player.isPlaying()) {
             player.pause();
             changePlay();
-        } else {
+        } else if (isPlaying != -1){
             player.play();
             changePause();
         }
