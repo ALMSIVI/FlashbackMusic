@@ -210,7 +210,7 @@ public abstract class MusicController {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                lastLocation = addresses.get(0).getFeatureName();
+                lastLocation = addresses.get(0).getAddressLine(0);
             }
 
             String lastPlayedInfo = String.format(
