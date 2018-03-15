@@ -35,10 +35,10 @@ public class MusicPlayer {
         mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mediaPlayer) {
-                if (isPlaying()) {
-                    controller.updateTrackInfo();
-                    controller.saveTrackInfo(true, controller.getIsPlaying());
-                }
+
+                controller.updateTrackInfo();
+                controller.saveTrackInfo(true, controller.getIsPlaying());
+
 
                 if (!controller.isNormalMode()) {
                     playNext();

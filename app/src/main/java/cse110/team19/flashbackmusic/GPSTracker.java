@@ -28,8 +28,11 @@ import static android.content.ContentValues.TAG;
 public class GPSTracker extends Service {
 
     private LocationListener locationListener;
+    private LocationListener locationListenerr;
+    private LocationManager locationManagerr;
     private LocationManager locationManager;
     private Context context;
+    private Location currentLocation;
 
     public GPSTracker () {
         super();
@@ -56,6 +59,9 @@ public class GPSTracker extends Service {
                 Intent i = new Intent("Location Updated");
                 i.putExtra("Coordinates", location.getLongitude() + " " + location.getLatitude());
                 sendBroadcast(i);
+                Log.d("onLocationChanged", "locationChanged");
+                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
+                currentLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
             }
 
             @Override
@@ -77,9 +83,18 @@ public class GPSTracker extends Service {
             }
         };
 
+
+
         locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
+        currentLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
     }
+
+    public Location getLocation()
+    {
+        return currentLocation;
+    }
+
 
     /**
      * Ensure no memory leaks
@@ -112,4 +127,5 @@ public class GPSTracker extends Service {
         //Permission not granted by user so cancel the further execution.
         return false;
     }
+
 }
