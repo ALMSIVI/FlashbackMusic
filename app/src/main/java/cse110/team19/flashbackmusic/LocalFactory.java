@@ -60,36 +60,25 @@ public class LocalFactory implements TrackFactory {
         Track track = new Track(trackName, albumName, artist, trackNo, pathName);
 
 
-        // Retrieve data from sharedPreferences
-        SharedPreferences sharedPreferences = context.getSharedPreferences("track_info", MODE_PRIVATE);
+        // Retrieve status and website from sharedPreferences
+        SharedPreferences sharedPreferences = context.getSharedPreferences("tracks", MODE_PRIVATE);
         int status = sharedPreferences.getInt(track.getPathName() + "Status", 0);
         track.setStatus(status);
 
+        String website = sharedPreferences.getString(track.getPathName() + "Website", null);
+        track.setWebsite(website);
+
+        Log.d("firebase track name", track.getPathName());
+
+        if (website == null)
+            Log.d("firebase track site", "null");
+        else
+            Log.d("firebase track site", website);
+
         // calendar
-        String cal = sharedPreferences.getString(track.getPathName() + "Time", null);
-        if (cal != null) {
-            try {
-                // TODO: Firebase
-                //Calendar calendar = Calendar.getInstance();
-                //SimpleDateFormat format = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.ENGLISH);
-                //calendar.setTime(format.parse(cal));
-                //track.setCalendar(calendar);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
 
         // location
-        String loc = sharedPreferences.getString(track.getPathName() + "Location", "Unknown Location");
-            /*if (!loc.equals("Unknown Location")) {
-                String[] locationValue = loc.split("");
-                double latitude = Double.parseDouble(locationValue[0]);
-                double longitude = Double.parseDouble(locationValue[1]);
-                Location location = new Location("");
-                location.setLatitude(latitude);
-                location.setLongitude(longitude);
-                t.setLocation(location);
-            }*/
+
         return track;
     }
 }

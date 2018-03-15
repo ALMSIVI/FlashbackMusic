@@ -10,8 +10,15 @@ import android.util.Log;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.TextView;
+
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -111,20 +118,34 @@ public abstract class MusicController {
      */
     public void saveTrackInfo(boolean all, Track track) {
         // Put status into shared preferences
-        SharedPreferences sharedPreferences = mainActivity.getSharedPreferences("track_info", MODE_PRIVATE);
+        SharedPreferences sharedPreferences = mainActivity.getSharedPreferences("tracks", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
 
         editor.putInt(track.getPathName() + "Status", track.getStatus());
-
-        // TODO: put into Firebase
-        if (all) {
-            // Put time, location, and friend's name to firebase
-            //editor.putString(track.getPathName() + "Time", track.getDate() != null ?
-            //        track.getDate().toString() :
-            //        "null");
-            //editor.putString(track.getPathName() + "Location", track.getLocation());
-        }
         editor.apply();
+
+        if (all) {
+            FirebaseDatabase database = FirebaseDatabase.getInstance();
+            DatabaseReference reference = database.getReference("track");
+
+            Log.d("firebase now website", track.getWebsite());
+
+            reference = reference.child(track.getTrackName());
+
+            Map<String, Object> trackInfo = new HashMap<String, Object>();
+            trackInfo.put("trackName", getIsPlaying().getTrackName());
+            trackInfo.put("website", getIsPlaying().getWebsite());
+
+            LocalDateTime dateTime = getIsPlaying().getDate();
+            trackInfo.put("year", dateTime.getYear());
+            trackInfo.put("month", dateTime.getMonthValue());
+            trackInfo.put("day", dateTime.getDayOfMonth());
+            trackInfo.put("hour", dateTime.getHour());
+            trackInfo.put("minute", dateTime.getMinute());
+
+            // TODO: put person
+            reference.updateChildren(trackInfo);
+        }
     }
 
     public void updatePlayList(String filename) {
