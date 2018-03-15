@@ -7,6 +7,7 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -40,6 +41,30 @@ public class GPSTracker extends Service {
 
     public GPSTracker(Context context) {
         this.context = context;
+    }
+
+    @SuppressLint("MissingPermission")
+    public Location getLocation() {
+
+        Location currentLocation = new Location("");
+
+        if (!permissionRequest()) {
+            Criteria criteria = new Criteria();
+            criteria.setAccuracy(Criteria.ACCURACY_FINE);
+
+            locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+            String provider = locationManager.getBestProvider(criteria, true);
+
+            try {
+                currentLocation = locationManager.getLastKnownLocation(provider);
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return currentLocation;
     }
 
     @Nullable
@@ -90,10 +115,6 @@ public class GPSTracker extends Service {
         currentLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
     }
 
-    public Location getLocation()
-    {
-        return currentLocation;
-    }
 
 
     /**

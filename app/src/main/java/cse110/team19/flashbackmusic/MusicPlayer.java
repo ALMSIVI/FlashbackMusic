@@ -39,7 +39,8 @@ public class MusicPlayer {
                 controller.updateTrackInfo();
                 controller.saveTrackInfo(true, controller.getIsPlaying());
 
-
+                controller.updateTrackInfo();
+                controller.saveTrackInfo(true, controller.getIsPlaying());
                 if (!controller.isNormalMode()) {
                     playNext();
                 }

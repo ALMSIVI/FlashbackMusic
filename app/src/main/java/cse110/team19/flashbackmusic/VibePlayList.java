@@ -29,9 +29,6 @@ public class VibePlayList extends PlayList {
         playList.clear();
         // TODO: retrieve every song info from Firebase
 
-        Calendar calender;
-        calender = Calendar.getInstance();
-
         //For each track
         for (Track track : playList) {
             // TODO: Criterion check

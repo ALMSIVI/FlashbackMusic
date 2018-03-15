@@ -14,6 +14,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -94,15 +95,16 @@ public class Download {
      * @param targetDirectory
      * @throws IOException
      */
-    public void unzipFile(File zipFile, File targetDirectory) throws IOException {
-        ZipInputStream zis = new ZipInputStream(
-                new BufferedInputStream(new FileInputStream(zipFile)));
+    public ArrayList<String> unzipFile(File zipFile, File targetDirectory) throws IOException {
+        ArrayList<String> fileNames = new ArrayList<String>();
+        ZipInputStream zis = new ZipInputStream(new BufferedInputStream(new FileInputStream(zipFile)));
         try {
             ZipEntry ze;
             int count;
             byte[] buffer = new byte[8192];
             while ((ze = zis.getNextEntry()) != null) {
                 File file = new File(targetDirectory, ze.getName());
+                fileNames.add(ze.getName());
                 File dir = ze.isDirectory() ? file : file.getParentFile();
                 if (!dir.isDirectory() && !dir.mkdirs())
                     throw new FileNotFoundException("Failed to ensure directory: " +
@@ -121,5 +123,6 @@ public class Download {
             zis.close();
         }
 
+        return fileNames;
     }
 }

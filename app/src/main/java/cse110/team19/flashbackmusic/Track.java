@@ -1,11 +1,10 @@
 package cse110.team19.flashbackmusic;
 
 import android.location.Location;
-import android.util.Log;
 
 import com.google.android.gms.plus.model.people.Person;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 
 public class Track {
@@ -14,13 +13,12 @@ public class Track {
     private String albumName;
     private int trackNumber;
     private int score;
-    private int status;
+    private int status; //SharedPreferences
     private String website; // Firebase
-    private Person lastPlayedBy;
-    private long time;
+    private Person personLastPlayed;
     private String pathName;
 
-    private LocalDate date; // Firebase
+    private LocalDateTime date; // Firebase
     private Location location; // Firebase
 
     /**
@@ -64,7 +62,7 @@ public class Track {
      * Date is stored into Firebase.
      * @return date this track was last played
      */
-    public LocalDate getDate() {
+    public LocalDateTime getDate() {
         return date;
     }
 
@@ -84,9 +82,20 @@ public class Track {
         return website;
     }
 
+    /**
+     * location is stored into Firebase.
+     * @return location of the long
+     */
+    public Location getLocation() {
+        return location;
+    }
 
+    /**
+     * personLastPlayed is stored into Firebase.
+     * @return the person who last played th song
+     */
     public Person getPersonLastPlayed() {
-        return lastPlayedBy;
+        return personLastPlayed;
     }
 
     public String getArtistName() {
@@ -113,9 +122,6 @@ public class Track {
         return pathName;
     }
 
-    public Location getLocation() {
-        return location;
-    }
     //endregion
 
     //region Setters
@@ -123,16 +129,8 @@ public class Track {
         this.trackName = trackName;
     }
 
-    public void setTime(long time) {
-        this.time = time;
-    }
-
     public void setStatus(int status) {
         this.status = status;
-    }
-
-    public void setPersonLastPlayed(Person user) {
-        this.lastPlayedBy = user;
     }
 
     public void setWebsite(String site) {
@@ -148,13 +146,18 @@ public class Track {
         location.setLongitude(longitude);
     }
 
-    public void setDate(int year, int month, int day) {
-        this.date = LocalDate.of(year, month, day);
+    public void setDate(int year, int month, int day, int hour, int minute) {
+        this.date = LocalDateTime.of(year, month, day, hour, minute);
+    }
+
+    public void setPerson(String email) {
+        // TODO: update person
+        // this.personLastPlayed =
     }
 
     //endregion
 
-    public void updateInfo(Location newLocation, LocalDate newDate) {
+    public void updateInfo(Location newLocation, LocalDateTime newDate) {
         location = newLocation;
         date = newDate;
     }
