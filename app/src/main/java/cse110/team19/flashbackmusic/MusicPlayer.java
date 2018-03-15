@@ -1,5 +1,6 @@
 package cse110.team19.flashbackmusic;
 
+import android.location.Location;
 import android.media.MediaPlayer;
 import android.util.Log;
 
@@ -16,6 +17,7 @@ public class MusicPlayer {
 
     // MVC
     private MusicController controller;
+
     //endregion
 
     /**
@@ -37,6 +39,12 @@ public class MusicPlayer {
             public void onCompletion(MediaPlayer mediaPlayer) {
                 controller.updateTrackInfo();
                 controller.saveTrackInfo(true, controller.getIsPlaying());
+
+                // TODO: THIS STUFF
+                // once a song is completed, add that song to the location it was played at
+                // Location location = gpsTracker.getLocation();
+                // reverse geocode here
+                // locationDataHandler.update(location, track name);
 
                 if (!controller.isNormalMode()) {
                     playNext();

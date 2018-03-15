@@ -15,9 +15,28 @@ public class LocationDataHandler {
     public DataSnapshot retrieve(String location) {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference reference = database.getReference("location");
+        DatabaseReference locReference = reference.child(location);
 
-        final DataSnapshot dataSnapshot = snapshot.child(location);
+        /*FirebaseDatabase.getInstance().getReference().child("users")
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                            User user = snapshot.getValue(User.class);
+                            System.out.println(user.email);
+                        }
+                    }
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                    }
+                });*/
 
+        /*var ref = firebase.database().ref("users/ada");
+        ref.once("value")
+                .then(function(snapshot) {
+            var key = snapshot.key; // "ada"
+            var childKey = snapshot.child("name/last").key; // "last"
+        });*/
 
         return null;
     }
