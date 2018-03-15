@@ -9,12 +9,11 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
+import cse110.team19.flashbackmusic.LocalFactory;
 import cse110.team19.flashbackmusic.MainActivity;
-import cse110.team19.flashbackmusic.MusicController;
 import cse110.team19.flashbackmusic.MusicPlayer;
 import cse110.team19.flashbackmusic.NormalController;
 import cse110.team19.flashbackmusic.NormalPlayList;
-import cse110.team19.flashbackmusic.PlayList;
 import cse110.team19.flashbackmusic.PlayListAdapter;
 import cse110.team19.flashbackmusic.R;
 import cse110.team19.flashbackmusic.Track;
@@ -30,6 +29,7 @@ public class MusicPlayerTest {
 
     MusicPlayer mp;
     Track track;
+    LocalFactory localFactory;
 
     @Rule
     public ActivityTestRule<MainActivity> mainActivity = new ActivityTestRule<MainActivity>(MainActivity.class);
@@ -41,8 +41,13 @@ public class MusicPlayerTest {
     @Before
     public void initialize() {
         mp = new MusicPlayer(new MediaPlayer());
-        track = new Track("Blood On Your Bootheels", "I Will Not Be Afraid", "Unknown Artist", 1, Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS).getPath()
-                + mainActivity.getActivity().getResources().getString(R.string.download_folder) + "blood_on_your_bootheels.mp3");
+
+        localFactory = new LocalFactory(mainActivity.getActivity());
+        String path = Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS).getPath()
+                + mainActivity.getActivity().getResources().getString(R.string.download_folder) +
+                "blood_on_your_bootheels.mp3";
+        track = localFactory.createTrack(path);
+
         PlayListAdapter playListAdapter = new PlayListAdapter(mainActivity.getActivity());
         NormalPlayList normalPlayList = new NormalPlayList(mainActivity.getActivity(), Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS).getPath()
                 + mainActivity.getActivity().getResources().getString(R.string.download_folder));
