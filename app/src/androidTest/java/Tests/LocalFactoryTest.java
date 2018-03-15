@@ -3,6 +3,7 @@ package Tests;
 import android.os.Environment;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.rule.GrantPermissionRule;
+import android.util.Log;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -43,5 +44,8 @@ public class LocalFactoryTest {
         track = localFactory.createTrack(path);
 
         assertEquals("Blood On Your Bootheels", track.getTrackName());
+        assertEquals("Unknown artist", track.getArtistName());
+        assertEquals("I Will Not Be Afraid (A Sampler)", track.getAlbumName());
+        assertEquals(1, track.getTrackNumber());
     }
 }
