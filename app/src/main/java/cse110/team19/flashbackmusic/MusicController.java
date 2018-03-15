@@ -11,9 +11,7 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.TextView;
 import java.io.IOException;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -35,7 +33,6 @@ public abstract class MusicController {
     protected int isPlaying;
 
     // for recording information of song
-    protected Date time;
     protected Geocoder geocoder;
     protected List<Address> addresses;
     protected GPSTracker gpstracker;
@@ -106,7 +103,7 @@ public abstract class MusicController {
 
     public void updateTrackInfo() {
         //location = gpstracker.getLocation();
-        getIsPlaying().updateInfo(location, time.getTime());
+        getIsPlaying().updateInfo(location, MockTime.now());
     }
 
     /**
@@ -119,12 +116,13 @@ public abstract class MusicController {
 
         editor.putInt(track.getPathName() + "Status", track.getStatus());
 
+        // TODO: put into Firebase
         if (all) {
             // Put time, location, and friend's name to firebase
-            editor.putString(track.getPathName() + "Time", track.getDate() != null ?
-                    track.getDate().toString() :
-                    "null");
-            editor.putString(track.getPathName() + "Location", track.getLocation());
+            //editor.putString(track.getPathName() + "Time", track.getDate() != null ?
+            //        track.getDate().toString() :
+            //        "null");
+            //editor.putString(track.getPathName() + "Location", track.getLocation());
         }
         editor.apply();
     }
