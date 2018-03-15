@@ -30,10 +30,13 @@
     <item
         android:id="@+id/Download"
         android:icon="@mipmap/download"
-        android:title="@string/menu_download"></item>
+        android:title="@string/menu_download">
+    </item>
 
     <item
         android:id="@+id/Time"
-        android:title="@string/menu_time"></item>
+        android:icon="@mipmap/mock"
+        android:title="@string/menu_time">
+    </item>
 
 </menu>

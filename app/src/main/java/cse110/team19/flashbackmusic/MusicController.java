@@ -73,20 +73,20 @@ public abstract class MusicController {
      */
     public void changePause() {
         Button mainPlayButton = (Button) mainActivity.findViewById(R.id.playButton);
-        Drawable pause = ContextCompat.getDrawable(mainActivity, R.drawable.ic_pause_actuallyblack_24dp);
+        Drawable pause = ContextCompat.getDrawable(mainActivity, R.mipmap.pause);
         mainPlayButton.setCompoundDrawablesWithIntrinsicBounds(null, pause, null, null);
     }
 
     public void changeStatusButton(int id, Button button) {
         int stat = playList.get(id).getStatus();
         if (stat == 0) {
-            Drawable neutral = ContextCompat.getDrawable(mainActivity, R.drawable.neutral);
+            Drawable neutral = ContextCompat.getDrawable(mainActivity, R.mipmap.neutral);
             button.setCompoundDrawablesWithIntrinsicBounds(null, neutral, null, null);
         } else if (stat == 1) {
-            Drawable liked = ContextCompat.getDrawable(mainActivity, R.drawable.favorite);
+            Drawable liked = ContextCompat.getDrawable(mainActivity, R.mipmap.like);
             button.setCompoundDrawablesWithIntrinsicBounds(null, liked, null, null);
         } else if (stat == -1) {
-            Drawable disliked = ContextCompat.getDrawable(mainActivity, R.drawable.dislike);
+            Drawable disliked = ContextCompat.getDrawable(mainActivity, R.mipmap.dislike);
             button.setCompoundDrawablesWithIntrinsicBounds(null, disliked, null, null);
         }
     }
