@@ -33,7 +33,13 @@ public class User {
         return tracks;
     }
 
+
     //Setters
     public void setName(String name){this.name = name;}
     public void setId(String id) { this.id = id;}
+
+    public void setTracks(LinkedList<Track> tracks) {
+        this.tracks = tracks;
+    }
+
 }

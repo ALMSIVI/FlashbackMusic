@@ -8,7 +8,7 @@
     <string name="title_activity_track_mode">TrackMode</string>
     <string name="title_activity_play_list_">PlayList_Activity</string>
     <string name="title_activity_delete">Delete</string>
-    <string name="default_info">I want to know where they are</string>
+    <string name="default_info">Friends info will not be available until you sign in.</string>
     <string name="user_info">It was last played by %1s.</string>
     <string name="location_info">It was last played at %1s.</string>
     <string name="time_info">It was last played on %1d/%2d/%3d at %4s:%5s.</string>

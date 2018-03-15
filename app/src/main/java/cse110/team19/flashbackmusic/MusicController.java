@@ -1,24 +1,23 @@
 package cse110.team19.flashbackmusic;
 
 import android.content.SharedPreferences;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.support.v4.content.ContextCompat;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
 import android.util.Log;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -36,6 +35,8 @@ public abstract class MusicController {
 
     protected BaseAdapter adapter;
     protected PlayList playList;
+
+    protected List<User> users;
 
     protected int isPlaying = -1;
 
@@ -181,6 +182,9 @@ public abstract class MusicController {
 
     //region Texts
     public void updateText() {
+        TrackDataHandler handler = new TrackDataHandler(mainActivity);
+        handler.retrieveTrackNecessary(getIsPlaying());
+
         // trackInfo
         TextView trackInfo = mainActivity.findViewById(R.id.trackInfo);
         trackInfo.setText(getIsPlaying().getTrackName());
@@ -211,6 +215,31 @@ public abstract class MusicController {
             }
 
             // userInfo
+            TextView userInfo = mainActivity.findViewById(R.id.userInfo);
+            if (users == null) {
+                userInfo.setText(mainActivity.getString(R.string.default_info));
+            } else {
+                boolean updated = false;
+                for (User user : users) {
+                    if (user.getId().equals(getIsPlaying().getPersonLastPlayed())) {
+                        // Equal to current user
+                        if (user.getId().equals(mainActivity.getCurrentUser().getId())) {
+                            String userString = String.format(mainActivity.getString(R.string.user_info), "upi");
+                            SpannableStringBuilder str = new SpannableStringBuilder(userString);
+                            // TODO: debug
+                            str.setSpan(new android.text.style.StyleSpan(Typeface.ITALIC), 21, 24, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                            userInfo.setText(str);
+                        } else {
+
+                        }
+                        String userString = String.format(mainActivity.getString(R.string.user_info), user.getName());
+                        userInfo.setText(userString);
+                        break;
+                    }
+                }
+
+                String userString = String.format(mainActivity.getString(R.string.user_info), "Anonymous " + getIsPlaying().getPersonLastPlayed());
+            }
 
             // timeInfo
             LocalDateTime date = getIsPlaying().getDate();
