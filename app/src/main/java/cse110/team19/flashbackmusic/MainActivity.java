@@ -131,7 +131,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
                     } else {
                         editor.putString(directory + filename + "Website", url);
                         editor.apply();
-                        Log.d("newest name", filename);
+                        Log.d("newest name", directory + filename);
                         controller.updatePlayList(filename);
                     }
                 } else {
@@ -539,7 +539,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
             public void onClick(DialogInterface dialog, int whichButton) {
 
                 url = input.getText().toString();
-                Log.d("firebase url", url);
+                Log.d("sharedpreference url", url);
                 DownloadManager dm = (DownloadManager)getSystemService(DOWNLOAD_SERVICE);
                 download = new Download(dm, getResources().getString(R.string.download_folder));
                 download.downloadData(url);

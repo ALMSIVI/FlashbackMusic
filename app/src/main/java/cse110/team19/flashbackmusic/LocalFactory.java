@@ -68,12 +68,12 @@ public class LocalFactory implements TrackFactory {
         String website = sharedPreferences.getString(track.getPathName() + "Website", null);
         track.setWebsite(website);
 
-        Log.d("firebase track name", track.getPathName());
+        Log.d("sharedpreferences path from factory", track.getPathName());
 
         if (website == null)
-            Log.d("firebase track site", "null");
+            Log.d("sharedpreferences track site", "null");
         else
-            Log.d("firebase track site", website);
+            Log.d("sharedpreferences track site", website);
 
 
         TrackDataHandler handler = new TrackDataHandler(context);

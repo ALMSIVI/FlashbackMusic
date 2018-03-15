@@ -108,7 +108,7 @@ public class TrackDataHandler {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference reference = database.getReference("track");
 
-        Log.d("firebase now website", track.getWebsite());
+        Log.d("sharedpreference now website", track.getWebsite());
 
         reference = reference.child(track.getTrackName());
 
