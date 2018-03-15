@@ -25,36 +25,10 @@ import static android.content.Context.MODE_PRIVATE;
         // Get data from tracks reference
         DatabaseReference reference = database.getReference("locationwrapper");
 
-        Query query = reference.orderByChild("location").equalTo(path);
+        //Query query = reference.orderByChild("location").equalTo(path);
 
         final Location location = new Location("");
 
-        query.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot == null || dataSnapshot.getValue() == null) {
-                    Log.w("DatabaseError", "No data found");
-                } else {
-                    // Get track name, time and url
-                    Track tempTrack = dataSnapshot.getValue(Track.class);
-
-                    track.setTrackName(tempTrack.getTrackName());
-                    track.setTime(tempTrack.getTime());
-                    track.setWebsite(tempTrack.getWebsite());
-
-                    // Retrieve data from sharedPreferences
-                    SharedPreferences sharedPreferences =
-                            context.getSharedPreferences("track_info", MODE_PRIVATE);
-                    int status = sharedPreferences.getInt(track.getPathName() + "Status", 0);
-                    track.setStatus(status);
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Log.w("DatabaseError", databaseError.toException());
-            }
-        });
 
         return null;
     }

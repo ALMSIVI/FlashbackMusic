@@ -13,6 +13,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.os.Environment;
@@ -70,6 +71,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     private Intent locationIntent;
     private BroadcastReceiver broadcastReceiver;
 
+
+    private String url;
+
+
     private PlayListAdapter adapter;
     private MusicPlayer player;
 
@@ -93,35 +98,42 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            if (action.equals(DownloadManager.ACTION_DOWNLOAD_COMPLETE) ){
+            if (action.equals(DownloadManager.ACTION_DOWNLOAD_COMPLETE)) {
                 Bundle extras = intent.getExtras();
                 long id = extras.getLong(DownloadManager.EXTRA_DOWNLOAD_ID);
                 String filename = download.getLatestFileName(id);
 
-                if (filename != null && filename.contains("zip")) {
-                    Log.d("hi", "wool");
-                    File tDirectory = new File(Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS).getPath()
-                            + getResources().getString(R.string.download_folder));
-                    File zipFile = new File(Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS).getPath()
-                            + getResources().getString(R.string.download_album_folder) + filename);
-                    ArrayList<String> fileNames = new ArrayList<String>();
+                // Unzip file
+                if (filename != null) {
+                    SharedPreferences sharedPreferences = getSharedPreferences("tracks", MODE_PRIVATE);
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    if (filename.contains("zip")) {
+                        Log.d("zipFile", filename);
+                        File tDirectory = new File(Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS).getPath()
+                                + getResources().getString(R.string.download_folder));
+                        File zipFile = new File(Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS).getPath()
+                                + getResources().getString(R.string.download_album_folder) + filename);
+                        ArrayList<String> fileNames = new ArrayList<String>();
 
-                    try {
-                        fileNames = download.unzipFile(zipFile, tDirectory);
-                    } catch (IOException e) {
-                        Log.d("IOException", e.getMessage());
-                        System.exit(-1);
+                        try {
+                            fileNames = download.unzipFile(zipFile, tDirectory);
+                        } catch (IOException e) {
+                            Log.d("IOException", e.getMessage());
+                            System.exit(-1);
+                        }
+
+                        for (String file : fileNames) {
+                            Log.d("adding new file", file);
+                            controller.updatePlayList(file);
+                            editor.putString(directory + file + "Website", url);
+                        }
+                    } else {
+                        Log.d("newest name", filename);
+                        controller.updatePlayList(filename);
+                        editor.putString(directory + filename + "Website", url);
+                        Log.d("firebase website", directory + filename);
                     }
-
-                    for (String file : fileNames) {
-                        Log.d("adding new file", file);
-                        controller.updatePlayList(file);
-                    }
-                }
-
-                else if (filename != null) {
-                    Log.d("newest name", filename);
-                    controller.updatePlayList(filename);
+                    editor.apply();
                 } else {
                     Log.d("newest name", "null");
                 }
@@ -188,7 +200,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         player = new MusicPlayer(new MediaPlayer());
 
         // Check mode and switch
-        SharedPreferences sharedPreferences = this.getSharedPreferences("mode", MODE_PRIVATE);
+        SharedPreferences sharedPreferences = getSharedPreferences("mode", MODE_PRIVATE);
         String mode = sharedPreferences.getString("mode", null);
         if (mode == null || mode.equals(getResources().getString(R.string.mode_normal))) {
             setNormal();
@@ -218,7 +230,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
      */
     public void switchModes(View view) {
         //Get mode
-        SharedPreferences sharedPreferences = this.getSharedPreferences("mode", MODE_PRIVATE);
+        SharedPreferences sharedPreferences = getSharedPreferences("mode", MODE_PRIVATE);
         String mode = sharedPreferences.getString("mode", null);
 
         if (mode.equals(getResources().getString(R.string.mode_normal))) {
@@ -242,7 +254,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         // Set up the MVC controller
         controller = new NormalController(this, adapter, player, playList);
 
-        SharedPreferences sharedPreferences = this.getSharedPreferences("mode", MODE_PRIVATE);
+        SharedPreferences sharedPreferences = getSharedPreferences("mode", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("mode", getResources().getString(R.string.mode_normal));
         editor.apply();
@@ -270,7 +282,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         // Set up the MVC controller
         controller = new VibeController(this, adapter, player, playList);
 
-        SharedPreferences sharedPreferences = this.getSharedPreferences("mode", MODE_PRIVATE);
+        SharedPreferences sharedPreferences = getSharedPreferences("mode", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("mode", getResources().getString(R.string.mode_vibe));
         editor.apply();
@@ -520,28 +532,21 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         alert.setPositiveButton("Download Song", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
 
-                String url = input.getText().toString();
+                url = input.getText().toString();
+                Log.d("firebase url", url);
                 DownloadManager dm = (DownloadManager)getSystemService(DOWNLOAD_SERVICE);
                 download = new Download(dm, getResources().getString(R.string.download_folder));
                 download.downloadData(url);
-
-                String directory = Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS).getPath()
-                        + getResources().getString(R.string.download_folder);
-                Log.d("Download directory", directory);
             }
         });
 
         alert.setNegativeButton("Download Album", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
 
-                String url = input.getText().toString();
+                url = input.getText().toString();
                 DownloadManager dm = (DownloadManager)getSystemService(DOWNLOAD_SERVICE);
                 download = new Download(dm, getResources().getString(R.string.download_album_folder));
                 download.downloadData(url);
-
-                String directory = Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS).getPath()
-                        + getResources().getString(R.string.download_folder);
-                Log.d("Download directory", directory);
             }
         });
 
