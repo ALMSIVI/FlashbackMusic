@@ -42,7 +42,7 @@ public class MusicPlayer {
                 controller.updateTrackInfo();
                 controller.saveTrackInfo(true, controller.getIsPlaying());
 
-                // TODO: THIS STUFF
+                // TODO: THIS STUFF <-- Put in updateTrackInfo
                 // once a song is completed, add that song to the location it was played at
                 // Location location = gpsTracker.getLocation();
                 // reverse geocode here

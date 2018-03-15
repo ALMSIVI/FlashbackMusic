@@ -110,7 +110,6 @@ public abstract class MusicController {
 
     public void updateTrackInfo() {
         location = gpstracker.getLocation();
-        //location = gpstracker.getLocation();
         getIsPlaying().updateInfo(location, MockTime.now());
     }
 
@@ -222,7 +221,8 @@ public abstract class MusicController {
             LocalDateTime date = getIsPlaying().getDate();
             String lastPlayedInfo = String.format(
                     mainActivity.getString(R.string.time_info), date.getMonthValue(),
-                    date.getDayOfMonth(), date.getYear(), date.getHour(), date.getMinute());
+                    date.getDayOfMonth(), date.getYear(), String.format("%02d",date.getHour()),
+                    String.format("%02d", date.getMinute()));
             lastPlayedView.setText(lastPlayedInfo);
         }
     }

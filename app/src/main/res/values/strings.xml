@@ -11,7 +11,7 @@
     <string name="default_info">I want to know where they are</string>
     <string name="user_info">It was last played by %1s.</string>
     <string name="location_info">It was last played at %1s.</string>
-    <string name="time_info">It was last played on %1d/%2d/%3d at %4d:%5d.</string>
+    <string name="time_info">It was last played on %1d/%2d/%3d at %4s:%5s.</string>
     <string name="never_played_info">This is the first time you played this song!</string>
     <string name="mode_normal">Normal</string>
     <string name="mode_vibe">Vibe</string>
