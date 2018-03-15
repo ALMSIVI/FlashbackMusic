@@ -71,6 +71,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     private Intent locationIntent;
     private BroadcastReceiver broadcastReceiver;
 
+    TextView userNameT;
+    TextView userEmailT;
+
 
     private String url;
 
@@ -453,20 +456,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         startActivityForResult(intent, REQ_CODE);
     }
 
-    private void handleResult(GoogleSignInResult result)
-    {
-        if(result.isSuccess())
-        {
-            GoogleSignInAccount account = result.getSignInAccount();
-            String name = account.getDisplayName();
-            Log.d("user name", name);
-            SignIn.setVisibility(View.GONE);
-        }
-
-        else {
-            //Log.d("result error message", result.getStatus().getStatusMessage());
-        }
-    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -481,6 +470,15 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
             {
                 signInAccount = result.getSignInAccount();
                 serverAuthCode = signInAccount.getServerAuthCode();
+
+                String name = signInAccount.getDisplayName();
+                userNameT = (TextView) findViewById(R.id.userName);
+                userNameT.setText(name);
+
+                String email = signInAccount.getEmail();
+                userEmailT = (TextView) findViewById(R.id.userEmail);
+                userEmailT.setText(email);
+
                 SignIn.setVisibility(View.GONE);
             }
         }
