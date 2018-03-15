@@ -225,9 +225,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     }
 
     public void skipMusic(View view) {
-        if (controller.getNext() != null) {
-            controller.playNext();
-        }
+        player.playNext();
     }
 
     /**

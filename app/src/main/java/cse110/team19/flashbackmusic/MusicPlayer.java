@@ -50,6 +50,8 @@ public class MusicPlayer {
 
                 if (!controller.isNormalMode()) {
                     playNext();
+                } else {
+                    controller.updateText();
                 }
             }
         });
