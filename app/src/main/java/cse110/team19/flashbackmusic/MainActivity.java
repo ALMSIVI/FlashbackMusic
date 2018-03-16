@@ -13,7 +13,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.media.MediaPlayer;
-import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.os.Environment;
@@ -45,7 +45,6 @@ import com.google.android.gms.common.api.GoogleApiClient;
 
 import com.google.android.gms.common.api.Scope;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeTokenRequest;
-import com.google.api.client.googleapis.auth.oauth2.GoogleBrowserClientRequestUrl;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
 import com.google.api.client.http.HttpTransport;
@@ -61,8 +60,8 @@ import com.google.api.services.people.v1.model.Person;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 
 import static android.os.Environment.DIRECTORY_DOWNLOADS;
@@ -93,6 +92,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     private SignInButton SignIn;
     private static final int REQ_CODE = 9001;
     GoogleApiClient googleApiClient;
+    private User me;
 
     GoogleSignInAccount signInAccount;
     String serverAuthCode;
@@ -183,6 +183,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         drawerLayout.addDrawerListener(actionBarDrawerToggle);
         actionBarDrawerToggle.syncState();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        Log.e("This is client id", this.getString(R.string.server_client_id));
 
 
         // Google Signin Activity
@@ -277,7 +279,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         adapter.notifyDataSetChanged();
 
         // Set up the MVC controller
-        controller = new NormalController(this, adapter, player, playList, null);
+        controller = new NormalController(this, adapter, player, playList, myFriends);
 
         SharedPreferences sharedPreferences = getSharedPreferences("mode", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -500,39 +502,36 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
                 userEmailT = (TextView) findViewById(R.id.userEmail);
                 userEmailT.setText(email);
 
+
                 SignIn.setVisibility(View.GONE);
 
                 try {
-                    setUp(this, serverAuthCode);
+                    setUp();
                 }
-                catch (IOException e){
+                catch (ExecutionException e){
+                    e.printStackTrace();
+                }
+                catch (InterruptedException e){
                     e.printStackTrace();
                 }
 
-                try {
-                    ListConnectionsResponse response = peopleService.people().connections().list("people/me")
-                            .setPersonFields("names,emailAddresses")
-                            .execute();
-                     connections = response.getConnections();
-                }
-                catch (IOException e) {
-                    e.printStackTrace();
-                }
+                Log.e("Done with setup outside", "done");
+
+                myFriends = new ArrayList<>();
 
                 for(Person p : connections)
                 {
-                    String tempEmail;
                     String tempName;
+                    String tempId;
                     List<Name> names;
-                    List<EmailAddress> emailAddresses;
+
 
                     names = p.getNames();
                     tempName = (names.get(0).toString());
 
-                    emailAddresses = p.getEmailAddresses();
-                    tempEmail = (emailAddresses.get(0).toString());
+                    tempId = p.getResourceName();
 
-                    User tempUser = new User(tempName, tempEmail);
+                    User tempUser = new User(tempName, tempId);
                     myFriends.add(tempUser);
 
                 }
@@ -542,58 +541,17 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     }
 
     //Followed google tutorial on developers.google.com/people
-    public void setUp(Context context, String serverAuthCode) throws IOException {
-        HttpTransport httpTransport = new NetHttpTransport();
-        JacksonFactory jacksonFactory = JacksonFactory.getDefaultInstance();
-
-        String clientId = context.getString(R.string.server_client_id);
-        String clientSecret = context.getString(R.string.server_client_secret);
-        String redirectUrl = "urn:ietf:wg:oauth:2.0:oob";
-        String scope = "https://www.googleapis.com/auth/contacts.readonly";
-
-        //String authURL = new GoogleBrowserClientRequestUrl(clientId, redirectUrl, Arrays.asList(scope)).build();
-        /*
-        Intent i = new Intent(Intent.ACTION_VIEW);
-        i.setData(Uri.parse(authURL));
-        startActivity(i);
-        */
-
-        if(httpTransport == null)
-        {
-            Log.e("Fuck http", "fuck it");
-        }
-
-        if(jacksonFactory == null)
-        {
-            Log.e("Fuck jsonFactory", "fuck it");
-        }
-
-        if(serverAuthCode == null)
-        {
-            Log.e("Fuck serverAuth", "fuck it");
-        }
-
-        if(redirectUrl == null)
-        {
-            Log.e("Fuck redirectURL", "fuck it");
-        }
-
-        GoogleTokenResponse tokenResponse = new GoogleAuthorizationCodeTokenRequest(
-                httpTransport, jacksonFactory, clientId,
-                clientSecret,
-                serverAuthCode,
-                redirectUrl)
-                .execute();
-
-        GoogleCredential credential = new GoogleCredential.Builder().setClientSecrets(context.getString(R.string.server_client_id)
-        , context.getString(R.string.server_client_secret)).setTransport(httpTransport).setJsonFactory(jacksonFactory).build();
+    public void setUp() throws ExecutionException, InterruptedException {
 
 
-        credential.setFromTokenResponse(tokenResponse);
 
-        peopleService = new PeopleService.Builder(httpTransport,jacksonFactory,credential).build();
+        String clientId = getString(R.string.server_client_id);
+        String clientSecret = getString(R.string.server_client_secret);
 
+        SignInTask task = new SignInTask();
 
+        connections = task.execute(clientId, clientSecret).get();
+        Log.e("Done with setUp", "done");
 
     }
 
@@ -614,8 +572,86 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         }
         super.onStop();
     }
-    //endregion
 
+
+    private class SignInTask extends AsyncTask<String, Void, List<Person>>
+    {
+        HttpTransport httpTransport;
+        JacksonFactory jacksonFactory;
+        String clientId;
+        String clientSecret;
+
+        @Override
+        protected void onPreExecute(){
+            httpTransport = new NetHttpTransport();
+            jacksonFactory = JacksonFactory.getDefaultInstance();
+        }
+
+        @Override
+        protected List<Person> doInBackground(String... strings) {
+
+            clientId = strings[0];
+            clientSecret = strings[1];
+            String redirectUrl = "";
+
+            List<Person> toRet = null;
+
+            try {
+                GoogleTokenResponse tokenResponse = new GoogleAuthorizationCodeTokenRequest(
+                        httpTransport, jacksonFactory, clientId,
+                        clientSecret,
+                        serverAuthCode,
+                        redirectUrl)
+                        .execute();
+
+                GoogleCredential credential = new GoogleCredential.Builder().setClientSecrets(clientId
+                        , clientSecret).setTransport(httpTransport).setJsonFactory(jacksonFactory).build();
+
+                credential.setFromTokenResponse(tokenResponse);
+
+                peopleService = new PeopleService.Builder(httpTransport,jacksonFactory,credential).setApplicationName("VibeMusic").build();
+
+                if(peopleService == null)
+                {
+                    Log.e("People service", "is null");
+                }
+
+                Person profile = peopleService.people().get("people/me")
+                        .setPersonFields("names,emailAddresses")
+                        .execute();
+
+                String myName = profile.getNames().get(0).toString();
+
+                me = new User(myName, profile.getResourceName());
+
+                ListConnectionsResponse response = peopleService.people().connections().list("people/me")
+                        .setPersonFields("names,emailAddresses")
+                        .execute();
+                if(response == null)
+                {
+                    Log.e("Response", "it's null");
+                }
+                toRet = response.getConnections();
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            Log.e("End of doInBack", "done");
+            if(toRet == null)
+            {
+                Log.e("toRet was null", "toRet");
+            }
+            return toRet;
+        }
+
+    }
+
+    public User getCurrentUser()
+    {
+        return me;
+    }
+    //endregion
     //region Download and Time
     public void download() {
         AlertDialog.Builder alert = new AlertDialog.Builder(this);
@@ -681,5 +717,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         datePicker.show();
     }
     //endregion
+
+
 
 }

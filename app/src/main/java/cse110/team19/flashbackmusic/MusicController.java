@@ -223,7 +223,7 @@ public abstract class MusicController {
                 for (User user : users) {
                     if (user.getId().equals(getIsPlaying().getPersonLastPlayed())) {
                         // Equal to current user
-                        /*if (user.getId().equals(mainActivity.getCurrentUser().getId())) {
+                        if (user.getId().equals(mainActivity.getCurrentUser().getId())) {
                             String userString = String.format(mainActivity.getString(R.string.user_info), "upi");
                             SpannableStringBuilder str = new SpannableStringBuilder(userString);
                             // TODO: debug
@@ -231,7 +231,7 @@ public abstract class MusicController {
                             userInfo.setText(str);
                         } else {
 
-                        }*/
+                        }
                         String userString = String.format(mainActivity.getString(R.string.user_info), user.getName());
                         userInfo.setText(userString);
                         break;
