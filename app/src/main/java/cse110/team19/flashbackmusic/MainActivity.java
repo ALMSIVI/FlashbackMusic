@@ -277,7 +277,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         adapter.notifyDataSetChanged();
 
         // Set up the MVC controller
-        controller = new NormalController(this, adapter, player, playList);
+        controller = new NormalController(this, adapter, player, playList, null);
 
         SharedPreferences sharedPreferences = getSharedPreferences("mode", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();

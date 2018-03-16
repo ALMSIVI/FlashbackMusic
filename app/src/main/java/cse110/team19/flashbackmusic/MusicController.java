@@ -65,7 +65,7 @@ public abstract class MusicController {
     public void changePlay() {
         Button mainPauseButton = (Button) mainActivity.findViewById(R.id.playButton);
         // Old version: mainActivity.getResources().getDrawable(...);
-        Drawable play = ContextCompat.getDrawable(mainActivity, R.drawable.ic_play_arrow_actuallyblack_24dp);
+        Drawable play = ContextCompat.getDrawable(mainActivity, R.mipmap.playwhite);
         mainPauseButton.setCompoundDrawablesWithIntrinsicBounds(null, play, null, null);
     }
 
@@ -74,7 +74,7 @@ public abstract class MusicController {
      */
     public void changePause() {
         Button mainPlayButton = (Button) mainActivity.findViewById(R.id.playButton);
-        Drawable pause = ContextCompat.getDrawable(mainActivity, R.mipmap.pause);
+        Drawable pause = ContextCompat.getDrawable(mainActivity, R.mipmap.pausewhite);
         mainPlayButton.setCompoundDrawablesWithIntrinsicBounds(null, pause, null, null);
     }
 
@@ -223,7 +223,7 @@ public abstract class MusicController {
                 for (User user : users) {
                     if (user.getId().equals(getIsPlaying().getPersonLastPlayed())) {
                         // Equal to current user
-                        if (user.getId().equals(mainActivity.getCurrentUser().getId())) {
+                        /*if (user.getId().equals(mainActivity.getCurrentUser().getId())) {
                             String userString = String.format(mainActivity.getString(R.string.user_info), "upi");
                             SpannableStringBuilder str = new SpannableStringBuilder(userString);
                             // TODO: debug
@@ -231,7 +231,7 @@ public abstract class MusicController {
                             userInfo.setText(str);
                         } else {
 
-                        }
+                        }*/
                         String userString = String.format(mainActivity.getString(R.string.user_info), user.getName());
                         userInfo.setText(userString);
                         break;

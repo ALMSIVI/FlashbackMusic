@@ -12,7 +12,7 @@
         android:id="@+id/libraryText"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_margin="5dp"
+        android:layout_margin="10dp"
         android:textSize="20sp"
         app:layout_constraintBottom_toTopOf="@+id/listView"
         app:layout_constraintHorizontal_bias="0"
@@ -37,7 +37,9 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_margin="2dp"
+        android:background="@color/colorPrimary"
         android:gravity="center"
+        android:textColor="@android:color/white"
         android:textSize="20sp"
         app:layout_constraintBottom_toTopOf="@+id/albumInfo"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -49,7 +51,9 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_margin="2dp"
+        android:background="@color/colorPrimary"
         android:gravity="center"
+        android:textColor="@android:color/white"
         app:layout_constraintBottom_toTopOf="@+id/userInfo"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
@@ -60,7 +64,9 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_margin="2dp"
+        android:background="@color/colorPrimary"
         android:gravity="center"
+        android:textColor="@android:color/white"
         app:layout_constraintBottom_toTopOf="@+id/locationInfo"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
@@ -71,7 +77,9 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_margin="2dp"
+        android:background="@color/colorPrimary"
         android:gravity="center"
+        android:textColor="@android:color/white"
         app:layout_constraintBottom_toTopOf="@+id/timeInfo"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
@@ -82,7 +90,9 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_margin="2dp"
+        android:background="@color/colorPrimary"
         android:gravity="center"
+        android:textColor="@android:color/white"
         app:layout_constraintBottom_toTopOf="@+id/buttonPanel"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
@@ -92,6 +102,7 @@
         android:id="@+id/buttonPanel"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:background="@color/colorPrimary"
         android:gravity="center"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -103,15 +114,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@null"
-            android:drawableTop="@mipmap/prev"
-            android:onClick="resetMusic"/>
+            android:drawableTop="@mipmap/prevwhite"
+            android:onClick="resetMusic" />
 
         <Button
             android:id="@+id/playButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@null"
-            android:drawableTop="@mipmap/play"
+            android:drawableTop="@mipmap/playwhite"
             android:onClick="playMusic" />
 
         <Button
@@ -119,7 +130,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@null"
-            android:drawableTop="@mipmap/skip"
-            android:onClick="skipMusic"/>
+            android:drawableTop="@mipmap/skipwhite"
+            android:onClick="skipMusic" />
     </LinearLayout>
 </android.support.constraint.ConstraintLayout>
