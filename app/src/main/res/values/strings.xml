@@ -19,8 +19,8 @@
     <string name="open">Open</string>
     <string name="close">Close</string>
 
-    <string name="server_client_id">825068678459-eth7175v1m15299pnsv6qh2g805gec5d.apps.googleusercontent.com</string>
-    <string name="server_client_secret">9Hhp-_EZJNk3ItnQVliWhxBm</string>
+    <string name="server_client_id">1034368452402-o4kj68a4gf0c1525af6bv2qoo1ong484.apps.googleusercontent.com</string>
+    <string name="server_client_secret">PEI0aAN8HbxhFXtJXVEN5gs3</string>
 
     <string name="download_folder">/DownloadedSongs/</string>
     <string name="download_album_folder">/DownloadedAlbums/</string>
