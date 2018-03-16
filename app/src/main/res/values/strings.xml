@@ -1,10 +1,10 @@
 <resources>
-    <string name="app_name">FlashbackMusic</string>
+    <string name="app_name">Flashback Music</string>
     <string name="action_settings">Settings</string>
     <string name="normal_text">Normal Mode</string>
     <string name="vibe_text">Vibe Mode</string>
-    <string name="library">Your Library</string>
-    <string name="playlist">Your Vibe Playlist</string>
+    <string name="library">Library</string>
+    <string name="playlist">Vibe Playlist</string>
     <string name="title_activity_track_mode">TrackMode</string>
     <string name="title_activity_play_list_">PlayList_Activity</string>
     <string name="title_activity_delete">Delete</string>
@@ -12,15 +12,15 @@
     <string name="user_info">It was last played by %1s.</string>
     <string name="location_info">It was last played at %1s.</string>
     <string name="time_info">It was last played on %1d/%2d/%3d at %4s:%5s.</string>
-    <string name="never_played_info">This is the first time you played this song!</string>
+    <string name="never_played_info">This is the first time you played this song.</string>
     <string name="mode_normal">Normal</string>
     <string name="mode_vibe">Vibe</string>
 
     <string name="open">Open</string>
     <string name="close">Close</string>
 
-    <string name="server_client_id">825068678459-eth7175v1m15299pnsv6qh2g805gec5d.apps.googleusercontent.com</string>
-    <string name="server_client_secret">9Hhp-_EZJNk3ItnQVliWhxBm</string>
+    <string name="server_client_id">1034368452402-o4kj68a4gf0c1525af6bv2qoo1ong484.apps.googleusercontent.com</string>
+    <string name="server_client_secret">PEI0aAN8HbxhFXtJXVEN5gs3</string>
 
     <string name="download_folder">/DownloadedSongs/</string>
     <string name="download_album_folder">/DownloadedAlbums/</string>

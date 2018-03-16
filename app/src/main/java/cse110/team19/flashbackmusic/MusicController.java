@@ -65,7 +65,7 @@ public abstract class MusicController {
     public void changePlay() {
         Button mainPauseButton = (Button) mainActivity.findViewById(R.id.playButton);
         // Old version: mainActivity.getResources().getDrawable(...);
-        Drawable play = ContextCompat.getDrawable(mainActivity, R.drawable.ic_play_arrow_actuallyblack_24dp);
+        Drawable play = ContextCompat.getDrawable(mainActivity, R.mipmap.playwhite);
         mainPauseButton.setCompoundDrawablesWithIntrinsicBounds(null, play, null, null);
     }
 
@@ -74,7 +74,7 @@ public abstract class MusicController {
      */
     public void changePause() {
         Button mainPlayButton = (Button) mainActivity.findViewById(R.id.playButton);
-        Drawable pause = ContextCompat.getDrawable(mainActivity, R.mipmap.pause);
+        Drawable pause = ContextCompat.getDrawable(mainActivity, R.mipmap.pausewhite);
         mainPlayButton.setCompoundDrawablesWithIntrinsicBounds(null, pause, null, null);
     }
 
