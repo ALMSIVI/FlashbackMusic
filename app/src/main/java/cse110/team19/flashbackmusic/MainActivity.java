@@ -480,17 +480,14 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         super.onActivityResult(requestCode, resultCode, data);
         Log.d("onActivityResult", "reached");
         Log.d("requestCode and REQ_CODE", requestCode + " " + REQ_CODE);
-        if(requestCode == REQ_CODE)
-        {
+        if(requestCode == REQ_CODE) {
             GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
 
-            if(result.isSuccess())
-            {
+            if(result.isSuccess()) {
                 signInAccount = result.getSignInAccount();
                 serverAuthCode = signInAccount.getServerAuthCode();
 
-                if(serverAuthCode == null)
-                {
+                if(serverAuthCode == null) {
                     Log.e("Server auth code is sad", "i cri");
                 }
 
@@ -502,16 +499,13 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
                 userEmailT = (TextView) findViewById(R.id.userEmail);
                 userEmailT.setText(email);
 
-
                 SignIn.setVisibility(View.GONE);
 
                 try {
                     setUp();
-                }
-                catch (ExecutionException e){
+                } catch (ExecutionException e){
                     e.printStackTrace();
-                }
-                catch (InterruptedException e){
+                } catch (InterruptedException e){
                     e.printStackTrace();
                 }
 
@@ -519,12 +513,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
 
                 myFriends = new ArrayList<>();
 
-                for(Person p : connections)
-                {
+                for(Person p : connections) {
                     String tempName;
                     String tempId;
                     List<Name> names;
-
 
                     names = p.getNames();
                     tempName = (names.get(0).toString());
@@ -535,16 +527,14 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
                     myFriends.add(tempUser);
 
                 }
-
+            } else {
+                Log.d("result", "failed");
             }
         }
     }
 
     //Followed google tutorial on developers.google.com/people
     public void setUp() throws ExecutionException, InterruptedException {
-
-
-
         String clientId = getString(R.string.server_client_id);
         String clientSecret = getString(R.string.server_client_secret);
 
@@ -574,15 +564,14 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     }
 
 
-    private class SignInTask extends AsyncTask<String, Void, List<Person>>
-    {
+    private class SignInTask extends AsyncTask<String, Void, List<Person>> {
         HttpTransport httpTransport;
         JacksonFactory jacksonFactory;
         String clientId;
         String clientSecret;
 
         @Override
-        protected void onPreExecute(){
+        protected void onPreExecute() {
             httpTransport = new NetHttpTransport();
             jacksonFactory = JacksonFactory.getDefaultInstance();
         }
@@ -611,8 +600,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
 
                 peopleService = new PeopleService.Builder(httpTransport,jacksonFactory,credential).setApplicationName("VibeMusic").build();
 
-                if(peopleService == null)
-                {
+                if(peopleService == null) {
                     Log.e("People service", "is null");
                 }
 
@@ -627,8 +615,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
                 ListConnectionsResponse response = peopleService.people().connections().list("people/me")
                         .setPersonFields("names,emailAddresses")
                         .execute();
-                if(response == null)
-                {
+                if(response == null) {
                     Log.e("Response", "it's null");
                 }
                 toRet = response.getConnections();
@@ -638,8 +625,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
             }
 
             Log.e("End of doInBack", "done");
-            if(toRet == null)
-            {
+            if(toRet == null) {
                 Log.e("toRet was null", "toRet");
             }
             return toRet;
@@ -647,8 +633,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
 
     }
 
-    public User getCurrentUser()
-    {
+    public User getCurrentUser() {
         return me;
     }
     //endregion

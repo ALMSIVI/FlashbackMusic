@@ -224,7 +224,7 @@ public abstract class MusicController {
                     if (user.getId().equals(getIsPlaying().getPersonLastPlayed())) {
                         // Equal to current user
                         if (user.getId().equals(mainActivity.getCurrentUser().getId())) {
-                            String userString = String.format(mainActivity.getString(R.string.user_info), "upi");
+                            String userString = String.format(mainActivity.getString(R.string.user_info), "you");
                             SpannableStringBuilder str = new SpannableStringBuilder(userString);
                             // TODO: debug
                             str.setSpan(new android.text.style.StyleSpan(Typeface.ITALIC), 21, 24, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -239,6 +239,7 @@ public abstract class MusicController {
                 }
 
                 String userString = String.format(mainActivity.getString(R.string.user_info), "Anonymous " + getIsPlaying().getPersonLastPlayed());
+                userInfo.setText(userString);
             }
 
             // timeInfo
