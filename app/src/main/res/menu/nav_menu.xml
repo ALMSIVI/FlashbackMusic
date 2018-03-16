@@ -1,42 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <item android:id="@+id/RecentlyPlayed"
-        android:icon="@mipmap/recents"
-        android:title="@string/menu_recent">
-    </item>
+    <group android:checkableBehavior="single"
+        android:id="@+id/group1">
+        <item android:id="@+id/RecentlyPlayed"
+            android:icon="@mipmap/recents"
+            android:title="@string/menu_recent">
+        </item>
 
-    <item android:id="@+id/Tracks"
-        android:icon="@mipmap/tracks"
-        android:title="@string/menu_track">
-    </item>
+        <item android:id="@+id/Tracks"
+            android:icon="@mipmap/tracks"
+            android:title="@string/menu_track">
+        </item>
 
-    <item android:id="@+id/Albums"
-        android:icon="@mipmap/albums"
-        android:title="@string/menu_album">
-    </item>
+        <item android:id="@+id/Albums"
+            android:icon="@mipmap/albums"
+            android:title="@string/menu_album">
+        </item>
 
-    <item android:id="@+id/Artists"
-        android:icon="@mipmap/user"
-        android:title="@string/menu_artist">
-    </item>
+        <item android:id="@+id/Artists"
+            android:icon="@mipmap/user"
+            android:title="@string/menu_artist">
+        </item>
 
-    <item android:id="@+id/Favorites"
-        android:icon="@mipmap/favorites"
-        android:title="@string/menu_favorite">
-    </item>
+        <item android:id="@+id/Favorites"
+            android:icon="@mipmap/favorites"
+            android:title="@string/menu_favorite">
+        </item>
+    </group>
 
-    <item
-        android:id="@+id/Download"
-        android:icon="@mipmap/download"
-        android:title="@string/menu_download">
-    </item>
+    <group android:checkableBehavior="single"
+        android:id="@+id/group2">
+        <item
+            android:id="@+id/Download"
+            android:icon="@mipmap/download"
+            android:title="@string/menu_download">
+        </item>
 
-    <item
-        android:id="@+id/Time"
-        android:icon="@mipmap/mock"
-        android:title="@string/menu_time">
-    </item>
+        <item
+            android:id="@+id/Time"
+            android:icon="@mipmap/mock"
+            android:title="@string/menu_time">
+        </item>
+    </group>
 
 </menu>

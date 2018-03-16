@@ -1,31 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="120dp"
     android:background="@color/colorPrimary">
 
-    <TextView
-        android:id="@+id/userName"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:paddingHorizontal="10dp"
-        android:paddingVertical="0dp"
-        android:text="User"
-        android:textColor="#ffffff"
-        android:textSize="20dp" />
+        android:orientation="vertical"
+        android:layout_alignParentBottom="true" >
 
-    <TextView
-        android:id="@+id/userEmail"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignEnd="@+id/userName"
-        android:layout_below="@+id/userName"
-        android:paddingHorizontal="10dp"
-        android:paddingVertical="0dp"
-        android:text="E-mail"
-        android:textColor="#ffffff"
-        android:textSize="15dp" />
+        <TextView
+            android:id="@+id/userName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="15dp"
+            android:text="User"
+            android:textColor="#ffffff"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/userEmail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="15dp"
+            android:paddingHorizontal="15dp"
+            android:text="E-mail"
+            android:textColor="#ffffff" />
+    </LinearLayout>
 
 </RelativeLayout>
