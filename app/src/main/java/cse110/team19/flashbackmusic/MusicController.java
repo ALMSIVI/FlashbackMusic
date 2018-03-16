@@ -47,6 +47,9 @@ public abstract class MusicController {
     protected Location location;
     //endregion
 
+    public void setUsers(List<User> users) {
+        this.users = users;
+    }
 
     //region Buttons
     public void changePlayPauseButton() {
@@ -111,7 +114,7 @@ public abstract class MusicController {
 
     public void updateTrackInfo() {
         location = gpstracker.getLocation();
-        getIsPlaying().updateInfo(location, MockTime.now());
+        getIsPlaying().updateInfo(location, MockTime.now(), mainActivity.getCurrentUser());
     }
 
     /**
@@ -220,26 +223,39 @@ public abstract class MusicController {
                 userInfo.setText(mainActivity.getString(R.string.default_info));
             } else {
                 boolean updated = false;
-                for (User user : users) {
-                    if (user.getId().equals(getIsPlaying().getPersonLastPlayed())) {
-                        // Equal to current user
-                        if (user.getId().equals(mainActivity.getCurrentUser().getId())) {
-                            String userString = String.format(mainActivity.getString(R.string.user_info), "you");
-                            SpannableStringBuilder str = new SpannableStringBuilder(userString);
-                            // TODO: debug
-                            str.setSpan(new android.text.style.StyleSpan(Typeface.ITALIC), 21, 24, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                            userInfo.setText(str);
-                        } else {
 
+                Log.d("current user name", mainActivity.getCurrentUser().getName());
+                Log.d("current user id", mainActivity.getCurrentUser().getId());
+
+                if (getIsPlaying().getPersonLastPlayed() != "null") {
+                    if (getIsPlaying().getPersonLastPlayed().equals(mainActivity.getCurrentUser().getId())) {
+                        String userString = String.format(mainActivity.getString(R.string.user_info), "you");
+                        SpannableStringBuilder str = new SpannableStringBuilder(userString);
+                        // TODO: debug
+                        str.setSpan(new android.text.style.StyleSpan(Typeface.ITALIC), 21, 24, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        userInfo.setText(str);
+                        updated = true;
+                    } else {
+                        for (User user : users) {
+                            Log.d("scanned user name", user.getName());
+                            Log.d("scanned user id", user.getId());
+                            if (user.getId().equals(getIsPlaying().getPersonLastPlayed())) {
+                                String userString = String.format(mainActivity.getString(R.string.user_info), user.getName());
+                                userInfo.setText(userString);
+                            }
+                            updated = true;
+                            break;
                         }
-                        String userString = String.format(mainActivity.getString(R.string.user_info), user.getName());
-                        userInfo.setText(userString);
-                        break;
                     }
-                }
 
-                String userString = String.format(mainActivity.getString(R.string.user_info), "Anonymous " + getIsPlaying().getPersonLastPlayed());
-                userInfo.setText(userString);
+                    if (updated == false) {
+                        String userString = String.format(mainActivity.getString(R.string.user_info), "Anonymous " + getIsPlaying().getPersonLastPlayed());
+                        userInfo.setText(userString);
+                    }
+                } else {
+                    String userString = String.format(mainActivity.getString(R.string.user_info), "a not signed-in user");
+                    userInfo.setText(userString);
+                }
             }
 
             // timeInfo

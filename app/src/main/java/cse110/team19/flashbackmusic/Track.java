@@ -156,9 +156,12 @@ public class Track {
 
     //endregion
 
-    public void updateInfo(Location newLocation, LocalDateTime newDate) {
+    public void updateInfo(Location newLocation, LocalDateTime newDate, User user) {
         location = newLocation;
         date = newDate;
+        if (user != null) {
+            personLastPlayed = user.getId();
+        }
     }
 
     //Increment to the score

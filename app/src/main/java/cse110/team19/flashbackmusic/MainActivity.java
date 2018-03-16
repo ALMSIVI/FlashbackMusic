@@ -265,6 +265,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         } else { // vibe mode, switch to normal
             setNormal();
         }
+
+        if (myFriends != null) {
+            controller.setUsers(myFriends);
+        }
     }
 
     /**
@@ -279,7 +283,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         adapter.notifyDataSetChanged();
 
         // Set up the MVC controller
-        controller = new NormalController(this, adapter, player, playList, myFriends);
+        controller = new NormalController(this, adapter, player, playList);
 
         SharedPreferences sharedPreferences = getSharedPreferences("mode", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -519,7 +523,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
                     List<Name> names;
 
                     names = p.getNames();
-                    tempName = (names.get(0).toString());
+                    tempName = names.get(0).getDisplayName();
 
                     tempId = p.getResourceName();
 
@@ -531,6 +535,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
                 Log.d("result", "failed");
             }
         }
+
+        controller.setUsers(myFriends);
     }
 
     //Followed google tutorial on developers.google.com/people
@@ -608,7 +614,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
                         .setPersonFields("names,emailAddresses")
                         .execute();
 
-                String myName = profile.getNames().get(0).toString();
+                String myName = profile.getNames().get(0).getDisplayName();
 
                 me = new User(myName, profile.getResourceName());
 

@@ -141,7 +141,11 @@ public class TrackDataHandler {
         trackInfo.put("latitude", location.getLatitude());
         trackInfo.put("longitude", location.getLongitude());
 
-        trackInfo.put("userId", track.getPersonLastPlayed());
+        if (track.getPersonLastPlayed() == null) {
+            trackInfo.put("userId", "null");
+        } else {
+            trackInfo.put("userId", track.getPersonLastPlayed());
+        }
 
         reference.updateChildren(trackInfo);
     }

@@ -19,7 +19,7 @@ public class NormalController extends MusicController {
      * @param player
      */
     public NormalController(MainActivity mainActivity, PlayListAdapter adapter, MusicPlayer player,
-                           PlayList playList, List<User> users) {
+                           PlayList playList) {
         this.mainActivity = mainActivity;
         this.adapter = adapter;
         adapter.setController(this);
@@ -29,8 +29,6 @@ public class NormalController extends MusicController {
         // Initialize the locations
         geocoder = new Geocoder(mainActivity, Locale.getDefault());
         gpstracker = new GPSTracker(mainActivity);
-
-        this.users = users;
     }
 
     @Override
