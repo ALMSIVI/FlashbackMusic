@@ -1,16 +1,22 @@
 package cse110.team19.flashbackmusic;
 
 import android.content.SharedPreferences;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.support.v4.content.ContextCompat;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
 import android.util.Log;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.TextView;
+
+
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static android.content.Context.MODE_PRIVATE;
@@ -30,7 +36,9 @@ public abstract class MusicController {
     protected BaseAdapter adapter;
     protected PlayList playList;
 
-    protected int isPlaying;
+    protected List<User> users;
+
+    protected int isPlaying = -1;
 
     // for recording information of song
     protected Geocoder geocoder;
@@ -39,13 +47,16 @@ public abstract class MusicController {
     protected Location location;
     //endregion
 
+    public void setUsers(List<User> users) {
+        this.users = users;
+    }
 
     //region Buttons
     public void changePlayPauseButton() {
         if (player.isPlaying()) {
             player.pause();
             changePlay();
-        } else {
+        } else if (isPlaying != -1){
             player.play();
             changePause();
         }
@@ -57,7 +68,7 @@ public abstract class MusicController {
     public void changePlay() {
         Button mainPauseButton = (Button) mainActivity.findViewById(R.id.playButton);
         // Old version: mainActivity.getResources().getDrawable(...);
-        Drawable play = ContextCompat.getDrawable(mainActivity, R.drawable.ic_play_arrow_actuallyblack_24dp);
+        Drawable play = ContextCompat.getDrawable(mainActivity, R.mipmap.playwhite);
         mainPauseButton.setCompoundDrawablesWithIntrinsicBounds(null, play, null, null);
     }
 
@@ -66,20 +77,20 @@ public abstract class MusicController {
      */
     public void changePause() {
         Button mainPlayButton = (Button) mainActivity.findViewById(R.id.playButton);
-        Drawable pause = ContextCompat.getDrawable(mainActivity, R.drawable.ic_pause_actuallyblack_24dp);
+        Drawable pause = ContextCompat.getDrawable(mainActivity, R.mipmap.pausewhite);
         mainPlayButton.setCompoundDrawablesWithIntrinsicBounds(null, pause, null, null);
     }
 
     public void changeStatusButton(int id, Button button) {
         int stat = playList.get(id).getStatus();
         if (stat == 0) {
-            Drawable neutral = ContextCompat.getDrawable(mainActivity, R.drawable.neutral);
+            Drawable neutral = ContextCompat.getDrawable(mainActivity, R.mipmap.neutral);
             button.setCompoundDrawablesWithIntrinsicBounds(null, neutral, null, null);
         } else if (stat == 1) {
-            Drawable liked = ContextCompat.getDrawable(mainActivity, R.drawable.favorite);
+            Drawable liked = ContextCompat.getDrawable(mainActivity, R.mipmap.like);
             button.setCompoundDrawablesWithIntrinsicBounds(null, liked, null, null);
         } else if (stat == -1) {
-            Drawable disliked = ContextCompat.getDrawable(mainActivity, R.drawable.dislike);
+            Drawable disliked = ContextCompat.getDrawable(mainActivity, R.mipmap.dislike);
             button.setCompoundDrawablesWithIntrinsicBounds(null, disliked, null, null);
         }
     }
@@ -102,8 +113,8 @@ public abstract class MusicController {
     }
 
     public void updateTrackInfo() {
-        //location = gpstracker.getLocation();
-        getIsPlaying().updateInfo(location, MockTime.now().toLocalDate());
+        location = gpstracker.getLocation();
+        getIsPlaying().updateInfo(location, MockTime.now(), mainActivity.getCurrentUser());
     }
 
     /**
@@ -111,20 +122,18 @@ public abstract class MusicController {
      */
     public void saveTrackInfo(boolean all, Track track) {
         // Put status into shared preferences
-        SharedPreferences sharedPreferences = mainActivity.getSharedPreferences("track_info", MODE_PRIVATE);
+        SharedPreferences sharedPreferences = mainActivity.getSharedPreferences("tracks", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
 
         editor.putInt(track.getPathName() + "Status", track.getStatus());
-
-        // TODO: put into Firebase
-        if (all) {
-            // Put time, location, and friend's name to firebase
-            //editor.putString(track.getPathName() + "Time", track.getDate() != null ?
-            //        track.getDate().toString() :
-            //        "null");
-            //editor.putString(track.getPathName() + "Location", track.getLocation());
-        }
         editor.apply();
+
+        if (all) {
+
+           TrackDataHandler handler = new TrackDataHandler(mainActivity);
+           handler.writeTrack(track);
+
+        }
     }
 
     public void updatePlayList(String filename) {
@@ -163,6 +172,12 @@ public abstract class MusicController {
         }
     }
 
+    public void playNext() {
+        if (getNext() != null) {
+            playSong(isPlaying);
+        }
+    }
+
     public void resetMusic() {
         player.resetMusic();
     }
@@ -170,14 +185,23 @@ public abstract class MusicController {
 
     //region Texts
     public void updateText() {
-        // Update the "Now playing" text
-        TextView infoView = mainActivity.findViewById(R.id.info);
-        infoView.setText(getIsPlaying().getTrackName());
-        // Update the "Last played" text
-        TextView lastPlayedView = mainActivity.findViewById(R.id.lastPlayed);
+        TrackDataHandler handler = new TrackDataHandler(mainActivity);
+        handler.retrieveTrackNecessary(getIsPlaying());
+
+        // trackInfo
+        TextView trackInfo = mainActivity.findViewById(R.id.trackInfo);
+        trackInfo.setText(getIsPlaying().getTrackName());
+
+        // albumInfo
+        TextView albumInfo = mainActivity.findViewById(R.id.albumInfo);
+        albumInfo.setText(getIsPlaying().getAlbumName());
+
+
+        TextView timeInfo = mainActivity.findViewById(R.id.timeInfo);
         if (getIsPlaying().getDate() == null) {
-            lastPlayedView.setText(mainActivity.getString(R.string.never_played_info));
+            timeInfo.setText(mainActivity.getString(R.string.never_played_info));
         } else {
+            // locationInfo
             String lastLocation = "Unknown location";
 
             if (location != null) {
@@ -186,14 +210,79 @@ public abstract class MusicController {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                lastLocation = addresses.get(0).getFeatureName();
+                lastLocation = addresses.get(0).getAddressLine(0);
+
+                String locationString = String.format(mainActivity.getString(R.string.location_info), lastLocation);
+                TextView locationInfo = mainActivity.findViewById(R.id.locationInfo);
+                locationInfo.setText(locationString);
             }
 
+            // userInfo
+            TextView userInfo = mainActivity.findViewById(R.id.userInfo);
+            if (users == null) {
+                userInfo.setText(mainActivity.getString(R.string.default_info));
+            } else {
+                boolean updated = false;
+
+                Log.d("current user name", mainActivity.getCurrentUser().getName());
+                Log.d("current user id", mainActivity.getCurrentUser().getId());
+
+                if (getIsPlaying().getPersonLastPlayed() != "null") {
+                    if (getIsPlaying().getPersonLastPlayed().equals(mainActivity.getCurrentUser().getId())) {
+                        String userString = String.format(mainActivity.getString(R.string.user_info), "you");
+                        SpannableStringBuilder str = new SpannableStringBuilder(userString);
+                        // TODO: debug
+                        str.setSpan(new android.text.style.StyleSpan(Typeface.ITALIC), 21, 24, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        userInfo.setText(str);
+                        updated = true;
+                    } else {
+                        for (User user : users) {
+                            Log.d("scanned user name", user.getName());
+                            Log.d("scanned user id", user.getId());
+                            if (user.getId().equals(getIsPlaying().getPersonLastPlayed())) {
+                                String userString = String.format(mainActivity.getString(R.string.user_info), user.getName());
+                                userInfo.setText(userString);
+                            }
+                            updated = true;
+                            break;
+                        }
+                    }
+
+                    if (updated == false) {
+                        String userString = String.format(mainActivity.getString(R.string.user_info), "Anonymous " + getIsPlaying().getPersonLastPlayed());
+                        userInfo.setText(userString);
+                    }
+                } else {
+                    String userString = String.format(mainActivity.getString(R.string.user_info), "a not signed-in user");
+                    userInfo.setText(userString);
+                }
+            }
+
+            // timeInfo
+            LocalDateTime date = getIsPlaying().getDate();
             String lastPlayedInfo = String.format(
-                    mainActivity.getString(R.string.last_played_info),
-                    getIsPlaying().getDate(), lastLocation);
-            lastPlayedView.setText(lastPlayedInfo);
+                    mainActivity.getString(R.string.time_info), date.getMonthValue(),
+                    date.getDayOfMonth(), date.getYear(), String.format("%02d",date.getHour()),
+                    String.format("%02d", date.getMinute()));
+            timeInfo.setText(lastPlayedInfo);
         }
+    }
+
+    public void clearText() {
+        TextView trackInfo = mainActivity.findViewById(R.id.trackInfo);
+        trackInfo.setText("");
+
+        TextView albumInfo = mainActivity.findViewById(R.id.albumInfo);
+        albumInfo.setText("");
+
+        TextView userInfo = mainActivity.findViewById(R.id.userInfo);
+        userInfo.setText("");
+
+        TextView locationInfo = mainActivity.findViewById(R.id.locationInfo);
+        locationInfo.setText("");
+
+        TextView timeInfo = mainActivity.findViewById(R.id.userInfo);
+        userInfo.setText("");
     }
     //endregion
 

@@ -13,6 +13,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.media.MediaPlayer;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.os.Environment;
@@ -42,16 +43,25 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.GoogleApiClient;
 
+import com.google.android.gms.common.api.Scope;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeTokenRequest;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.services.people.v1.People;
+import com.google.api.services.people.v1.model.EmailAddress;
+import com.google.api.services.people.v1.model.ListConnectionsResponse;
+import com.google.api.services.people.v1.PeopleService;
+import com.google.api.services.people.v1.model.Name;
+import com.google.api.services.people.v1.model.Person;
+
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 
 import static android.os.Environment.DIRECTORY_DOWNLOADS;
@@ -69,15 +79,27 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     private Intent locationIntent;
     private BroadcastReceiver broadcastReceiver;
 
+    TextView userNameT;
+    TextView userEmailT;
+
+
+    private String url;
+
+
     private PlayListAdapter adapter;
     private MusicPlayer player;
 
     private SignInButton SignIn;
     private static final int REQ_CODE = 9001;
     GoogleApiClient googleApiClient;
+    private User me;
 
     GoogleSignInAccount signInAccount;
     String serverAuthCode;
+    static PeopleService peopleService;
+    List<Person> connections;
+
+    List<User> myFriends;
 
     //endregion
 
@@ -92,28 +114,42 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            if (action.equals(DownloadManager.ACTION_DOWNLOAD_COMPLETE) ){
+            if (action.equals(DownloadManager.ACTION_DOWNLOAD_COMPLETE)) {
                 Bundle extras = intent.getExtras();
                 long id = extras.getLong(DownloadManager.EXTRA_DOWNLOAD_ID);
                 String filename = download.getLatestFileName(id);
 
-                if (filename != null && filename.contains("zip")) {
-                    Log.d("hi", "wool");
-                    File tDirectory = new File(Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS).getPath()
-                            + getResources().getString(R.string.download_folder));
-                    File zipFile = new File(Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS).getPath()
-                            + getResources().getString(R.string.download_album_folder) + filename);
-                    try {
-                        download.unzipFile(zipFile, tDirectory);
-                    } catch (IOException e) {
-                        Log.d("IOException", e.getMessage());
-                        System.exit(-1);
-                    }
-                }
+                // Unzip file
+                if (filename != null) {
+                    SharedPreferences sharedPreferences = getSharedPreferences("tracks", MODE_PRIVATE);
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    if (filename.contains("zip")) {
+                        Log.d("zipFile", filename);
+                        File tDirectory = new File(Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS).getPath()
+                                + getResources().getString(R.string.download_folder));
+                        File zipFile = new File(Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS).getPath()
+                                + getResources().getString(R.string.download_album_folder) + filename);
+                        ArrayList<String> fileNames = new ArrayList<String>();
 
-                else if (filename != null) {
-                    Log.d("newest name", filename);
-                    controller.updatePlayList(filename);
+                        try {
+                            fileNames = download.unzipFile(zipFile, tDirectory);
+                        } catch (IOException e) {
+                            Log.d("IOException", e.getMessage());
+                            System.exit(-1);
+                        }
+
+                        for (String file : fileNames) {
+                            editor.putString(directory + file + "Website", url);
+                            editor.apply();
+                            Log.d("adding new file", file);
+                            controller.updatePlayList(file);
+                        }
+                    } else {
+                        editor.putString(directory + filename + "Website", url);
+                        editor.apply();
+                        Log.d("newest name", directory + filename);
+                        controller.updatePlayList(filename);
+                    }
                 } else {
                     Log.d("newest name", "null");
                 }
@@ -148,11 +184,16 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         actionBarDrawerToggle.syncState();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        Log.e("This is client id", this.getString(R.string.server_client_id));
+
+
         // Google Signin Activity
         SignIn = (SignInButton) findViewById(R.id.main_googlesigninbtn);
         SignIn.setOnClickListener(this);
         GoogleSignInOptions signInOptions = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestEmail()
+                .requestScopes(new Scope("https://www.googleapis.com/auth/contacts"))
+                .requestServerAuthCode(this.getString(R.string.server_client_id))
                 .build();
         googleApiClient = new GoogleApiClient.Builder(this)
                 //.enableAutoManage(this, this)
@@ -166,7 +207,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
 
         // initializing location services on start up
         gpsTracker = new GPSTracker(this);
-        if (gpsTracker.permissionRequest()) {
+        if (!gpsTracker.permissionRequest()) {
             locationIntent = new Intent(getApplicationContext(), GPSTracker.class);
             startService(locationIntent);
         }
@@ -180,7 +221,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         player = new MusicPlayer(new MediaPlayer());
 
         // Check mode and switch
-        SharedPreferences sharedPreferences = this.getSharedPreferences("mode", MODE_PRIVATE);
+        SharedPreferences sharedPreferences = getSharedPreferences("mode", MODE_PRIVATE);
         String mode = sharedPreferences.getString("mode", null);
         if (mode == null || mode.equals(getResources().getString(R.string.mode_normal))) {
             setNormal();
@@ -204,19 +245,29 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         controller.resetMusic();
     }
 
+    public void skipMusic(View view) {
+        player.playNext();
+    }
+
     /**
      * Switch modes (Normal to Vibe or Vibe to Normal)
      * @param view
      */
     public void switchModes(View view) {
         //Get mode
-        SharedPreferences sharedPreferences = this.getSharedPreferences("mode", MODE_PRIVATE);
+        SharedPreferences sharedPreferences = getSharedPreferences("mode", MODE_PRIVATE);
         String mode = sharedPreferences.getString("mode", null);
+
+        controller.clearText();
 
         if (mode.equals(getResources().getString(R.string.mode_normal))) {
             setVibe();
         } else { // vibe mode, switch to normal
             setNormal();
+        }
+
+        if (myFriends != null) {
+            controller.setUsers(myFriends);
         }
     }
 
@@ -234,7 +285,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         // Set up the MVC controller
         controller = new NormalController(this, adapter, player, playList);
 
-        SharedPreferences sharedPreferences = this.getSharedPreferences("mode", MODE_PRIVATE);
+        SharedPreferences sharedPreferences = getSharedPreferences("mode", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("mode", getResources().getString(R.string.mode_normal));
         editor.apply();
@@ -262,7 +313,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         // Set up the MVC controller
         controller = new VibeController(this, adapter, player, playList);
 
-        SharedPreferences sharedPreferences = this.getSharedPreferences("mode", MODE_PRIVATE);
+        SharedPreferences sharedPreferences = getSharedPreferences("mode", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("mode", getResources().getString(R.string.mode_vibe));
         editor.apply();
@@ -363,7 +414,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
             }
             // for location service permissions
             case 100: {
-                if (grantResults[0] != PackageManager.PERMISSION_GRANTED
+                if (grantResults.length == 0 || grantResults[0] != PackageManager.PERMISSION_GRANTED
                         || grantResults[1] != PackageManager.PERMISSION_GRANTED) {
                     gpsTracker.permissionRequest();
                 }
@@ -427,57 +478,76 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         startActivityForResult(intent, REQ_CODE);
     }
 
-    private void handleResult(GoogleSignInResult result)
-    {
-        if(result.isSuccess())
-        {
-            GoogleSignInAccount account = result.getSignInAccount();
-            String name = account.getDisplayName();
-            Log.d("user name", name);
-            SignIn.setVisibility(View.GONE);
-        }
-
-        else {
-            //Log.d("result error message", result.getStatus().getStatusMessage());
-        }
-    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         Log.d("onActivityResult", "reached");
         Log.d("requestCode and REQ_CODE", requestCode + " " + REQ_CODE);
-        if(requestCode == REQ_CODE)
-        {
+        if(requestCode == REQ_CODE) {
             GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
 
-            if(result.isSuccess())
-            {
+            if(result.isSuccess()) {
                 signInAccount = result.getSignInAccount();
                 serverAuthCode = signInAccount.getServerAuthCode();
+
+                if(serverAuthCode == null) {
+                    Log.e("Server auth code is sad", "i cri");
+                }
+
+                String name = signInAccount.getDisplayName();
+                userNameT = (TextView) findViewById(R.id.userName);
+                userNameT.setText(name);
+
+                String email = signInAccount.getEmail();
+                userEmailT = (TextView) findViewById(R.id.userEmail);
+                userEmailT.setText(email);
+
                 SignIn.setVisibility(View.GONE);
+
+                try {
+                    setUp();
+                } catch (ExecutionException e){
+                    e.printStackTrace();
+                } catch (InterruptedException e){
+                    e.printStackTrace();
+                }
+
+                Log.e("Done with setup outside", "done");
+
+                myFriends = new ArrayList<>();
+
+                for(Person p : connections) {
+                    String tempName;
+                    String tempId;
+                    List<Name> names;
+
+                    names = p.getNames();
+                    tempName = names.get(0).getDisplayName();
+
+                    tempId = p.getResourceName();
+
+                    User tempUser = new User(tempName, tempId);
+                    myFriends.add(tempUser);
+
+                }
+            } else {
+                Log.d("result", "failed");
             }
         }
+
+        controller.setUsers(myFriends);
     }
 
-    public static People setUp(Context context, String serverAuthCode) throws IOException {
-        HttpTransport httpTransport = new NetHttpTransport();
-        JacksonFactory jacksonFactory = JacksonFactory.getDefaultInstance();
+    //Followed google tutorial on developers.google.com/people
+    public void setUp() throws ExecutionException, InterruptedException {
+        String clientId = getString(R.string.server_client_id);
+        String clientSecret = getString(R.string.server_client_secret);
 
-        String redirectUrl = "";
+        SignInTask task = new SignInTask();
 
-        GoogleTokenResponse tokenResponse = new GoogleAuthorizationCodeTokenRequest(
-                httpTransport, jacksonFactory, context.getString(R.string.server_client_id),
-                context.getString(R.string.server_client_secret), serverAuthCode, redirectUrl)
-                .execute();
-
-        GoogleCredential credential = new GoogleCredential.Builder().setClientSecrets(context.getString(R.string.server_client_id)
-        , context.getString(R.string.server_client_secret)).setTransport(httpTransport).setJsonFactory(jacksonFactory).build();
-
-
-        credential.setFromTokenResponse(tokenResponse);
-
-        return new People.Builder(httpTransport, jacksonFactory, credential).setApplicationName("Vibe Music").build();
+        connections = task.execute(clientId, clientSecret).get();
+        Log.e("Done with setUp", "done");
 
     }
 
@@ -498,8 +568,81 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         }
         super.onStop();
     }
-    //endregion
 
+
+    private class SignInTask extends AsyncTask<String, Void, List<Person>> {
+        HttpTransport httpTransport;
+        JacksonFactory jacksonFactory;
+        String clientId;
+        String clientSecret;
+
+        @Override
+        protected void onPreExecute() {
+            httpTransport = new NetHttpTransport();
+            jacksonFactory = JacksonFactory.getDefaultInstance();
+        }
+
+        @Override
+        protected List<Person> doInBackground(String... strings) {
+
+            clientId = strings[0];
+            clientSecret = strings[1];
+            String redirectUrl = "";
+
+            List<Person> toRet = null;
+
+            try {
+                GoogleTokenResponse tokenResponse = new GoogleAuthorizationCodeTokenRequest(
+                        httpTransport, jacksonFactory, clientId,
+                        clientSecret,
+                        serverAuthCode,
+                        redirectUrl)
+                        .execute();
+
+                GoogleCredential credential = new GoogleCredential.Builder().setClientSecrets(clientId
+                        , clientSecret).setTransport(httpTransport).setJsonFactory(jacksonFactory).build();
+
+                credential.setFromTokenResponse(tokenResponse);
+
+                peopleService = new PeopleService.Builder(httpTransport,jacksonFactory,credential).setApplicationName("VibeMusic").build();
+
+                if(peopleService == null) {
+                    Log.e("People service", "is null");
+                }
+
+                Person profile = peopleService.people().get("people/me")
+                        .setPersonFields("names,emailAddresses")
+                        .execute();
+
+                String myName = profile.getNames().get(0).getDisplayName();
+
+                me = new User(myName, profile.getResourceName());
+
+                ListConnectionsResponse response = peopleService.people().connections().list("people/me")
+                        .setPersonFields("names,emailAddresses")
+                        .execute();
+                if(response == null) {
+                    Log.e("Response", "it's null");
+                }
+                toRet = response.getConnections();
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            Log.e("End of doInBack", "done");
+            if(toRet == null) {
+                Log.e("toRet was null", "toRet");
+            }
+            return toRet;
+        }
+
+    }
+
+    public User getCurrentUser() {
+        return me;
+    }
+    //endregion
     //region Download and Time
     public void download() {
         AlertDialog.Builder alert = new AlertDialog.Builder(this);
@@ -512,28 +655,21 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         alert.setPositiveButton("Download Song", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
 
-                String url = input.getText().toString();
+                url = input.getText().toString();
+                Log.d("sharedpreference url", url);
                 DownloadManager dm = (DownloadManager)getSystemService(DOWNLOAD_SERVICE);
                 download = new Download(dm, getResources().getString(R.string.download_folder));
                 download.downloadData(url);
-
-                String directory = Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS).getPath()
-                        + getResources().getString(R.string.download_folder);
-                Log.d("Download directory", directory);
             }
         });
 
         alert.setNegativeButton("Download Album", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
 
-                String url = input.getText().toString();
+                url = input.getText().toString();
                 DownloadManager dm = (DownloadManager)getSystemService(DOWNLOAD_SERVICE);
                 download = new Download(dm, getResources().getString(R.string.download_album_folder));
                 download.downloadData(url);
-
-                String directory = Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS).getPath()
-                        + getResources().getString(R.string.download_folder);
-                Log.d("Download directory", directory);
             }
         });
 
@@ -572,5 +708,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         datePicker.show();
     }
     //endregion
+
+
 
 }

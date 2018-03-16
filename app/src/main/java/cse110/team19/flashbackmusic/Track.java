@@ -1,7 +1,6 @@
 package cse110.team19.flashbackmusic;
 
 import android.location.Location;
-import android.util.Log;
 
 import com.google.android.gms.plus.model.people.Person;
 
@@ -14,10 +13,9 @@ public class Track {
     private String albumName;
     private int trackNumber;
     private int score;
-    private int status;
+    private int status; //SharedPreferences
     private String website; // Firebase
-    private Person lastPlayedBy;
-    private long time;
+    private String personLastPlayed;
     private String pathName;
 
     private LocalDateTime date; // Firebase
@@ -84,9 +82,20 @@ public class Track {
         return website;
     }
 
+    /**
+     * location is stored into Firebase.
+     * @return location of the long
+     */
+    public Location getLocation() {
+        return location;
+    }
 
-    public Person getPersonLastPlayed() {
-        return lastPlayedBy;
+    /**
+     * personLastPlayed is stored into Firebase.
+     * @return the person who last played th song
+     */
+    public String getPersonLastPlayed() {
+        return personLastPlayed;
     }
 
     public String getArtistName() {
@@ -113,9 +122,6 @@ public class Track {
         return pathName;
     }
 
-    public Location getLocation() {
-        return location;
-    }
     //endregion
 
     //region Setters
@@ -123,16 +129,8 @@ public class Track {
         this.trackName = trackName;
     }
 
-    public void setTime(long time) {
-        this.time = time;
-    }
-
     public void setStatus(int status) {
         this.status = status;
-    }
-
-    public void setPersonLastPlayed(Person user) {
-        this.lastPlayedBy = user;
     }
 
     public void setWebsite(String site) {
@@ -152,11 +150,18 @@ public class Track {
         this.date = LocalDateTime.of(year, month, day, hour, minute);
     }
 
+    public void setPerson(String id) {
+        personLastPlayed = id;
+    }
+
     //endregion
 
-    public void updateInfo(Location newLocation, LocalDateTime newDate) {
+    public void updateInfo(Location newLocation, LocalDateTime newDate, User user) {
         location = newLocation;
         date = newDate;
+        if (user != null) {
+            personLastPlayed = user.getId();
+        }
     }
 
     //Increment to the score
